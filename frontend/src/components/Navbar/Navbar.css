@@ -1,0 +1,24 @@
+.navbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 10px 24px;
+    min-height:70px;
+}
+
+.middle {
+    display: flex;
+    gap: 24px;
+}
+
+.left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.right{
+    display:flex;
+    align-items:center;
+}
