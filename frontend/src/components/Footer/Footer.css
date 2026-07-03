@@ -1,0 +1,47 @@
+.footer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px 40px;
+    border-top: 1px solid #ddd;
+    bottom:0;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.brand h2 {
+    margin: 0;
+}
+
+.links {
+    display: flex;
+    gap: 24px;
+}
+
+.links a {
+    text-decoration: none;
+    color: black;
+    transition: color 0.2s ease;
+}
+
+
+.links a:hover {
+    color: #2563eb;
+}
+
+.bottom {
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.bottom p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}

@@ -9,6 +9,7 @@ import ProblemDetails from "./pages/ProblemDetails/ProblemDetails";
 import Problems from "./pages/Problems/Problems";
 import Register from "./pages/Register/Register";
 import MainLayout from "./layouts/MainLayout";
+import Discussion from "./pages/Discussion/Discussion";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
     <Route path="/" element={<Home />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
+    <Route path="/discussion" element={<Discussion />} />
   </Routes>
 </BrowserRouter>
   );
