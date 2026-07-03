@@ -1,5 +1,5 @@
 import "./Navbar.css";
-import { Link } from 'react-router-dom';
+import { NavLink , Link } from 'react-router-dom';
 // import logo from "../../assets/logo.png";
 
 function Navbar() {
@@ -12,10 +12,9 @@ function Navbar() {
             </div>
             <div className="middle">
                 {/* Use Link instead of empty anchor tags */}
-                <Link to="/problems">Problems</Link>
-                <Link to="/leaderboard">Leaderboard</Link>
-                <Link to="/discussion">Discussion</Link>
-                {/* <Link to="/admin">Admin</Link> */}
+                <NavLink to="/problems">Problems</NavLink>
+                <NavLink to="/leaderboard">Leaderboard</NavLink>
+                <NavLink to="/discussion">Discussion</NavLink>
             </div>
             <div className="right">
                 <Link to="/login">

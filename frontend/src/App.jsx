@@ -10,6 +10,8 @@ import Problems from "./pages/Problems/Problems";
 import Register from "./pages/Register/Register";
 import MainLayout from "./layouts/MainLayout";
 import Discussion from "./pages/Discussion/Discussion";
+import PublicLayout from "./layouts/PublicLayout";
+import Standalone from "./layouts/Standalone";
 
 function App() {
   return (
@@ -22,10 +24,14 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/problemDetails" element={<ProblemDetails />} />
     </Route>
-    <Route path="/" element={<Home />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/discussion" element={<Discussion />} />
+    <Route element={<PublicLayout />} >
+        <Route path="/" element={<Home />} />
+        <Route path="/discussion" element={<Discussion />} />
+    </Route>
+    <Route element={<Standalone />} >
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+    </Route>
   </Routes>
 </BrowserRouter>
   );
