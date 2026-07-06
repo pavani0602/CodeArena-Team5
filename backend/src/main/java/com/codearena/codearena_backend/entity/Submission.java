@@ -2,28 +2,24 @@ package com.codearena.codearena_backend.entity;
 
 import com.codearena.codearena_backend.enumtype.SubmissionStatus;
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "submissions")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Submission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "problem_id", nullable = false)
+    private Problem problem;
 
-    @Column(name = "problem_id", nullable = false)
-    private Long problemId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false, length = 50)
     private String language;
@@ -38,13 +34,64 @@ public class Submission {
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
+    public Submission() {
+    }
+
     @PrePersist
     public void prePersist() {
-        if (status == null) {
-            status = SubmissionStatus.PENDING;
-        }
         if (submittedAt == null) {
             submittedAt = LocalDateTime.now();
         }
+        if (status == null) {
+            status = SubmissionStatus.PENDING;
+        }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Problem getProblem() {
+        return problem;
+    }
+
+    public void setProblem(Problem problem) {
+        this.problem = problem;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public SubmissionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SubmissionStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
     }
 }

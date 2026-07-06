@@ -1,33 +1,64 @@
 package com.codearena.codearena_backend.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
 @Table(name = "test_cases")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class TestCase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "problem_id", nullable = false)
-    private Long problemId;
+    @ManyToOne
+    @JoinColumn(name = "problem_id", nullable = false)
+    private Problem problem;
 
-    @Column(columnDefinition = "TEXT")
-    private String input;
+    @Column(name = "input_data", nullable = false, columnDefinition = "TEXT")
+    private String inputData;
 
     @Column(name = "expected_output", nullable = false, columnDefinition = "TEXT")
     private String expectedOutput;
 
-    @Column(name = "is_hidden")
-    private Boolean isHidden;
+    @Column(name = "hidden", nullable = false)
+    private Boolean hidden = false;
 
-    @Column(name = "time_limit_override")
-    private Integer timeLimitOverride;
+    public TestCase() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Problem getProblem() {
+        return problem;
+    }
+
+    public void setProblem(Problem problem) {
+        this.problem = problem;
+    }
+
+    public String getInputData() {
+        return inputData;
+    }
+
+    public void setInputData(String inputData) {
+        this.inputData = inputData;
+    }
+
+    public String getExpectedOutput() {
+        return expectedOutput;
+    }
+
+    public void setExpectedOutput(String expectedOutput) {
+        this.expectedOutput = expectedOutput;
+    }
+
+    public Boolean getHidden() {
+        return hidden;
+    }
+
+    public void setHidden(Boolean hidden) {
+        this.hidden = hidden;
+    }
 }

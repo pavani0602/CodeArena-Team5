@@ -1,42 +1,66 @@
 package com.codearena.codearena_backend.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "leaderboard_entries")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class LeaderboardEntry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false, unique = true)
-    private Long userId;
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 
-    @Column(name = "problems_solved")
-    private Integer problemsSolved;
+    @Column(nullable = false)
+    private Integer score = 0;
 
-    @Column(precision = 5, scale = 2)
-    private BigDecimal accuracy;
+    @Column(name = "solved_count", nullable = false)
+    private Integer solvedCount = 0;
 
-    @Column(name = "rank")
-    private Integer rank;
+    @Column(name = "last_accepted_at")
+    private LocalDateTime lastAcceptedAt;
 
-    @PrePersist
-    public void prePersist() {
-        if (problemsSolved == null) {
-            problemsSolved = 0;
-        }
-        if (accuracy == null) {
-            accuracy = BigDecimal.ZERO;
-        }
+    public LeaderboardEntry() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
+    public Integer getSolvedCount() {
+        return solvedCount;
+    }
+
+    public void setSolvedCount(Integer solvedCount) {
+        this.solvedCount = solvedCount;
+    }
+
+    public LocalDateTime getLastAcceptedAt() {
+        return lastAcceptedAt;
+    }
+
+    public void setLastAcceptedAt(LocalDateTime lastAcceptedAt) {
+        this.lastAcceptedAt = lastAcceptedAt;
     }
 }
