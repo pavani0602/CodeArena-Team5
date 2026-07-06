@@ -7,7 +7,8 @@ function Footer() {
             <div className="top">
                 <div className="brand">
                      <Link to="/">
-                        <h2>CodeArena</h2>
+                        <h2>Code
+                            <span className="arena">Arena</span></h2>
                     </Link>
                 </div>
                 <div className="links">

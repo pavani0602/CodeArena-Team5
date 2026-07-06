@@ -8,7 +8,8 @@ function Navbar() {
             <div className="left">
                 {/* <img src={logo} alt="CodeArena Logo" />
                  */}
-                <h2>CodeArena</h2>
+                <h2>Code
+                <span className="arena">Arena</span></h2>
             </div>
             <div className="middle">
                 {/* Use Link instead of empty anchor tags */}
