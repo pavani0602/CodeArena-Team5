@@ -1,1 +1,1 @@
-Database for CodeArena project
+Backend for CodeArena project
