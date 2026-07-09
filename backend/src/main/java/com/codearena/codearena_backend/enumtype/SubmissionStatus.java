@@ -2,10 +2,11 @@ package com.codearena.codearena_backend.enumtype;
 
 public enum SubmissionStatus {
     PENDING,
+    RUNNING,
     ACCEPTED,
     WRONG_ANSWER,
-    COMPILATION_ERROR,
-    RUNTIME_ERROR,
     TIME_LIMIT_EXCEEDED,
-    ERROR
+    MEMORY_LIMIT_EXCEEDED,
+    RUNTIME_ERROR,
+    COMPILATION_ERROR
 }
