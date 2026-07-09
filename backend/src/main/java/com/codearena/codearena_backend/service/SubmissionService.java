@@ -83,7 +83,7 @@ public class SubmissionService {
         List<TestCase> testCases = testCaseRepository.findByProblemId(problemId);
 
         if (testCases.isEmpty()) {
-            submission.setStatus(SubmissionStatus.ERROR);
+            submission.setStatus(SubmissionStatus.RUNTIME_ERROR);
             return submissionRepository.save(submission);
         }
 
@@ -168,6 +168,6 @@ public class SubmissionService {
             return SubmissionStatus.TIME_LIMIT_EXCEEDED;
         }
 
-        return SubmissionStatus.ERROR;
+        return SubmissionStatus.RUNTIME_ERROR;
     }
 }
