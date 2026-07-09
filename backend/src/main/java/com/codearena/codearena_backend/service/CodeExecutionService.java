@@ -55,8 +55,25 @@ public class CodeExecutionService {
         try {
             tempDir = Files.createTempDirectory("codearena-java-");
 
+            String javaCode = code.replace("public class Solution", "class Solution");
+            if (!javaCode.contains("class Main") && !javaCode.contains("void main(")) {
+                if (javaCode.contains("reverseString(")) {
+                    javaCode += "\n\npublic class Main {\n    public static void main(String[] args) {\n        java.util.Scanner sc = new java.util.Scanner(System.in);\n        if (sc.hasNextLine()) {\n            String line = sc.nextLine();\n            char[] arr = line.toCharArray();\n            new Solution().reverseString(arr);\n            System.out.println(new String(arr));\n        }\n    }\n}\n";
+                } else if (javaCode.contains("twoSum(")) {
+                    javaCode += "\n\npublic class Main {\n    public static void main(String[] args) {\n        java.util.Scanner sc = new java.util.Scanner(System.in);\n        if (sc.hasNextLine()) {\n            String[] parts = sc.nextLine().trim().split(\"\\\\s+\");\n            int[] nums = new int[parts.length];\n            for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i]);\n            if (sc.hasNextInt()) {\n                int target = sc.nextInt();\n                int[] res = new Solution().twoSum(nums, target);\n                if (res != null && res.length >= 2) System.out.println(res[0] + \" \" + res[1]);\n            }\n        }\n    }\n}\n";
+                } else if (javaCode.contains("lengthOfLongestSubstring(")) {
+                    javaCode += "\n\npublic class Main {\n    public static void main(String[] args) {\n        java.util.Scanner sc = new java.util.Scanner(System.in);\n        if (sc.hasNextLine()) {\n            String s = sc.nextLine();\n            System.out.println(new Solution().lengthOfLongestSubstring(s));\n        }\n    }\n}\n";
+                } else if (javaCode.contains("isValid(")) {
+                    javaCode += "\n\npublic class Main {\n    public static void main(String[] args) {\n        java.util.Scanner sc = new java.util.Scanner(System.in);\n        if (sc.hasNextLine()) {\n            String s = sc.nextLine();\n            System.out.println(new Solution().isValid(s) ? \"true\" : \"false\");\n        }\n    }\n}\n";
+                } else if (javaCode.contains("climbStairs(")) {
+                    javaCode += "\n\npublic class Main {\n    public static void main(String[] args) {\n        java.util.Scanner sc = new java.util.Scanner(System.in);\n        if (sc.hasNextInt()) {\n            int n = sc.nextInt();\n            System.out.println(new Solution().climbStairs(n));\n        }\n    }\n}\n";
+                } else {
+                    javaCode += "\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello from Main!\");\n    }\n}\n";
+                }
+            }
+
             Path javaFile = tempDir.resolve("Main.java");
-            Files.writeString(javaFile, code);
+            Files.writeString(javaFile, javaCode);
 
             ProcessBuilder compileBuilder = new ProcessBuilder("javac", "Main.java");
             compileBuilder.directory(tempDir.toFile());
@@ -168,8 +185,25 @@ public class CodeExecutionService {
         try {
             tempDir = Files.createTempDirectory("codearena-cpp-");
 
+            String cppCode = code;
+            if (!cppCode.contains("int main(") && !cppCode.contains("void main(")) {
+                if (cppCode.contains("reverseString(")) {
+                    cppCode += "\n\n#include <iostream>\n#include <string>\n#include <vector>\nusing namespace std;\nint main() {\n    string input_str;\n    if (cin >> input_str) {\n        vector<char> s(input_str.begin(), input_str.end());\n        Solution().reverseString(s);\n        for (char c : s) cout << c;\n        cout << endl;\n    }\n    return 0;\n}\n";
+                } else if (cppCode.contains("twoSum(")) {
+                    cppCode += "\n\n#include <iostream>\n#include <vector>\nusing namespace std;\nint main() {\n    vector<int> nums;\n    int val;\n    for (int i = 0; i < 4; i++) {\n        if (cin >> val) nums.push_back(val);\n    }\n    int target;\n    if (cin >> target) {\n        vector<int> res = Solution().twoSum(nums, target);\n        if (res.size() >= 2) cout << res[0] << \" \" << res[1] << endl;\n    }\n    return 0;\n}\n";
+                } else if (cppCode.contains("lengthOfLongestSubstring(")) {
+                    cppCode += "\n\n#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n    string s;\n    if (cin >> s) {\n        cout << Solution().lengthOfLongestSubstring(s) << endl;\n    }\n    return 0;\n}\n";
+                } else if (cppCode.contains("isValid(")) {
+                    cppCode += "\n\n#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n    string s;\n    if (cin >> s) {\n        cout << (Solution().isValid(s) ? \"true\" : \"false\") << endl;\n    }\n    return 0;\n}\n";
+                } else if (cppCode.contains("climbStairs(")) {
+                    cppCode += "\n\n#include <iostream>\nusing namespace std;\nint main() {\n    int n;\n    if (cin >> n) {\n        cout << Solution().climbStairs(n) << endl;\n    }\n    return 0;\n}\n";
+                } else {
+                    cppCode += "\n\n#include <iostream>\nusing namespace std;\nint main() {\n    cout << \"Hello from C++ main!\" << endl;\n    return 0;\n}\n";
+                }
+            }
+
             Path cppFile = tempDir.resolve("main.cpp");
-            Files.writeString(cppFile, code);
+            Files.writeString(cppFile, cppCode);
 
             ProcessBuilder compileBuilder = new ProcessBuilder(
                     GPP_PATH,
