@@ -1,63 +1,52 @@
 import "./ProblemTable.css";
 import ProblemRow from "./ProblemRow";
 
-const problems = [
-    {
-        id: 1,
-        title: "Two Sum",
-        difficulty: "Easy",
-        status: "Solved"
-    },
-    {
-        id: 2,
-        title: "Reverse String",
-        difficulty: "Easy",
-        status: "Attempted"
-    },
-    {
-        id: 3,
-        title: "Longest Substring Without Repeating Characters",
-        difficulty: "Medium",
-        status: "Unsolved"
-    },
-    {
-        id: 4,
-        title: "Merge Intervals",
-        difficulty: "Medium",
-        status: "Solved"
-    },
-    {
-        id: 5,
-        title: "N Queens",
-        difficulty: "Hard",
-        status: "Unsolved"
-    }
-];
-
 function ProblemTable() {
+
+    const problems = [
+        { id: 1, title: "Two Sum", difficulty: "Easy", status: "Solved" },
+        { id: 2, title: "Valid Parentheses", difficulty: "Easy", status: "Solved" },
+        { id: 3, title: "Longest Substring Without Repeating Characters", difficulty: "Medium", status: "Attempted" },
+        { id: 4, title: "Merge Intervals", difficulty: "Medium", status: "Unsolved" },
+        { id: 5, title: "Binary Tree Inorder Traversal", difficulty: "Easy", status: "Solved" },
+        { id: 6, title: "Course Schedule", difficulty: "Medium", status: "Unsolved" },
+        { id: 7, title: "Number of Islands", difficulty: "Medium", status: "Attempted" },
+        { id: 8, title: "Word Ladder", difficulty: "Hard", status: "Unsolved" },
+        { id: 9, title: "LRU Cache", difficulty: "Hard", status: "Unsolved" },
+        { id: 10, title: "Kth Largest Element", difficulty: "Medium", status: "Solved" },
+        { id: 11, title: "Climbing Stairs", difficulty: "Easy", status: "Solved" },
+        { id: 12, title: "Search in Rotated Sorted Array", difficulty: "Medium", status: "Attempted" }
+    ];
+
     return (
-        <table className="problem-table">
+        <div className="problem-table-container">
 
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Problem</th>
-                    <th>Difficulty</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
+            <table className="problem-table">
 
-            <tbody>
-                {problems.map((problem) => (
-                    <ProblemRow
-                        key={problem.id}
-                        problem={problem}
-                    />
-                ))}
-            </tbody>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Problem</th>
+                        <th>Difficulty</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
 
-        </table>
+                <tbody>
+
+                    {problems.map((problem) => (
+                        <ProblemRow
+                            key={problem.id}
+                            problem={problem}
+                        />
+                    ))}
+
+                </tbody>
+
+            </table>
+
+        </div>
     );
 }
 

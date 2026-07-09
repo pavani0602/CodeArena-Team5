@@ -1,0 +1,57 @@
+.problem-description{
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:30px;
+    margin-bottom:25px;
+}
+
+.problem-header h1{
+    color:var(--text-primary);
+    font-size:2rem;
+    margin-bottom:15px;
+}
+
+.problem-meta{
+    display:flex;
+    gap:12px;
+    margin-bottom:25px;
+}
+
+.tag{
+    background:rgba(255,255,255,.05);
+    color:var(--text-secondary);
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:.85rem;
+}
+
+.description{
+    color:var(--text-secondary);
+    line-height:1.8;
+}
+
+.description h3{
+    margin-top:28px;
+    margin-bottom:15px;
+    color:var(--text-primary);
+}
+
+.example-box{
+    background:#111827;
+    border-radius:12px;
+    padding:18px;
+    border:1px solid var(--border);
+}
+
+.example-box p{
+    margin:8px 0;
+}
+
+.description ul{
+    padding-left:22px;
+}
+
+.description li{
+    margin-bottom:10px;
+}

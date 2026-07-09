@@ -1,0 +1,42 @@
+.code-editor-container{
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    overflow:hidden;
+    margin-bottom:25px;
+}
+
+.editor-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 24px;
+    border-bottom:1px solid var(--border);
+}
+
+.editor-header h3{
+    color:var(--text-primary);
+}
+
+.language-select{
+    background:#111827;
+    color:var(--text-primary);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:8px 14px;
+    outline:none;
+}
+
+.editor-placeholder{
+    background:#0f172a;
+    min-height:420px;
+    padding:24px;
+    overflow:auto;
+}
+
+.editor-placeholder pre{
+    color:#e2e8f0;
+    font-size:15px;
+    line-height:1.8;
+    font-family:"JetBrains Mono", monospace;
+}

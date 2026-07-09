@@ -1,35 +1,112 @@
-.problem-table {
-    width: 100%;
-    border-collapse: collapse;
+.problem-table-container {
+    margin-top: 30px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: 18px;
     overflow: hidden;
     box-shadow: var(--shadow);
 }
 
-.problem-table thead {
-    background: #111827;
+.problem-table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.problem-table th {
-    padding: 18px;
+.problem-table thead {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.problem-table thead th {
+    padding: 18px 22px;
     text-align: left;
     color: var(--text-primary);
+    font-size: 0.95rem;
     font-weight: 600;
-    border-bottom: 1px solid var(--border);
-}
-
-.problem-table td {
-    padding: 18px;
-    color: var(--text-secondary);
+    letter-spacing: 0.3px;
     border-bottom: 1px solid var(--border);
 }
 
 .problem-table tbody tr {
-    transition: var(--transition);
+    transition: all 0.25s ease;
 }
 
 .problem-table tbody tr:hover {
-    background: rgba(16, 185, 129, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.problem-table tbody td {
+    padding: 18px 22px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.95rem;
+}
+
+.problem-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.solve-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.25s;
+}
+
+.solve-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.status {
+    font-size: 1.1rem;
+}
+
+.status.solved {
+    color: #22c55e;
+}
+
+.status.attempted {
+    color: #f59e0b;
+}
+
+.status.unsolved {
+    color: #94a3b8;
+}
+
+.difficulty {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.difficulty.easy {
+    background: rgba(34,197,94,0.15);
+    color: #22c55e;
+}
+
+.difficulty.medium {
+    background: rgba(245,158,11,0.15);
+    color: #f59e0b;
+}
+
+.difficulty.hard {
+    background: rgba(239,68,68,0.15);
+    color: #ef4444;
+}
+
+@media (max-width: 900px) {
+
+    .problem-table {
+        min-width: 700px;
+    }
+
+    .problem-table-container {
+        overflow-x: auto;
+    }
+
 }
