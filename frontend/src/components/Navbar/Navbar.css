@@ -1,0 +1,75 @@
+.navbar {
+    width: 100%;
+    background: var(--surface);
+    padding: 16px 40px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.left img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
+.left h2 {
+    color: var(--primary);
+    font-size: 1.5rem;
+}
+
+.middle {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.middle a {
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.middle a:hover {
+    color: var(--primary);
+}
+
+.right button {
+    background: var(--primary);
+    color: var(--text-primary);
+
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: var(--radius);
+
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.right button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.middle .active {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.arena {
+    color: white;
+    font-size: 1.5rem;
+}

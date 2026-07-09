@@ -1,0 +1,31 @@
+:root {
+  /* Colors */
+  --background: #0F172A;
+  --surface: #1E293B;
+  --surface-hover: #334155;
+
+  --primary: #10B981;
+  --primary-hover: #34D399;
+
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+
+  --border: #334155;
+
+  --danger: #EF4444;
+  --warning: #F59E0B;
+  --success: #10B981;
+
+  /* Spacing */
+  --section-padding: 80px;
+  --container-width: 1200px;
+
+  /* Radius */
+  --radius: 12px;
+
+  /* Shadow */
+  --shadow: 0 8px 24px rgba(0,0,0,0.25);
+
+  /* Transition */
+  --transition: all 0.3s ease;
+}

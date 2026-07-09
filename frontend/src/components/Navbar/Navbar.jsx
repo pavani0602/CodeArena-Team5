@@ -1,0 +1,29 @@
+import "./Navbar.css";
+import { NavLink , Link } from 'react-router-dom';
+// import logo from "../../assets/logo.png";
+
+function Navbar() {
+    return (
+        <nav className="navbar">
+            <div className="left">
+                {/* <img src={logo} alt="CodeArena Logo" />
+                 */}
+                <h2>Code
+                <span className="arena">Arena</span></h2>
+            </div>
+            <div className="middle">
+                {/* Use Link instead of empty anchor tags */}
+                <NavLink to="/problems">Problems</NavLink>
+                <NavLink to="/leaderboard">Leaderboard</NavLink>
+                <NavLink to="/discussion">Discussion</NavLink>
+            </div>
+            <div className="right">
+                <Link to="/login">
+                    <button>Login or Signup</button>
+                </Link>
+            </div>
+        </nav>
+    );
+}
+
+export default Navbar;
