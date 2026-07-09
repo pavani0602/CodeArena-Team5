@@ -2,10 +2,9 @@ import "./ProblemDetails.css";
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import {
-    FaPlay,
+    FaSpinner,
     FaCheckCircle,
-    FaTimesCircle,
-    FaSpinner
+    FaTimesCircle
 } from "react-icons/fa";
 
 const BOILERPLATES = {
@@ -15,9 +14,10 @@ const BOILERPLATES = {
         return new int[]{};
     }
 }`,
-    PYTHON: `def twoSum(nums, target):
-    # Write your Python code here
-    pass`,
+    PYTHON: `class Solution:
+    def twoSum(self, nums, target):
+        # Write your Python code here
+        pass`,
     CPP: `#include <vector>
 using namespace std;
 
@@ -28,6 +28,140 @@ public:
         return {};
     }
 };`
+};
+
+const getDefaultInput = (problem) => {
+    if (!problem) return "2 7 11 15\n9";
+    const title = (problem.title || "").toLowerCase();
+    if (title.includes("two sum")) return "2 7 11 15\n9";
+    if (title.includes("reverse string")) return "hello";
+    if (title.includes("longest substring")) return "abcabcbb";
+    if (title.includes("merge intervals")) return "1 3\n2 6\n8 10\n15 18";
+    if (title.includes("valid parentheses")) return "()[]{}";
+    if (title.includes("maximum subarray")) return "-2 1 -3 4 -1 2 1 -5 4";
+    if (title.includes("climbing stairs")) return "3";
+    if (title.includes("median")) return "1 3\n2";
+    if (title.includes("queens")) return "4";
+    return "2 7 11 15\n9";
+};
+
+const getProblemBoilerplate = (problem, lang) => {
+    if (!problem) return BOILERPLATES[lang] || "";
+    const title = (problem.title || "").toLowerCase();
+
+    if (lang === "PYTHON") {
+        if (title.includes("reverse string")) {
+            return `class Solution:
+    def reverseString(self, s):
+        """
+        Do not return anything, modify s in-place instead.
+        """
+        left = 0
+        right = len(s) - 1
+        while left < right:
+            s[left], s[right] = s[right], s[left]
+            left += 1
+            right -= 1`;
+        }
+        if (title.includes("two sum")) {
+            return `class Solution:
+    def twoSum(self, nums, target):
+        # Write your Python code here
+        # Return indices of the two numbers
+        pass`;
+        }
+        if (title.includes("longest substring")) {
+            return `class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        # Write your Python code here
+        char_set = set()
+        left = 0
+        max_len = 0
+        for right in range(len(s)):
+            while s[right] in char_set:
+                char_set.remove(s[left])
+                left += 1
+            char_set.add(s[right])
+            max_len = max(max_len, right - left + 1)
+        return max_len`;
+        }
+        if (title.includes("valid parentheses")) {
+            return `class Solution:
+    def isValid(self, s: str) -> bool:
+        stack = []
+        mapping = {')': '(', '}': '{', ']': '['}
+        for char in s:
+            if char in mapping:
+                top_element = stack.pop() if stack else '#'
+                if mapping[char] != top_element:
+                    return False
+            else:
+                stack.append(char)
+        return not stack`;
+        }
+        if (title.includes("climbing stairs")) {
+            return `class Solution:
+    def climbStairs(self, n: int) -> int:
+        if n <= 2:
+            return n
+        a, b = 1, 2
+        for _ in range(3, n + 1):
+            a, b = b, a + b
+        return b`;
+        }
+        return `class Solution:
+    def solve(self, *args):
+        # Write your Python solution here
+        pass`;
+    }
+
+    if (lang === "JAVA") {
+        if (title.includes("reverse string")) {
+            return `class Solution {
+    public void reverseString(char[] s) {
+        int left = 0, right = s.length - 1;
+        while (left < right) {
+            char temp = s[left];
+            s[left] = s[right];
+            s[right] = temp;
+            left++;
+            right--;
+        }
+    }
+}`;
+        }
+        if (title.includes("two sum")) {
+            return `class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        // Write your Java code here
+        return new int[]{};
+    }
+}`;
+        }
+        return BOILERPLATES.JAVA;
+    }
+
+    if (lang === "CPP") {
+        if (title.includes("reverse string")) {
+            return `#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int left = 0, right = s.size() - 1;
+        while (left < right) {
+            swap(s[left], s[right]);
+            left++;
+            right--;
+        }
+    }
+};`;
+        }
+        return BOILERPLATES.CPP;
+    }
+
+    return BOILERPLATES[lang] || "";
 };
 
 function ProblemDetails() {
@@ -70,6 +204,8 @@ function ProblemDetails() {
             }
             const data = await res.json();
             setProblem(data);
+            setCode(getProblemBoilerplate(data, language));
+            setCustomInput(getDefaultInput(data));
         } catch (err) {
             setError(err.message || "Error loading problem");
         } finally {
@@ -102,7 +238,11 @@ function ProblemDetails() {
     const handleLanguageChange = (e) => {
         const newLang = e.target.value;
         setLanguage(newLang);
-        setCode(BOILERPLATES[newLang] || "");
+        if (problem) {
+            setCode(getProblemBoilerplate(problem, newLang));
+        } else {
+            setCode(BOILERPLATES[newLang] || "");
+        }
     };
 
     const handleRunCode = async () => {
@@ -178,16 +318,13 @@ function ProblemDetails() {
     const renderFormattedDescription = (descText) => {
         if (!descText) return "No description provided for this problem.";
 
-        // Clean markdown headers if present
         let cleaned = descText.replace(/###\s*Problem Statement/i, "").trim();
 
-        // Check if there is an example block
         const exampleIndex = cleaned.search(/####?\s*Example\s*1:/i);
         if (exampleIndex !== -1) {
             const statement = cleaned.substring(0, exampleIndex).trim();
             const afterExample = cleaned.substring(exampleIndex);
 
-            // Extract example content
             const exampleContent = afterExample.replace(/####?\s*Example\s*1:/i, "").replace(/```/g, "").replace(/####?\s*Constraints:.*/is, "").trim();
 
             return (
@@ -328,15 +465,34 @@ function ProblemDetails() {
                         <div className="editor-card">
                             <div className="editor-header-bar">
                                 <span className="editor-file-name">{getFileName()}</span>
-                                <select
-                                    className="language-select"
-                                    value={language}
-                                    onChange={handleLanguageChange}
-                                >
-                                    <option value="PYTHON">Python</option>
-                                    <option value="JAVA">Java</option>
-                                    <option value="CPP">C++</option>
-                                </select>
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCode(getProblemBoilerplate(problem, language))}
+                                        style={{
+                                            background: "transparent",
+                                            border: "1px solid #1E2E48",
+                                            color: "#94A3B8",
+                                            padding: "5px 12px",
+                                            borderRadius: "6px",
+                                            cursor: "pointer",
+                                            fontSize: "0.85rem",
+                                            transition: "all 0.2s"
+                                        }}
+                                        title="Reset code to initial boilerplate"
+                                    >
+                                        🔄 Reset
+                                    </button>
+                                    <select
+                                        className="language-select"
+                                        value={language}
+                                        onChange={handleLanguageChange}
+                                    >
+                                        <option value="PYTHON">Python</option>
+                                        <option value="JAVA">Java</option>
+                                        <option value="CPP">C++</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <textarea

@@ -32,6 +32,9 @@ public class SubmissionResult {
     @Column(nullable = false, length = 50)
     private String status;
 
+    @Column(name = "passed", nullable = false)
+    private Boolean passed = false;
+
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
@@ -98,6 +101,14 @@ public class SubmissionResult {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Boolean getPassed() {
+        return passed;
+    }
+
+    public void setPassed(Boolean passed) {
+        this.passed = passed;
     }
 
     public String getErrorMessage() {

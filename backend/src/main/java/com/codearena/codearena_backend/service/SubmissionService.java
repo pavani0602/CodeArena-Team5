@@ -119,6 +119,7 @@ public class SubmissionService {
 
             if (!executionResponse.getStatus().equals("SUCCESS")) {
                 result.setStatus(executionResponse.getStatus());
+                result.setPassed(false);
                 submissionResultRepository.save(result);
 
                 submission.setStatus(convertStatus(executionResponse.getStatus()));
@@ -127,8 +128,10 @@ public class SubmissionService {
 
             if (actualOutput.equals(expectedOutput)) {
                 result.setStatus("PASSED");
+                result.setPassed(true);
             } else {
                 result.setStatus("FAILED");
+                result.setPassed(false);
                 allPassed = false;
             }
 

@@ -114,8 +114,21 @@ public class CodeExecutionService {
         try {
             tempDir = Files.createTempDirectory("codearena-python-");
 
+            String pythonCode = code;
+            if (pythonCode.contains("def reverseString(") && !pythonCode.contains("sys.stdin") && !pythonCode.contains("__main__")) {
+                pythonCode += "\n\nimport sys\nif __name__ == '__main__':\n    input_str = sys.stdin.read().strip()\n    if input_str:\n        s_list = list(input_str)\n        Solution().reverseString(s_list)\n        print(\"\".join(s_list))\n";
+            } else if (pythonCode.contains("def twoSum(") && !pythonCode.contains("sys.stdin") && !pythonCode.contains("__main__")) {
+                pythonCode += "\n\nimport sys\nif __name__ == '__main__':\n    lines = sys.stdin.read().splitlines()\n    if lines and len(lines) >= 2:\n        nums = [int(x) for x in lines[0].split()]\n        target = int(lines[1])\n        res = Solution().twoSum(nums, target)\n        if res:\n            print(\" \".join(map(str, res)))\n";
+            } else if (pythonCode.contains("def lengthOfLongestSubstring(") && !pythonCode.contains("sys.stdin") && !pythonCode.contains("__main__")) {
+                pythonCode += "\n\nimport sys\nif __name__ == '__main__':\n    s = sys.stdin.read().strip()\n    print(Solution().lengthOfLongestSubstring(s))\n";
+            } else if (pythonCode.contains("def isValid(") && !pythonCode.contains("sys.stdin") && !pythonCode.contains("__main__")) {
+                pythonCode += "\n\nimport sys\nif __name__ == '__main__':\n    s = sys.stdin.read().strip()\n    print(\"true\" if Solution().isValid(s) else \"false\")\n";
+            } else if (pythonCode.contains("def climbStairs(") && !pythonCode.contains("sys.stdin") && !pythonCode.contains("__main__")) {
+                pythonCode += "\n\nimport sys\nif __name__ == '__main__':\n    n_str = sys.stdin.read().strip()\n    if n_str:\n        print(Solution().climbStairs(int(n_str)))\n";
+            }
+
             Path pythonFile = tempDir.resolve("main.py");
-            Files.writeString(pythonFile, code);
+            Files.writeString(pythonFile, pythonCode);
 
             ProcessBuilder runBuilder = new ProcessBuilder("py", "main.py");
             runBuilder.directory(tempDir.toFile());
