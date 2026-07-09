@@ -39,6 +39,7 @@ const getDefaultInput = (problem) => {
     if (title.includes("merge intervals")) return "1 3\n2 6\n8 10\n15 18";
     if (title.includes("valid parentheses")) return "()[]{}";
     if (title.includes("maximum subarray")) return "-2 1 -3 4 -1 2 1 -5 4";
+    if (title.includes("level order") || title.includes("binary tree")) return "3 9 20 null null 15 7";
     if (title.includes("climbing stairs")) return "3";
     if (title.includes("median")) return "1 3\n2";
     if (title.includes("queens")) return "4";
@@ -68,12 +69,17 @@ const getProblemBoilerplate = (problem, lang) => {
     def twoSum(self, nums, target):
         # Write your Python code here
         # Return indices of the two numbers
-        pass`;
+        num_map = {}
+        for i, num in enumerate(nums):
+            diff = target - num
+            if diff in num_map:
+                return [num_map[diff], i]
+            num_map[num] = i
+        return []`;
         }
         if (title.includes("longest substring")) {
             return `class Solution:
     def lengthOfLongestSubstring(self, s: str) -> int:
-        # Write your Python code here
         char_set = set()
         left = 0
         max_len = 0
@@ -84,6 +90,21 @@ const getProblemBoilerplate = (problem, lang) => {
             char_set.add(s[right])
             max_len = max(max_len, right - left + 1)
         return max_len`;
+        }
+        if (title.includes("merge intervals")) {
+            return `class Solution:
+    def merge(self, intervals):
+        if not intervals:
+            return []
+        intervals.sort(key=lambda x: x[0])
+        merged = [intervals[0]]
+        for curr in intervals[1:]:
+            prev = merged[-1]
+            if curr[0] <= prev[1]:
+                prev[1] = max(prev[1], curr[1])
+            else:
+                merged.append(curr)
+        return merged`;
         }
         if (title.includes("valid parentheses")) {
             return `class Solution:
@@ -99,6 +120,40 @@ const getProblemBoilerplate = (problem, lang) => {
                 stack.append(char)
         return not stack`;
         }
+        if (title.includes("maximum subarray")) {
+            return `class Solution:
+    def maxSubArray(self, nums) -> int:
+        max_sub = nums[0]
+        curr_sum = 0
+        for n in nums:
+            if curr_sum < 0:
+                curr_sum = 0
+            curr_sum += n
+            max_sub = max(max_sub, curr_sum)
+        return max_sub`;
+        }
+        if (title.includes("level order") || title.includes("binary tree")) {
+            return `# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def levelOrder(self, root):
+        if not root:
+            return []
+        res = []
+        queue = [root]
+        while queue:
+            level = []
+            for _ in range(len(queue)):
+                node = queue.pop(0)
+                level.append(node.val)
+                if node.left: queue.append(node.left)
+                if node.right: queue.append(node.right)
+            res.append(level)
+        return res`;
+        }
         if (title.includes("climbing stairs")) {
             return `class Solution:
     def climbStairs(self, n: int) -> int:
@@ -108,6 +163,40 @@ const getProblemBoilerplate = (problem, lang) => {
         for _ in range(3, n + 1):
             a, b = b, a + b
         return b`;
+        }
+        if (title.includes("median")) {
+            return `class Solution:
+    def findMedianSortedArrays(self, nums1, nums2) -> float:
+        merged = sorted(nums1 + nums2)
+        n = len(merged)
+        if n % 2 == 1:
+            return float(merged[n // 2])
+        return (merged[n // 2 - 1] + merged[n // 2]) / 2.0`;
+        }
+        if (title.includes("queens")) {
+            return `class Solution:
+    def solveNQueens(self, n: int):
+        res = []
+        board = [["."] * n for _ in range(n)]
+        def backtrack(r, cols, posDiag, negDiag):
+            if r == n:
+                copy = ["".join(row) for row in board]
+                res.append(copy)
+                return
+            for c in range(n):
+                if c in cols or (r + c) in posDiag or (r - c) in negDiag:
+                    continue
+                cols.add(c)
+                posDiag.add(r + c)
+                negDiag.add(r - c)
+                board[r][c] = "Q"
+                backtrack(r + 1, cols, posDiag, negDiag)
+                cols.remove(c)
+                posDiag.remove(r + c)
+                negDiag.remove(r - c)
+                board[r][c] = "."
+        backtrack(0, set(), set(), set())
+        return res`;
         }
         return `class Solution:
     def solve(self, *args):
@@ -131,10 +220,182 @@ const getProblemBoilerplate = (problem, lang) => {
 }`;
         }
         if (title.includes("two sum")) {
-            return `class Solution {
+            return `import java.util.*;
+
+class Solution {
     public int[] twoSum(int[] nums, int target) {
-        // Write your Java code here
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            int diff = target - nums[i];
+            if (map.containsKey(diff)) {
+                return new int[]{map.get(diff), i};
+            }
+            map.put(nums[i], i);
+        }
         return new int[]{};
+    }
+}`;
+        }
+        if (title.includes("longest substring")) {
+            return `import java.util.*;
+
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        Set<Character> set = new HashSet<>();
+        int left = 0, maxLen = 0;
+        for (int right = 0; right < s.length(); right++) {
+            while (set.contains(s.charAt(right))) {
+                set.remove(s.charAt(left++));
+            }
+            set.add(s.charAt(right));
+            maxLen = Math.max(maxLen, right - left + 1);
+        }
+        return maxLen;
+    }
+}`;
+        }
+        if (title.includes("merge intervals")) {
+            return `import java.util.*;
+
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        if (intervals.length <= 1) return intervals;
+        Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));
+        List<int[]> result = new ArrayList<>();
+        int[] current = intervals[0];
+        result.add(current);
+        for (int[] interval : intervals) {
+            if (interval[0] <= current[1]) {
+                current[1] = Math.max(current[1], interval[1]);
+            } else {
+                current = interval;
+                result.add(current);
+            }
+        }
+        return result.toArray(new int[result.size()][]);
+    }
+}`;
+        }
+        if (title.includes("valid parentheses")) {
+            return `import java.util.*;
+
+class Solution {
+    public boolean isValid(String s) {
+        Stack<Character> stack = new Stack<>();
+        for (char c : s.toCharArray()) {
+            if (c == '(') stack.push(')');
+            else if (c == '{') stack.push('}');
+            else if (c == '[') stack.push(']');
+            else if (stack.isEmpty() || stack.pop() != c) return false;
+        }
+        return stack.isEmpty();
+    }
+}`;
+        }
+        if (title.includes("maximum subarray")) {
+            return `class Solution {
+    public int maxSubArray(int[] nums) {
+        int maxSub = nums[0], curSum = 0;
+        for (int n : nums) {
+            if (curSum < 0) curSum = 0;
+            curSum += n;
+            maxSub = Math.max(maxSub, curSum);
+        }
+        return maxSub;
+    }
+}`;
+        }
+        if (title.includes("level order") || title.includes("binary tree")) {
+            return `import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode(int x) { val = x; }
+}
+
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (root == null) return res;
+        Queue<TreeNode> q = new LinkedList<>();
+        q.add(root);
+        while (!q.isEmpty()) {
+            int size = q.size();
+            List<Integer> level = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                TreeNode cur = q.poll();
+                level.add(cur.val);
+                if (cur.left != null) q.add(cur.left);
+                if (cur.right != null) q.add(cur.right);
+            }
+            res.add(level);
+        }
+        return res;
+    }
+}`;
+        }
+        if (title.includes("climbing stairs")) {
+            return `class Solution {
+    public int climbStairs(int n) {
+        if (n <= 2) return n;
+        int a = 1, b = 2;
+        for (int i = 3; i <= n; i++) {
+            int c = a + b;
+            a = b;
+            b = c;
+        }
+        return b;
+    }
+}`;
+        }
+        if (title.includes("median")) {
+            return `import java.util.*;
+
+class Solution {
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int[] merged = new int[nums1.length + nums2.length];
+        System.arraycopy(nums1, 0, merged, 0, nums1.length);
+        System.arraycopy(nums2, 0, merged, nums1.length, nums2.length);
+        Arrays.sort(merged);
+        int n = merged.length;
+        if (n % 2 != 0) return (double) merged[n / 2];
+        return (double) (merged[(n - 1) / 2] + merged[n / 2]) / 2.0;
+    }
+}`;
+        }
+        if (title.includes("queens")) {
+            return `import java.util.*;
+
+class Solution {
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> res = new ArrayList<>();
+        char[][] board = new char[n][n];
+        for (char[] row : board) Arrays.fill(row, '.');
+        backtrack(res, board, 0, n);
+        return res;
+    }
+    private void backtrack(List<List<String>> res, char[][] board, int row, int n) {
+        if (row == n) {
+            List<String> list = new ArrayList<>();
+            for (char[] r : board) list.add(new String(r));
+            res.add(list);
+            return;
+        }
+        for (int col = 0; col < n; col++) {
+            if (isValid(board, row, col, n)) {
+                board[row][col] = 'Q';
+                backtrack(res, board, row + 1, n);
+                board[row][col] = '.';
+            }
+        }
+    }
+    private boolean isValid(char[][] board, int r, int c, int n) {
+        for (int i = 0; i < r; i++) if (board[i][c] == 'Q') return false;
+        for (int i = r - 1, j = c - 1; i >= 0 && j >= 0; i--, j--) if (board[i][j] == 'Q') return false;
+        for (int i = r - 1, j = c + 1; i >= 0 && j < n; i--, j++) if (board[i][j] == 'Q') return false;
+        return true;
     }
 }`;
         }
@@ -144,6 +405,7 @@ const getProblemBoilerplate = (problem, lang) => {
     if (lang === "CPP") {
         if (title.includes("reverse string")) {
             return `#include <vector>
+#include <algorithm>
 using namespace std;
 
 class Solution {
@@ -155,6 +417,206 @@ public:
             left++;
             right--;
         }
+    }
+};`;
+        }
+        if (title.includes("two sum")) {
+            return `#include <vector>
+#include <unordered_map>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> map;
+        for (int i = 0; i < nums.size(); i++) {
+            int diff = target - nums[i];
+            if (map.count(diff)) return {map[diff], i};
+            map[nums[i]] = i;
+        }
+        return {};
+    }
+};`;
+        }
+        if (title.includes("longest substring")) {
+            return `#include <string>
+#include <unordered_set>
+#include <algorithm>
+using namespace std;
+
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        unordered_set<char> set;
+        int left = 0, maxLen = 0;
+        for (int right = 0; right < s.length(); right++) {
+            while (set.count(s[right])) {
+                set.erase(s[left++]);
+            }
+            set.insert(s[right]);
+            maxLen = max(maxLen, right - left + 1);
+        }
+        return maxLen;
+    }
+};`;
+        }
+        if (title.includes("merge intervals")) {
+            return `#include <vector>
+#include <algorithm>
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        if (intervals.empty()) return {};
+        sort(intervals.begin(), intervals.end());
+        vector<vector<int>> res = {intervals[0]};
+        for (int i = 1; i < intervals.size(); i++) {
+            if (intervals[i][0] <= res.back()[1]) {
+                res.back()[1] = max(res.back()[1], intervals[i][1]);
+            } else {
+                res.push_back(intervals[i]);
+            }
+        }
+        return res;
+    }
+};`;
+        }
+        if (title.includes("valid parentheses")) {
+            return `#include <string>
+#include <stack>
+using namespace std;
+
+class Solution {
+public:
+    bool isValid(string s) {
+        stack<char> st;
+        for (char c : s) {
+            if (c == '(') st.push(')');
+            else if (c == '{') st.push('}');
+            else if (c == '[') st.push(']');
+            else if (st.empty() || st.top() != c) return false;
+            else st.pop();
+        }
+        return st.empty();
+    }
+};`;
+        }
+        if (title.includes("maximum subarray")) {
+            return `#include <vector>
+#include <algorithm>
+using namespace std;
+
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int maxSub = nums[0], curSum = 0;
+        for (int n : nums) {
+            if (curSum < 0) curSum = 0;
+            curSum += n;
+            maxSub = max(maxSub, curSum);
+        }
+        return maxSub;
+    }
+};`;
+        }
+        if (title.includes("level order") || title.includes("binary tree")) {
+            return `#include <vector>
+#include <queue>
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> res;
+        if (!root) return res;
+        queue<TreeNode*> q;
+        q.push(root);
+        while (!q.empty()) {
+            int size = q.size();
+            vector<int> level;
+            for (int i = 0; i < size; i++) {
+                TreeNode* cur = q.front(); q.pop();
+                level.push_back(cur->val);
+                if (cur->left) q.push(cur->left);
+                if (cur->right) q.push(cur->right);
+            }
+            res.push_back(level);
+        }
+        return res;
+    }
+};`;
+        }
+        if (title.includes("climbing stairs")) {
+            return `class Solution {
+public:
+    int climbStairs(int n) {
+        if (n <= 2) return n;
+        int a = 1, b = 2;
+        for (int i = 3; i <= n; i++) {
+            int c = a + b;
+            a = b;
+            b = c;
+        }
+        return b;
+    }
+};`;
+        }
+        if (title.includes("median")) {
+            return `#include <vector>
+#include <algorithm>
+using namespace std;
+
+class Solution {
+public:
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+        vector<int> merged = nums1;
+        merged.insert(merged.end(), nums2.begin(), nums2.end());
+        sort(merged.begin(), merged.end());
+        int n = merged.size();
+        if (n % 2 != 0) return (double) merged[n / 2];
+        return (double) (merged[(n - 1) / 2] + merged[n / 2]) / 2.0;
+    }
+};`;
+        }
+        if (title.includes("queens")) {
+            return `#include <vector>
+#include <string>
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<string>> solveNQueens(int n) {
+        vector<vector<string>> res;
+        vector<string> board(n, string(n, '.'));
+        backtrack(res, board, 0, n);
+        return res;
+    }
+    void backtrack(vector<vector<string>>& res, vector<string>& board, int row, int n) {
+        if (row == n) {
+            res.push_back(board);
+            return;
+        }
+        for (int col = 0; col < n; col++) {
+            if (isValid(board, row, col, n)) {
+                board[row][col] = 'Q';
+                backtrack(res, board, row + 1, n);
+                board[row][col] = '.';
+            }
+        }
+    }
+    bool isValid(vector<string>& board, int r, int c, int n) {
+        for (int i = 0; i < r; i++) if (board[i][c] == 'Q') return false;
+        for (int i = r - 1, j = c - 1; i >= 0 && j >= 0; i--, j--) if (board[i][j] == 'Q') return false;
+        for (int i = r - 1, j = c + 1; i >= 0 && j < n; i--, j++) if (board[i][j] == 'Q') return false;
+        return true;
     }
 };`;
         }
