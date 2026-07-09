@@ -1,6 +1,7 @@
 import "./ProblemTable.css";
 import ProblemRow from "./ProblemRow";
 
+
 function ProblemTable() {
 
     const problems = [
