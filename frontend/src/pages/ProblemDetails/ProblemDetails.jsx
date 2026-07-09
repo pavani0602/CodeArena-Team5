@@ -651,6 +651,7 @@ function ProblemDetails() {
     const [activeTab, setActiveTab] = useState("description");
     const [submissionsList, setSubmissionsList] = useState([]);
     const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+    const [selectedHistorySub, setSelectedHistorySub] = useState(null);
 
     useEffect(() => {
         fetchProblem();
@@ -692,6 +693,7 @@ function ProblemDetails() {
 
     const handleTabChange = (tab) => {
         setActiveTab(tab);
+        setSelectedHistorySub(null);
         if (tab === "submissions") {
             fetchSubmissions();
         }
@@ -807,6 +809,72 @@ function ProblemDetails() {
         return <div className="problem-description">{cleaned}</div>;
     };
 
+    const renderTestCasesList = (resultsList) => {
+        if (!resultsList || !Array.isArray(resultsList) || resultsList.length === 0) {
+            return null;
+        }
+        return (
+            <div className="testcases-container">
+                {resultsList.map((res, index) => {
+                    const isHidden = res.testCase && (res.testCase.hidden || res.testCase.isHidden);
+                    return (
+                        <div key={index} className={`testcase-card ${res.passed ? "passed" : "failed"}`}>
+                            <div className="testcase-header">
+                                <span>
+                                    Test Case #{index + 1} {isHidden ? "🔒 [Hidden]" : "📖 [Public]"}
+                                </span>
+                                <span className={`status-badge ${res.passed ? "accepted" : "wrong"}`} style={{ fontSize: "0.75rem" }}>
+                                    {res.passed ? "PASSED ✅" : "FAILED ❌"}
+                                </span>
+                            </div>
+
+                            <div className="testcase-body">
+                                {!isHidden ? (
+                                    <>
+                                        <div className="testcase-field">
+                                            <div className="testcase-field-label">Input</div>
+                                            <div className="testcase-field-val">{res.inputData || "(No input)"}</div>
+                                        </div>
+                                        <div className="testcase-field">
+                                            <div className="testcase-field-label">Expected Output</div>
+                                            <div className="testcase-field-val expected">{res.expectedOutput}</div>
+                                        </div>
+                                        <div className="testcase-field">
+                                            <div className="testcase-field-label">Your Actual Output</div>
+                                            <div className={`testcase-field-val ${!res.passed ? "actual-wrong" : ""}`}>
+                                                {res.actualOutput || "(No output produced)"}
+                                            </div>
+                                        </div>
+                                        {!res.passed && (
+                                            <div className="failure-highlight-box">
+                                                <strong>⚠️ Why it failed:</strong>{" "}
+                                                {res.errorMessage ? (
+                                                    <span>Runtime/Compilation Error: {res.errorMessage}</span>
+                                                ) : (
+                                                    <span>Expected <code>{res.expectedOutput}</code> but your code output <code>{res.actualOutput}</code>. Check your logic for input <code>{res.inputData}</code>.</span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div style={{ color: "#94A3B8", fontStyle: "italic" }}>
+                                        {res.passed ? (
+                                            "Your code successfully passed this hidden edge/performance test case."
+                                        ) : (
+                                            <div className="failure-highlight-box">
+                                                <strong>⚠️ Hidden Test Case Failed:</strong> Your solution produced an incorrect result or encountered an error on a hidden verification test case. Check boundary conditions and edge cases!
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     if (loading) {
         return (
             <div className="problem-details-page">
@@ -886,35 +954,59 @@ function ProblemDetails() {
                         ) : (
                             <div>
                                 <h3 style={{ marginBottom: "16px", fontSize: "1.1rem", color: "#fff" }}>Submissions History</h3>
+                                <p style={{ fontSize: "0.85rem", color: "#94A3B8", marginBottom: "12px" }}>Click any submission row below to inspect its detailed test cases and failure points.</p>
                                 {loadingSubmissions ? (
                                     <p style={{ color: "#94A3B8" }}>Loading history...</p>
                                 ) : submissionsList.length === 0 ? (
                                     <p style={{ color: "#94A3B8" }}>You haven't submitted any solutions for this problem yet.</p>
                                 ) : (
-                                    <table className="submissions-table">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Status</th>
-                                                <th>Language</th>
-                                                <th>Time</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {submissionsList.map((sub) => (
-                                                <tr key={sub.id}>
-                                                    <td>#{sub.id}</td>
-                                                    <td>
-                                                        <span className={`status-badge ${sub.status === "ACCEPTED" ? "accepted" : "wrong"}`}>
-                                                            {sub.status}
-                                                        </span>
-                                                    </td>
-                                                    <td>{sub.language}</td>
-                                                    <td>{sub.submittedAt ? new Date(sub.submittedAt).toLocaleTimeString() : "Just now"}</td>
+                                    <>
+                                        <table className="submissions-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Status</th>
+                                                    <th>Language</th>
+                                                    <th>Time</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                {submissionsList.map((sub) => (
+                                                    <tr 
+                                                        key={sub.id} 
+                                                        onClick={() => setSelectedHistorySub(selectedHistorySub?.id === sub.id ? null : sub)}
+                                                        style={{ cursor: "pointer", background: selectedHistorySub?.id === sub.id ? "rgba(16, 185, 129, 0.1)" : "transparent" }}
+                                                        title="Click to view test case results"
+                                                    >
+                                                        <td>#{sub.id}</td>
+                                                        <td>
+                                                            <span className={`status-badge ${sub.status === "ACCEPTED" ? "accepted" : "wrong"}`}>
+                                                                {sub.status}
+                                                            </span>
+                                                        </td>
+                                                        <td>{sub.language}</td>
+                                                        <td>{sub.submittedAt ? new Date(sub.submittedAt).toLocaleTimeString() : "Just now"}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+
+                                        {selectedHistorySub && (
+                                            <div style={{ marginTop: "24px", paddingTop: "18px", borderTop: "1px solid #1E2E48" }}>
+                                                <h4 style={{ fontSize: "1rem", color: "#fff", marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                    <span>Submission #{selectedHistorySub.id} Test Cases</span>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => setSelectedHistorySub(null)}
+                                                        style={{ background: "transparent", border: "none", color: "#94A3B8", cursor: "pointer", fontSize: "0.8rem" }}
+                                                    >
+                                                        ✕ Close Details
+                                                    </button>
+                                                </h4>
+                                                {renderTestCasesList(selectedHistorySub.results)}
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         )}
@@ -1026,20 +1118,29 @@ function ProblemDetails() {
 
                         {/* Submission Verdict Card */}
                         {submissionResult && (
-                            <div className="console-output">
+                            <div className="console-output" style={{ borderLeft: submissionResult.status === "ACCEPTED" ? "4px solid #10B981" : "4px solid #EF4444" }}>
                                 <div className="console-header">
-                                    <h4>Submission Verdict</h4>
+                                    <h4>
+                                        Submission Verdict
+                                        {submissionResult.results && Array.isArray(submissionResult.results) && (
+                                            <span style={{ fontSize: "0.85rem", fontWeight: 400, color: "#94A3B8", marginLeft: "10px" }}>
+                                                (Passed {submissionResult.results.filter(r => r.passed).length} / {submissionResult.results.length} Test Cases)
+                                            </span>
+                                        )}
+                                    </h4>
                                     <span className={`status-badge ${submissionResult.status === "ACCEPTED" ? "accepted" : "wrong"}`}>
                                         {submissionResult.status}
                                     </span>
                                 </div>
-                                <div className="console-text" style={{ color: submissionResult.status === "ACCEPTED" ? "#10B981" : "#EF4444" }}>
+                                <div className="console-text" style={{ color: submissionResult.status === "ACCEPTED" ? "#10B981" : "#EF4444", marginBottom: "14px" }}>
                                     {submissionResult.status === "ACCEPTED" ? (
                                         "ACCEPTED 🎉 All test cases passed successfully! Your accuracy has been recorded on the leaderboard."
                                     ) : (
-                                        `${submissionResult.status || "WRONG ANSWER"} ❌ Your code did not pass all hidden test cases.`
+                                        `${submissionResult.status || "WRONG ANSWER"} ❌ Your code did not pass all test cases. See exact failure details below:`
                                     )}
                                 </div>
+
+                                {renderTestCasesList(submissionResult.results)}
                             </div>
                         )}
 

@@ -14,10 +14,12 @@ public class SubmissionResult {
 
     @ManyToOne
     @JoinColumn(name = "submission_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("results")
     private Submission submission;
 
     @ManyToOne
     @JoinColumn(name = "test_case_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("problem")
     private TestCase testCase;
 
     @Column(name = "input_data", columnDefinition = "TEXT")

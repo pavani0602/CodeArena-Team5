@@ -379,3 +379,87 @@
     color: #E2E8F0;
     white-space: pre-wrap;
 }
+
+/* Rich Test Cases List in Submission Verdict */
+.testcases-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.testcase-card {
+    background: #131F33;
+    border: 1px solid #1E2E48;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+}
+
+.testcase-card.passed {
+    border-left: 4px solid #10B981;
+}
+
+.testcase-card.failed {
+    border-left: 4px solid #EF4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.testcase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #FFFFFF;
+}
+
+.testcase-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.88rem;
+}
+
+.testcase-field {
+    background: #0D1626;
+    border: 1px solid #1E2E48;
+    border-radius: 6px;
+    padding: 8px 12px;
+}
+
+.testcase-field-label {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.testcase-field-val {
+    color: #E2E8F0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.testcase-field-val.expected {
+    color: #10B981;
+}
+
+.testcase-field-val.actual-wrong {
+    color: #EF4444;
+    font-weight: 600;
+}
+
+.failure-highlight-box {
+    margin-top: 6px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px dashed #EF4444;
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: #FCA5A5;
+    font-size: 0.85rem;
+}

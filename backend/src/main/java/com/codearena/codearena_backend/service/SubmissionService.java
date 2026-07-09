@@ -17,6 +17,7 @@ import com.codearena.codearena_backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -95,6 +96,8 @@ public class SubmissionService {
         }
 
         boolean allPassed = true;
+        String firstFailureStatus = null;
+        List<SubmissionResult> savedResults = new ArrayList<>();
 
         for (TestCase testCase : testCases) {
 
@@ -120,31 +123,34 @@ public class SubmissionService {
             if (!executionResponse.getStatus().equals("SUCCESS")) {
                 result.setStatus(executionResponse.getStatus());
                 result.setPassed(false);
-                submissionResultRepository.save(result);
-
-                submission.setStatus(convertStatus(executionResponse.getStatus()));
-                return submissionRepository.save(submission);
-            }
-
-            if (actualOutput.equals(expectedOutput)) {
+                allPassed = false;
+                if (firstFailureStatus == null) {
+                    firstFailureStatus = executionResponse.getStatus();
+                }
+            } else if (actualOutput.equals(expectedOutput)) {
                 result.setStatus("PASSED");
                 result.setPassed(true);
             } else {
                 result.setStatus("FAILED");
                 result.setPassed(false);
                 allPassed = false;
+                if (firstFailureStatus == null) {
+                    firstFailureStatus = "WRONG_ANSWER";
+                }
             }
 
-            submissionResultRepository.save(result);
-
-            if (!allPassed) {
-                break;
-            }
+            savedResults.add(submissionResultRepository.save(result));
         }
+
+        submission.setResults(savedResults);
 
         if (allPassed) {
             submission.setStatus(SubmissionStatus.ACCEPTED);
             leaderboardService.updateLeaderboard(user);
+        } else if ("WRONG_ANSWER".equals(firstFailureStatus)) {
+            submission.setStatus(SubmissionStatus.WRONG_ANSWER);
+        } else if (firstFailureStatus != null) {
+            submission.setStatus(convertStatus(firstFailureStatus));
         } else {
             submission.setStatus(SubmissionStatus.WRONG_ANSWER);
         }
