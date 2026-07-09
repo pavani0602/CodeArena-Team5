@@ -1,0 +1,21 @@
+.problems-page {
+    padding: 60px 0;
+    min-height: 100vh;
+}
+
+.problems-header {
+    margin-bottom: 40px;
+}
+
+.problems-header h1 {
+    font-size: 2.8rem;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.problems-header p {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    max-width: 650px;
+    line-height: 1.7;
+}
