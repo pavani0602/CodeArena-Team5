@@ -36,6 +36,7 @@ function Login() {
             } else {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("username", form.username);
+                localStorage.setItem("userRole", data.role || "USER");
                 navigate("/problems");
             }
         } catch (err) {

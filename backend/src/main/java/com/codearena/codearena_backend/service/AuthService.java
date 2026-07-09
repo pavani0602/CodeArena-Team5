@@ -39,13 +39,17 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRole(UserRole.USER);
+        if (request.getRole() != null && (request.getRole().equalsIgnoreCase("ADMIN") || request.getRole().equalsIgnoreCase("HOST"))) {
+            user.setRole(UserRole.ADMIN);
+        } else {
+            user.setRole(UserRole.USER);
+        }
 
         userRepository.save(user);
 
         String token = jwtService.generateToken(user.getUsername());
 
-        return new AuthResponse(token);
+        return new AuthResponse(token, user.getUsername(), user.getRole().name());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -59,6 +63,6 @@ public class AuthService {
 
         String token = jwtService.generateToken(user.getUsername());
 
-        return new AuthResponse(token);
+        return new AuthResponse(token, user.getUsername(), user.getRole().name());
     }
 }

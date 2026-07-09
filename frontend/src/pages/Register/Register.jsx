@@ -1,6 +1,6 @@
 import "../Login/Login.css";
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 import {
     FaLaptopCode,
@@ -8,14 +8,27 @@ import {
     FaUser,
     FaEnvelope,
     FaLock,
-    FaSpinner
+    FaSpinner,
+    FaShieldAlt,
+    FaCode
 } from "react-icons/fa";
 
 function Register() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "" });
+    const [role, setRole] = useState("USER");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const urlRole = searchParams.get("role");
+        if (urlRole && (urlRole.toUpperCase() === "ADMIN" || urlRole.toUpperCase() === "HOST")) {
+            setRole("ADMIN");
+        } else if (urlRole && urlRole.toUpperCase() === "USER") {
+            setRole("USER");
+        }
+    }, [searchParams]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.id]: e.target.value });
@@ -39,6 +52,7 @@ function Register() {
                     username: form.username,
                     email: form.email,
                     password: form.password,
+                    role: role
                 }),
             });
             const data = await res.json();
@@ -47,6 +61,7 @@ function Register() {
             } else {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("username", form.username);
+                localStorage.setItem("userRole", data.role || role);
                 navigate("/problems");
             }
         } catch (err) {
@@ -110,8 +125,53 @@ function Register() {
                         <h2>Create Your Account 🚀</h2>
 
                         <p>
-                            Join CodeArena and start solving coding challenges today.
+                            Join CodeArena and select your account type below.
                         </p>
+
+                        <div className="role-selector" style={{ display: 'flex', gap: '10px', margin: '16px 0 20px 0' }}>
+                            <button
+                                type="button"
+                                onClick={() => setRole('USER')}
+                                style={{
+                                    flex: 1,
+                                    padding: '10px 14px',
+                                    borderRadius: '8px',
+                                    border: role === 'USER' ? '2px solid var(--primary, #6366f1)' : '1px solid rgba(255,255,255,0.15)',
+                                    background: role === 'USER' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(0,0,0,0.2)',
+                                    color: '#fff',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    fontWeight: role === 'USER' ? '600' : '400',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <FaCode /> Solver Portal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setRole('ADMIN')}
+                                style={{
+                                    flex: 1,
+                                    padding: '10px 14px',
+                                    borderRadius: '8px',
+                                    border: role === 'ADMIN' ? '2px solid #ff5555' : '1px solid rgba(255,255,255,0.15)',
+                                    background: role === 'ADMIN' ? 'rgba(255, 85, 85, 0.2)' : 'rgba(0,0,0,0.2)',
+                                    color: '#fff',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    fontWeight: role === 'ADMIN' ? '600' : '400',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <FaShieldAlt /> Host Admin Portal
+                            </button>
+                        </div>
 
                         {error && <div className="auth-error">{error}</div>}
 

@@ -11,6 +11,8 @@ function Problems() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
 
+    const isHostAdmin = localStorage.getItem("userRole") === "ADMIN";
+
     const handleProblemAdded = () => {
         setRefreshKey((prev) => prev + 1);
     };
@@ -26,25 +28,27 @@ function Problems() {
                             and prepare for technical interviews.
                         </p>
                     </div>
-                    <button
-                        className="create-problem-btn"
-                        onClick={() => setIsModalOpen(true)}
-                        style={{
-                            background: 'var(--primary, #6366f1)',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '12px 24px',
-                            borderRadius: '8px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
-                        }}
-                    >
-                        <span>+</span> Create Problem
-                    </button>
+                    {isHostAdmin && (
+                        <button
+                            className="create-problem-btn"
+                            onClick={() => setIsModalOpen(true)}
+                            style={{
+                                background: 'var(--primary, #6366f1)',
+                                color: '#fff',
+                                border: 'none',
+                                padding: '12px 24px',
+                                borderRadius: '8px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+                            }}
+                        >
+                            <span>+</span> Create Problem
+                        </button>
+                    )}
                 </div>
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
                 

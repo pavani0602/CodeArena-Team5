@@ -25,4 +25,13 @@ public class AuthController {
     public AuthResponse login(@RequestBody LoginRequest request) {
         return authService.login(request);
     }
+
+    @GetMapping("/me")
+    public AuthResponse getMe() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof com.codearena.codearena_backend.entity.User user) {
+            return new AuthResponse(null, user.getUsername(), user.getRole().name());
+        }
+        throw new RuntimeException("Not authenticated");
+    }
 }
