@@ -10,5 +10,5 @@ public interface LeaderboardEntryRepository extends JpaRepository<LeaderboardEnt
 
     Optional<LeaderboardEntry> findByUserId(Long userId);
 
-    List<LeaderboardEntry> findAllByOrderByScoreDescSolvedCountDescLastAcceptedAtAsc();
+    List<LeaderboardEntry> findAllByOrderByProblemsSolvedDesc();
 }

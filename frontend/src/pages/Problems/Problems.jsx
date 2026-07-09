@@ -1,9 +1,13 @@
 import './Problems.css';
-import FilterBar from '../../components/problems/FilterBar';
+import { useState } from 'react';
+import FilterBar from '../../components/Problems/FilterBar';
 import SearchBar from '../../components/Problems/SearchBar';
 import ProblemTable from '../../components/Problems/ProblemTable';
 
 function Problems() {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [difficultyFilter, setDifficultyFilter] = useState('All');
+
     return (
         <section className="problems-page">
             <div className="container">
@@ -16,11 +20,11 @@ function Problems() {
                         and prepare for technical interviews.
                     </p>
                 </div>
-                <SearchBar />
+                <SearchBar value={searchQuery} onChange={setSearchQuery} />
                 
-                <FilterBar />
+                <FilterBar active={difficultyFilter} onChange={setDifficultyFilter} />
                 
-                <ProblemTable />
+                <ProblemTable searchQuery={searchQuery} difficultyFilter={difficultyFilter} />
             </div>
         </section>
     )

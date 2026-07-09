@@ -1,0 +1,167 @@
+.leaderboard-page {
+    min-height: 100vh;
+    padding: 40px 20px;
+    background: var(--background);
+}
+
+.leaderboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.leaderboard-header h1 {
+    font-size: 2.5rem;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.leaderboard-header p {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+}
+
+.leaderboard-table-wrap {
+    overflow-x: auto;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.leaderboard-table thead {
+    background: #111827;
+}
+
+.leaderboard-table th {
+    padding: 16px 20px;
+    text-align: left;
+    color: var(--text-primary);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+}
+
+.leaderboard-table td {
+    padding: 16px 20px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+.leaderboard-table tbody tr {
+    transition: var(--transition);
+}
+
+.leaderboard-table tbody tr:hover {
+    background: rgba(16, 185, 129, 0.07);
+}
+
+.leaderboard-table tbody tr.top-1 {
+    background: rgba(251, 191, 36, 0.06);
+}
+
+.leaderboard-table tbody tr.top-2 {
+    background: rgba(148, 163, 184, 0.06);
+}
+
+.leaderboard-table tbody tr.top-3 {
+    background: rgba(180, 83, 9, 0.06);
+}
+
+.rank-cell {
+    width: 80px;
+    text-align: center;
+}
+
+.rank-icon {
+    font-size: 1.4rem;
+}
+
+.rank-icon.gold { color: #f59e0b; }
+.rank-icon.silver { color: #94a3b8; }
+.rank-icon.bronze { color: #b45309; }
+
+.rank-number {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.username-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.solved-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.accuracy-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.accuracy-bar {
+    width: 80px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.accuracy-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.lb-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    color: var(--text-secondary);
+    gap: 16px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

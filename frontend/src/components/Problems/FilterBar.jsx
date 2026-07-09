@@ -1,21 +1,21 @@
 import './FilterBar.css';
-function FilterBar() {
+
+const difficulties = ['All', 'Easy', 'Medium', 'Hard'];
+
+function FilterBar({ active, onChange }) {
     return (
         <div className="filter-bar">
 
             <div className="difficulty-filters">
-                <button className="active">All</button>
-                <button>Easy</button>
-                <button>Medium</button>
-                <button>Hard</button>
-            </div>
-
-            <div className="sort-filter">
-                <select>
-                    <option>Latest</option>
-                    <option>Difficulty</option>
-                    <option>Name</option>
-                </select>
+                {difficulties.map((d) => (
+                    <button
+                        key={d}
+                        className={active === d ? 'active' : ''}
+                        onClick={() => onChange(d)}
+                    >
+                        {d}
+                    </button>
+                ))}
             </div>
 
         </div>

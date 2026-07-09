@@ -1,15 +1,61 @@
 import "../Login/Login.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import {
     FaLaptopCode,
     FaCheckCircle,
     FaUser,
     FaEnvelope,
-    FaLock
+    FaLock,
+    FaSpinner
 } from "react-icons/fa";
 
 function Register() {
+    const navigate = useNavigate();
+    const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "" });
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.id]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+
+        if (form.password !== form.confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const res = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: form.username,
+                    email: form.email,
+                    password: form.password,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.message || "Registration failed. Try a different username or email.");
+            } else {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("username", form.username);
+                navigate("/problems");
+            }
+        } catch (err) {
+            setError("Network error. Is the backend running?");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <section className="login-page">
             <div className="auth-container">
@@ -67,20 +113,23 @@ function Register() {
                             Join CodeArena and start solving coding challenges today.
                         </p>
 
-                        <form>
+                        {error && <div className="auth-error">{error}</div>}
+
+                        <form onSubmit={handleSubmit}>
 
                             <div className="form-group">
-                                <label htmlFor="name">
-                                    Full Name
+                                <label htmlFor="username">
+                                    Username
                                 </label>
-
                                 <div className="input-box">
                                     <FaUser className="input-icon" />
-
                                     <input
                                         type="text"
-                                        id="name"
-                                        placeholder="Enter your full name"
+                                        id="username"
+                                        placeholder="Choose a username"
+                                        value={form.username}
+                                        onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -89,14 +138,15 @@ function Register() {
                                 <label htmlFor="email">
                                     Email
                                 </label>
-
                                 <div className="input-box">
                                     <FaEnvelope className="input-icon" />
-
                                     <input
                                         type="email"
                                         id="email"
                                         placeholder="Enter your email"
+                                        value={form.email}
+                                        onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -105,30 +155,32 @@ function Register() {
                                 <label htmlFor="password">
                                     Password
                                 </label>
-
                                 <div className="input-box">
                                     <FaLock className="input-icon" />
-
                                     <input
                                         type="password"
                                         id="password"
                                         placeholder="Create a password"
+                                        value={form.password}
+                                        onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="confirm-password">
+                                <label htmlFor="confirmPassword">
                                     Confirm Password
                                 </label>
-
                                 <div className="input-box">
                                     <FaLock className="input-icon" />
-
                                     <input
                                         type="password"
-                                        id="confirm-password"
+                                        id="confirmPassword"
                                         placeholder="Confirm your password"
+                                        value={form.confirmPassword}
+                                        onChange={handleChange}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -136,8 +188,9 @@ function Register() {
                             <button
                                 type="submit"
                                 className="login-button"
+                                disabled={loading}
                             >
-                                Create Account
+                                {loading ? <FaSpinner className="spin" /> : "Create Account"}
                             </button>
 
                         </form>

@@ -1,14 +1,50 @@
 import "./Login.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import {
     FaLaptopCode,
     FaCheckCircle,
     FaEnvelope,
-    FaLock
+    FaLock,
+    FaSpinner
 } from "react-icons/fa";
 
 function Login() {
+    const navigate = useNavigate();
+    const [form, setForm] = useState({ username: "", password: "" });
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.id]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+        setLoading(true);
+        try {
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: form.username, password: form.password }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setError(data.message || "Invalid username or password");
+            } else {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("username", form.username);
+                navigate("/problems");
+            }
+        } catch (err) {
+            setError("Network error. Is the backend running?");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <section className="login-page">
             <div className="auth-container">
@@ -51,55 +87,50 @@ function Login() {
                             Continue your coding journey with CodeArena.
                         </p>
 
-                        <form>
+                        {error && <div className="auth-error">{error}</div>}
+
+                        <form onSubmit={handleSubmit}>
 
                             <div className="form-group">
-
-                                <label htmlFor="email">
-                                    Email
+                                <label htmlFor="username">
+                                    Username
                                 </label>
-
                                 <div className="input-box">
                                     <FaEnvelope className="input-icon" />
-
                                     <input
-                                        type="email"
-                                        id="email"
-                                        placeholder="Enter your email"
+                                        type="text"
+                                        id="username"
+                                        placeholder="Enter your username"
+                                        value={form.username}
+                                        onChange={handleChange}
+                                        required
                                     />
                                 </div>
-
                             </div>
 
                             <div className="form-group">
-
                                 <label htmlFor="password">
                                     Password
                                 </label>
-
                                 <div className="input-box">
                                     <FaLock className="input-icon" />
-
                                     <input
                                         type="password"
                                         id="password"
                                         placeholder="Enter your password"
+                                        value={form.password}
+                                        onChange={handleChange}
+                                        required
                                     />
                                 </div>
-
-                            </div>
-
-                            <div className="forgot-password">
-                                <Link to="#">
-                                    Forgot Password?
-                                </Link>
                             </div>
 
                             <button
                                 type="submit"
                                 className="login-button"
+                                disabled={loading}
                             >
-                                Login
+                                {loading ? <FaSpinner className="spin" /> : "Login"}
                             </button>
 
                         </form>

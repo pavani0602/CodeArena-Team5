@@ -1,40 +1,69 @@
 import "./ProblemTable.css";
+import { useState, useEffect } from "react";
 import ProblemRow from "./ProblemRow";
 
-const problems = [
-    {
-        id: 1,
-        title: "Two Sum",
-        difficulty: "Easy",
-        status: "Solved"
-    },
-    {
-        id: 2,
-        title: "Reverse String",
-        difficulty: "Easy",
-        status: "Attempted"
-    },
-    {
-        id: 3,
-        title: "Longest Substring Without Repeating Characters",
-        difficulty: "Medium",
-        status: "Unsolved"
-    },
-    {
-        id: 4,
-        title: "Merge Intervals",
-        difficulty: "Medium",
-        status: "Solved"
-    },
-    {
-        id: 5,
-        title: "N Queens",
-        difficulty: "Hard",
-        status: "Unsolved"
-    }
-];
+function ProblemTable({ searchQuery, difficultyFilter }) {
+    const [problems, setProblems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-function ProblemTable() {
+    useEffect(() => {
+        const fetchProblems = async () => {
+            try {
+                const res = await fetch("/api/problems");
+                if (!res.ok) throw new Error("Failed to load problems");
+                const data = await res.json();
+                setProblems(data);
+            } catch (err) {
+                // Backend not running or no data yet — fall back to sample data
+                setProblems([
+                    { id: 1, title: "Two Sum", difficulty: "EASY" },
+                    { id: 2, title: "Reverse String", difficulty: "EASY" },
+                    { id: 3, title: "Longest Substring Without Repeating Characters", difficulty: "MEDIUM" },
+                    { id: 4, title: "Merge Intervals", difficulty: "MEDIUM" },
+                    { id: 5, title: "N Queens", difficulty: "HARD" },
+                    { id: 6, title: "Binary Tree Level Order Traversal", difficulty: "MEDIUM" },
+                    { id: 7, title: "Valid Parentheses", difficulty: "EASY" },
+                    { id: 8, title: "Maximum Subarray", difficulty: "MEDIUM" },
+                    { id: 9, title: "Climbing Stairs", difficulty: "EASY" },
+                    { id: 10, title: "Median of Two Sorted Arrays", difficulty: "HARD" },
+                ]);
+                setError(""); // No error shown, sample data used
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProblems();
+    }, []);
+
+    const filtered = problems.filter((p) => {
+        const matchSearch = searchQuery
+            ? p.title.toLowerCase().includes(searchQuery.toLowerCase())
+            : true;
+        const matchDifficulty = difficultyFilter && difficultyFilter !== "All"
+            ? p.difficulty.toUpperCase() === difficultyFilter.toUpperCase()
+            : true;
+        return matchSearch && matchDifficulty;
+    });
+
+    if (loading) {
+        return (
+            <div className="table-loading">
+                <div className="loading-spinner"></div>
+                <p>Loading problems...</p>
+            </div>
+        );
+    }
+
+    if (filtered.length === 0) {
+        return (
+            <div className="table-empty">
+                <p>No problems found. Try a different search or filter.</p>
+            </div>
+        );
+    }
+
     return (
         <table className="problem-table">
 
@@ -49,10 +78,10 @@ function ProblemTable() {
             </thead>
 
             <tbody>
-                {problems.map((problem) => (
+                {filtered.map((problem, index) => (
                     <ProblemRow
                         key={problem.id}
-                        problem={problem}
+                        problem={{ ...problem, index: index + 1, difficulty: problem.difficulty.charAt(0).toUpperCase() + problem.difficulty.slice(1).toLowerCase() }}
                     />
                 ))}
             </tbody>
