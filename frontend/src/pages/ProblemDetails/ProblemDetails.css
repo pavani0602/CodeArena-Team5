@@ -1,62 +1,43 @@
+/* Exact styling matching the CodeArena Solver Design */
 .problem-details-page {
     min-height: calc(100vh - 80px);
-    background: var(--bg-main, #0b0c10);
-    color: var(--text-main, #ffffff);
-    padding: 24px 0 60px 0;
+    background: #0B1320; /* Deep navy/slate background from design */
+    color: #FFFFFF;
+    padding: 28px 0 60px 0;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
 }
 
 .solver-container {
-    max-width: 1600px;
+    max-width: 1480px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 32px;
 }
 
-.solver-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+/* Back Link */
+.back-link-wrapper {
+    margin-bottom: 20px;
 }
 
-.solver-header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.back-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #fff;
-    padding: 8px 16px;
-    border-radius: 6px;
+.back-link {
+    color: #10B981; /* Emerald green */
+    text-decoration: none;
+    font-size: 0.95rem;
     font-weight: 600;
-    cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s ease;
-    text-decoration: none;
+    transition: opacity 0.2s;
 }
 
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateX(-3px);
+.back-link:hover {
+    opacity: 0.8;
 }
 
-.solver-header h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin: 0;
-    color: #fff;
-}
-
+/* 2-Column Grid Layout */
 .solver-grid {
     display: grid;
-    grid-template-columns: 1fr 1.3fr;
-    gap: 24px;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 28px;
     align-items: start;
 }
 
@@ -66,15 +47,23 @@
     }
 }
 
-/* Left Panel: Problem Statement */
+/* Left Card: Problem Statement Panel */
 .problem-pane {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 24px;
-    backdrop-filter: blur(10px);
+    background: #131F33; /* Dark blue-gray card */
+    border: 1px solid #1E2E48;
+    border-radius: 16px;
+    padding: 28px 32px;
+    min-height: 560px;
     max-height: calc(100vh - 160px);
     overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.problem-title {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 0 0 16px 0;
 }
 
 .problem-meta-bar {
@@ -82,65 +71,94 @@
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .difficulty-badge {
-    padding: 4px 12px;
+    padding: 5px 14px;
     border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 0.82rem;
+    font-weight: 600;
 }
 
 .difficulty-badge.easy {
-    background: rgba(46, 213, 115, 0.15);
-    color: #2ed573;
-    border: 1px solid rgba(46, 213, 115, 0.3);
+    background: #064e3b;
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .difficulty-badge.medium {
-    background: rgba(255, 171, 0, 0.15);
-    color: #ffab00;
-    border: 1px solid rgba(255, 171, 0, 0.3);
+    background: rgba(245, 158, 11, 0.18);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .difficulty-badge.hard {
-    background: rgba(255, 71, 87, 0.15);
-    color: #ff4757;
-    border: 1px solid rgba(255, 71, 87, 0.3);
+    background: rgba(239, 68, 68, 0.18);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .tag-chip {
-    background: rgba(99, 102, 241, 0.15);
-    color: #a5b4fc;
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.8rem;
+    background: #1E2E48;
+    color: #CBD5E1;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
 }
 
+/* Description formatting to match clean typography */
 .problem-description {
     line-height: 1.7;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 1rem;
-    margin-bottom: 24px;
+    color: #CBD5E1;
+    font-size: 0.98rem;
     white-space: pre-wrap;
 }
 
+.problem-description h3, 
+.problem-description h4 {
+    color: #FFFFFF;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 24px 0 12px 0;
+}
+
+/* Example Box matching the dark card with code format inside */
+.example-box {
+    background: #0D1626;
+    border: 1px solid #1E2E48;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 14px;
+    margin-bottom: 20px;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: #E2E8F0;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.example-title {
+    font-weight: 700;
+    color: #FFFFFF;
+    font-size: 1.05rem;
+    margin: 24px 0 10px 0;
+}
+
+/* Tabs switcher inside left pane if needed */
 .pane-tabs {
     display: flex;
-    gap: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 20px;
+    gap: 16px;
+    border-bottom: 1px solid #1E2E48;
+    margin-bottom: 24px;
+    padding-bottom: 8px;
 }
 
 .pane-tab {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.6);
-    padding: 10px 16px;
+    color: #94A3B8;
+    padding: 6px 12px;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
@@ -149,8 +167,8 @@
 }
 
 .pane-tab.active {
-    color: #6366f1;
-    border-bottom: 2px solid #6366f1;
+    color: #10B981;
+    border-bottom: 2px solid #10B981;
 }
 
 .submissions-table {
@@ -160,174 +178,173 @@
 }
 
 .submissions-table th, .submissions-table td {
-    padding: 10px 12px;
+    padding: 12px 14px;
     text-align: left;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid #1E2E48;
     font-size: 0.9rem;
 }
 
-.status-badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 700;
-}
-
-.status-badge.accepted {
-    background: rgba(46, 213, 115, 0.2);
-    color: #2ed573;
-}
-
-.status-badge.wrong {
-    background: rgba(255, 71, 87, 0.2);
-    color: #ff4757;
-}
-
-.status-badge.error {
-    background: rgba(255, 171, 0, 0.2);
-    color: #ffab00;
-}
-
-/* Right Panel: IDE & Code Editor */
-.editor-pane {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 20px;
-    backdrop-filter: blur(10px);
+/* Right Card: Code Editor Panel & IDE */
+.editor-container-right {
     display: flex;
     flex-direction: column;
-    gap: 16px;
 }
 
-.editor-toolbar {
+.editor-card {
+    background: #131F33;
+    border: 1px solid #1E2E48;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.editor-header-bar {
+    background: #182842;
+    padding: 12px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
+    border-bottom: 1px solid #1E2E48;
+}
+
+.editor-file-name {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9rem;
+    color: #94A3B8;
 }
 
 .language-select {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 0.95rem;
+    background: #131F33;
+    border: 1px solid #1E2E48;
+    color: #FFFFFF;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
+    outline: none;
 }
 
-.editor-actions {
-    display: flex;
-    gap: 12px;
-}
-
-.run-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    padding: 8px 18px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-}
-
-.run-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.submit-btn {
-    background: var(--primary, #6366f1);
-    border: none;
-    color: #fff;
-    padding: 8px 22px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    transition: all 0.2s;
-}
-
-.submit-btn:hover {
-    background: #4f46e5;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
-}
-
-.submit-btn:disabled, .run-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.language-select:focus {
+    border-color: #10B981;
 }
 
 .code-textarea {
     width: 100%;
-    min-height: 380px;
-    background: #13141a;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
-    color: #e2e8f0;
+    min-height: 420px;
+    background: #0D1626;
+    border: none;
+    color: #E2E8F0;
     font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
     font-size: 0.95rem;
-    line-height: 1.6;
-    padding: 16px;
+    line-height: 1.65;
+    padding: 24px;
     resize: vertical;
     outline: none;
     tab-size: 4;
 }
 
-.code-textarea:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+/* Buttons Row exactly below the code editor card aligned right */
+.editor-buttons-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+    margin-top: 18px;
 }
 
-.testcase-section {
+.run-code-btn {
+    background: #1E2E48;
+    color: #E2E8F0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 11px 26px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 8px;
 }
 
-.testcase-section label {
-    font-size: 0.85rem;
+.run-code-btn:hover {
+    background: #283C5C;
+    color: #FFFFFF;
+}
+
+.submit-code-btn {
+    background: #10B981; /* Exact emerald green from design */
+    color: #FFFFFF;
+    border: none;
+    padding: 11px 32px;
+    border-radius: 10px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.7);
-    text-transform: uppercase;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.submit-code-btn:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+}
+
+.run-code-btn:disabled, .submit-code-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Optional Custom Input & Results Terminal */
+.execution-panel {
+    margin-top: 24px;
+    background: #131F33;
+    border: 1px solid #1E2E48;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.custom-input-toggle {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 0.88rem;
+    cursor: pointer;
+    margin-top: 14px;
+    text-decoration: underline;
 }
 
 .custom-input-box {
     width: 100%;
     min-height: 70px;
-    background: #0e0f14;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 6px;
-    color: #cbd5e1;
+    background: #0D1626;
+    border: 1px solid #1E2E48;
+    border-radius: 8px;
+    color: #CBD5E1;
     font-family: monospace;
-    padding: 10px;
+    padding: 12px;
+    margin-top: 10px;
     resize: vertical;
 }
 
-/* Console Output & Results */
 .console-output {
-    background: #0a0b0e;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    background: #0D1626;
+    border: 1px solid #1E2E48;
+    border-radius: 10px;
     padding: 16px;
-    margin-top: 10px;
+    margin-top: 16px;
 }
 
 .console-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid #1E2E48;
     padding-bottom: 10px;
     margin-bottom: 12px;
 }
@@ -335,41 +352,30 @@
 .console-header h4 {
     margin: 0;
     font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    color: #FFFFFF;
 }
 
-.result-banner {
-    padding: 10px 14px;
+.status-badge {
+    padding: 4px 10px;
     border-radius: 6px;
+    font-size: 0.82rem;
     font-weight: 700;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.95rem;
 }
 
-.result-banner.success {
-    background: rgba(46, 213, 115, 0.15);
-    border: 1px solid #2ed573;
-    color: #2ed573;
+.status-badge.accepted {
+    background: #064e3b;
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.result-banner.fail {
-    background: rgba(255, 71, 87, 0.15);
-    border: 1px solid #ff4757;
-    color: #ff4757;
+.status-badge.wrong {
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
 }
 
 .console-text {
     font-family: 'Consolas', monospace;
-    font-size: 0.88rem;
-    color: #e2e8f0;
+    font-size: 0.9rem;
+    color: #E2E8F0;
     white-space: pre-wrap;
-    background: #14161f;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
 }

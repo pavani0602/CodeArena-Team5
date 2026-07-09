@@ -2,37 +2,32 @@ import "./ProblemDetails.css";
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import {
-    FaCode,
     FaPlay,
-    FaPaperPlane,
-    FaArrowLeft,
     FaCheckCircle,
     FaTimesCircle,
-    FaExclamationCircle,
     FaSpinner
 } from "react-icons/fa";
 
 const BOILERPLATES = {
-    JAVA: `public class Main {
-    public static void main(String[] args) {
-        // Write your Java solution here
-        System.out.println("Hello, CodeArena!");
+    JAVA: `class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        // Write your Java code here
+        return new int[]{};
     }
 }`,
-    PYTHON: `# Write your Python solution here
-def solve():
-    print("Hello, CodeArena!")
-
-if __name__ == "__main__":
-    solve()`,
-    CPP: `#include <iostream>
+    PYTHON: `def twoSum(nums, target):
+    # Write your Python code here
+    pass`,
+    CPP: `#include <vector>
 using namespace std;
 
-int main() {
-    // Write your C++ solution here
-    cout << "Hello, CodeArena!" << endl;
-    return 0;
-}`
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        // Write your C++ code here
+        return {};
+    }
+};`
 };
 
 function ProblemDetails() {
@@ -45,9 +40,10 @@ function ProblemDetails() {
     const [error, setError] = useState("");
 
     // Editor state
-    const [language, setLanguage] = useState("JAVA");
-    const [code, setCode] = useState(BOILERPLATES.JAVA);
-    const [customInput, setCustomInput] = useState("5 10");
+    const [language, setLanguage] = useState("PYTHON");
+    const [code, setCode] = useState(BOILERPLATES.PYTHON);
+    const [customInput, setCustomInput] = useState("2 7 11 15\n9");
+    const [showCustomInput, setShowCustomInput] = useState(false);
 
     // Execution & Submission state
     const [executing, setExecuting] = useState(false);
@@ -171,12 +167,53 @@ function ProblemDetails() {
         }
     };
 
+    const getFileName = () => {
+        if (language === "PYTHON") return "solution.py";
+        if (language === "JAVA") return "Solution.java";
+        if (language === "CPP") return "solution.cpp";
+        return "solution.txt";
+    };
+
+    // Helper to format/render description cleanly into statement and examples box
+    const renderFormattedDescription = (descText) => {
+        if (!descText) return "No description provided for this problem.";
+
+        // Clean markdown headers if present
+        let cleaned = descText.replace(/###\s*Problem Statement/i, "").trim();
+
+        // Check if there is an example block
+        const exampleIndex = cleaned.search(/####?\s*Example\s*1:/i);
+        if (exampleIndex !== -1) {
+            const statement = cleaned.substring(0, exampleIndex).trim();
+            const afterExample = cleaned.substring(exampleIndex);
+
+            // Extract example content
+            const exampleContent = afterExample.replace(/####?\s*Example\s*1:/i, "").replace(/```/g, "").replace(/####?\s*Constraints:.*/is, "").trim();
+
+            return (
+                <>
+                    <div className="problem-description">{statement}</div>
+                    <div className="example-title">Example 1</div>
+                    <div className="example-box">
+                        {exampleContent.split("\n").map((line, idx) => (
+                            <div key={idx} style={{ marginBottom: line.toLowerCase().includes("input:") || line.toLowerCase().includes("output:") ? "6px" : "0" }}>
+                                {line}
+                            </div>
+                        ))}
+                    </div>
+                </>
+            );
+        }
+
+        return <div className="problem-description">{cleaned}</div>;
+    };
+
     if (loading) {
         return (
             <div className="problem-details-page">
-                <div className="solver-container" style={{ textAlign: "center", padding: "80px 0" }}>
-                    <FaSpinner className="spin" style={{ fontSize: "2rem", color: "#6366f1" }} />
-                    <p style={{ marginTop: "16px", color: "rgba(255,255,255,0.7)" }}>Loading coding challenge #{problemId}...</p>
+                <div className="solver-container" style={{ textAlign: "center", padding: "100px 0" }}>
+                    <FaSpinner className="spin" style={{ fontSize: "2.5rem", color: "#10B981" }} />
+                    <p style={{ marginTop: "16px", color: "#94A3B8" }}>Loading problem #{problemId}...</p>
                 </div>
             </div>
         );
@@ -185,12 +222,12 @@ function ProblemDetails() {
     if (error || !problem) {
         return (
             <div className="problem-details-page">
-                <div className="solver-container" style={{ textAlign: "center", padding: "80px 0" }}>
-                    <FaTimesCircle style={{ fontSize: "3rem", color: "#ff4757" }} />
-                    <h2>Problem Not Found</h2>
-                    <p style={{ color: "rgba(255,255,255,0.7)", margin: "16px 0 24px 0" }}>{error || `We couldn't find problem #${problemId}`}</p>
-                    <Link to="/problems" className="back-btn" style={{ display: "inline-flex" }}>
-                        <FaArrowLeft /> Back to Problems List
+                <div className="solver-container" style={{ textAlign: "center", padding: "100px 0" }}>
+                    <FaTimesCircle style={{ fontSize: "3rem", color: "#EF4444" }} />
+                    <h2 style={{ marginTop: "16px", color: "#fff" }}>Problem Not Found</h2>
+                    <p style={{ color: "#94A3B8", margin: "12px 0 24px 0" }}>{error || `We couldn't find problem #${problemId}`}</p>
+                    <Link to="/problems" className="back-link">
+                        ← Back to Problems
                     </Link>
                 </div>
             </div>
@@ -201,30 +238,17 @@ function ProblemDetails() {
         <section className="problem-details-page">
             <div className="solver-container">
                 
-                {/* Header */}
-                <div className="solver-header">
-                    <div className="solver-header-left">
-                        <Link to="/problems" className="back-btn">
-                            <FaArrowLeft /> Back
-                        </Link>
-                        <h1>{problem.id}. {problem.title}</h1>
-                    </div>
-                    <div className="problem-meta-bar" style={{ margin: 0 }}>
-                        <span className={`difficulty-badge ${problem.difficulty.toLowerCase()}`}>
-                            {problem.difficulty}
-                        </span>
-                        {problem.tags && problem.tags.split(",").map((tag, idx) => (
-                            <span key={idx} className="tag-chip">
-                                {tag.trim()}
-                            </span>
-                        ))}
-                    </div>
+                {/* Back Link */}
+                <div className="back-link-wrapper">
+                    <Link to="/problems" className="back-link">
+                        ← Back to Problems
+                    </Link>
                 </div>
 
-                {/* Split Grid */}
+                {/* 2-Column Split Grid */}
                 <div className="solver-grid">
                     
-                    {/* Left Pane: Problem Description & Submissions Tabs */}
+                    {/* Left Pane: Problem Statement */}
                     <div className="problem-pane">
                         <div className="pane-tabs">
                             <button
@@ -232,30 +256,41 @@ function ProblemDetails() {
                                 className={`pane-tab ${activeTab === "description" ? "active" : ""}`}
                                 onClick={() => handleTabChange("description")}
                             >
-                                📖 Description
+                                Problem
                             </button>
                             <button
                                 type="button"
                                 className={`pane-tab ${activeTab === "submissions" ? "active" : ""}`}
                                 onClick={() => handleTabChange("submissions")}
                             >
-                                🕒 Submissions History
+                                Submissions
                             </button>
                         </div>
 
                         {activeTab === "description" ? (
                             <div>
-                                <div className="problem-description">
-                                    {problem.descriptionMd || problem.description || "No description provided for this problem."}
+                                <h1 className="problem-title">{problem.title}</h1>
+
+                                <div className="problem-meta-bar">
+                                    <span className={`difficulty-badge ${problem.difficulty.toLowerCase()}`}>
+                                        {problem.difficulty}
+                                    </span>
+                                    {problem.tags && problem.tags.split(",").map((tag, idx) => (
+                                        <span key={idx} className="tag-chip">
+                                            {tag.trim()}
+                                        </span>
+                                    ))}
                                 </div>
+
+                                {renderFormattedDescription(problem.descriptionMd || problem.description)}
                             </div>
                         ) : (
                             <div>
-                                <h3 style={{ marginBottom: "12px", fontSize: "1.1rem" }}>Your Submissions for #{problem.id}</h3>
+                                <h3 style={{ marginBottom: "16px", fontSize: "1.1rem", color: "#fff" }}>Submissions History</h3>
                                 {loadingSubmissions ? (
-                                    <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading history...</p>
+                                    <p style={{ color: "#94A3B8" }}>Loading history...</p>
                                 ) : submissionsList.length === 0 ? (
-                                    <p style={{ color: "rgba(255,255,255,0.6)" }}>You haven't submitted any solutions for this problem yet.</p>
+                                    <p style={{ color: "#94A3B8" }}>You haven't submitted any solutions for this problem yet.</p>
                                 ) : (
                                     <table className="submissions-table">
                                         <thead>
@@ -263,7 +298,7 @@ function ProblemDetails() {
                                                 <th>ID</th>
                                                 <th>Status</th>
                                                 <th>Language</th>
-                                                <th>Submitted At</th>
+                                                <th>Time</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -271,7 +306,7 @@ function ProblemDetails() {
                                                 <tr key={sub.id}>
                                                     <td>#{sub.id}</td>
                                                     <td>
-                                                        <span className={`status-badge ${sub.status === "ACCEPTED" ? "accepted" : sub.status === "WRONG_ANSWER" ? "wrong" : "error"}`}>
+                                                        <span className={`status-badge ${sub.status === "ACCEPTED" ? "accepted" : "wrong"}`}>
                                                             {sub.status}
                                                         </span>
                                                     </td>
@@ -286,81 +321,86 @@ function ProblemDetails() {
                         )}
                     </div>
 
-                    {/* Right Pane: IDE & Code Execution */}
-                    <div className="editor-pane">
+                    {/* Right Pane: Code Editor & Buttons Row */}
+                    <div className="editor-container-right">
                         
-                        <div className="editor-toolbar">
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.6)" }}>Language:</span>
+                        {/* Editor Card */}
+                        <div className="editor-card">
+                            <div className="editor-header-bar">
+                                <span className="editor-file-name">{getFileName()}</span>
                                 <select
                                     className="language-select"
                                     value={language}
                                     onChange={handleLanguageChange}
                                 >
-                                    <option value="JAVA">Java 17 (OpenJDK)</option>
-                                    <option value="PYTHON">Python 3</option>
-                                    <option value="CPP">C++ (GCC)</option>
+                                    <option value="PYTHON">Python</option>
+                                    <option value="JAVA">Java</option>
+                                    <option value="CPP">C++</option>
                                 </select>
                             </div>
 
-                            <div className="editor-actions">
-                                <button
-                                    type="button"
-                                    className="run-btn"
-                                    onClick={handleRunCode}
-                                    disabled={executing || submitting}
-                                >
-                                    {executing ? <FaSpinner className="spin" /> : <FaPlay style={{ fontSize: "0.8rem", color: "#2ed573" }} />}
-                                    Run Code
-                                </button>
-                                <button
-                                    type="button"
-                                    className="submit-btn"
-                                    onClick={handleSubmitSolution}
-                                    disabled={executing || submitting}
-                                >
-                                    {submitting ? <FaSpinner className="spin" /> : <FaPaperPlane style={{ fontSize: "0.8rem" }} />}
-                                    Submit Solution
-                                </button>
-                            </div>
+                            <textarea
+                                className="code-textarea"
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                                spellCheck="false"
+                                placeholder="Type your code solution here..."
+                            />
                         </div>
 
-                        {/* Code Editor Area */}
-                        <textarea
-                            className="code-textarea"
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                            spellCheck="false"
-                            placeholder="Type your solution code here..."
-                        />
+                        {/* Buttons Row exactly below the code editor card */}
+                        <div className="editor-buttons-row">
+                            <button
+                                type="button"
+                                className="run-code-btn"
+                                onClick={handleRunCode}
+                                disabled={executing || submitting}
+                            >
+                                {executing ? <FaSpinner className="spin" /> : "Run Code"}
+                            </button>
+                            <button
+                                type="button"
+                                className="submit-code-btn"
+                                onClick={handleSubmitSolution}
+                                disabled={executing || submitting}
+                            >
+                                {submitting ? <FaSpinner className="spin" /> : "Submit Code"}
+                            </button>
+                        </div>
 
-                        {/* Custom Input */}
-                        <div className="testcase-section">
-                            <label>Custom Test Case Input (stdin)</label>
+                        {/* Custom Input Toggle */}
+                        <button
+                            type="button"
+                            className="custom-input-toggle"
+                            onClick={() => setShowCustomInput(!showCustomInput)}
+                        >
+                            {showCustomInput ? "▲ Hide Custom Test Case Input" : "▼ Test against custom input"}
+                        </button>
+                        {showCustomInput && (
                             <textarea
                                 className="custom-input-box"
                                 value={customInput}
                                 onChange={(e) => setCustomInput(e.target.value)}
-                                placeholder="Enter input values to test your code..."
+                                placeholder="Enter custom stdin test values..."
                             />
-                        </div>
+                        )}
 
-                        {/* Execution Results Banner / Console */}
+                        {/* Execution Results Console */}
                         {consoleOutput && (
                             <div className="console-output">
                                 <div className="console-header">
-                                    <h4>⚡ Execution Results</h4>
+                                    <h4>Execution Output</h4>
                                     <span className={`status-badge ${consoleOutput.status === "SUCCESS" ? "accepted" : "wrong"}`}>
                                         {consoleOutput.status}
                                     </span>
                                 </div>
                                 {consoleOutput.error ? (
-                                    <div className="console-text" style={{ color: "#ff8888", border: "1px solid rgba(255, 85, 85, 0.3)" }}>
+                                    <div className="console-text" style={{ color: "#EF4444" }}>
                                         {consoleOutput.error}
                                     </div>
                                 ) : (
                                     <div className="console-text">
-                                        {consoleOutput.output || "(Program produced no output)"}
+                                        {consoleOutput.output || "(No output produced)"}
                                     </div>
                                 )}
                             </div>
@@ -370,29 +410,16 @@ function ProblemDetails() {
                         {submissionResult && (
                             <div className="console-output">
                                 <div className="console-header">
-                                    <h4>🏆 Evaluation Verdict</h4>
+                                    <h4>Submission Verdict</h4>
+                                    <span className={`status-badge ${submissionResult.status === "ACCEPTED" ? "accepted" : "wrong"}`}>
+                                        {submissionResult.status}
+                                    </span>
                                 </div>
-                                <div className={`result-banner ${submissionResult.status === "ACCEPTED" ? "success" : "fail"}`}>
+                                <div className="console-text" style={{ color: submissionResult.status === "ACCEPTED" ? "#10B981" : "#EF4444" }}>
                                     {submissionResult.status === "ACCEPTED" ? (
-                                        <>
-                                            <FaCheckCircle style={{ fontSize: "1.3rem" }} />
-                                            <div>
-                                                <div style={{ fontSize: "1.1rem" }}>ACCEPTED 🎉</div>
-                                                <div style={{ fontSize: "0.85rem", fontWeight: "normal", opacity: 0.9 }}>
-                                                    All test cases passed successfully! Your accuracy score has been updated on the Leaderboard.
-                                                </div>
-                                            </div>
-                                        </>
+                                        "ACCEPTED 🎉 All test cases passed successfully! Your accuracy has been recorded on the leaderboard."
                                     ) : (
-                                        <>
-                                            <FaTimesCircle style={{ fontSize: "1.3rem" }} />
-                                            <div>
-                                                <div style={{ fontSize: "1.1rem" }}>{submissionResult.status || "WRONG ANSWER"}</div>
-                                                <div style={{ fontSize: "0.85rem", fontWeight: "normal", opacity: 0.9 }}>
-                                                    Your solution did not pass all hidden test cases. Double check your algorithm or edge cases!
-                                                </div>
-                                            </div>
-                                        </>
+                                        `${submissionResult.status || "WRONG ANSWER"} ❌ Your code did not pass all hidden test cases.`
                                     )}
                                 </div>
                             </div>
