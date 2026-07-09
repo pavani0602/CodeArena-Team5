@@ -20,9 +20,11 @@ function App() {
     <Route element={<MainLayout />} >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/problems" element={<Problems />} />
+        <Route path="/problems/:id" element={<ProblemDetails />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/problemDetails" element={<ProblemDetails />} />
+        <Route path="/problemDetails/:id" element={<ProblemDetails />} />
     </Route>
     <Route element={<PublicLayout />} >
         <Route path="/" element={<Home />} />

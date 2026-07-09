@@ -1,5 +1,6 @@
 import "./ProblemRow.css";
 import { FaCheckCircle, FaRegCircle, FaClock } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 function ProblemRow({ problem }) {
 
@@ -21,7 +22,11 @@ function ProblemRow({ problem }) {
 
             <td>{problem.id}</td>
 
-            <td>{problem.title}</td>
+            <td>
+                <Link to={`/problems/${problem.id}`} style={{ color: 'inherit', textDecoration: 'none', fontWeight: '600' }}>
+                    {problem.title}
+                </Link>
+            </td>
 
             <td>
                 <span
@@ -36,9 +41,11 @@ function ProblemRow({ problem }) {
             </td>
 
             <td>
-                <button className="solve-btn">
-                    Solve →
-                </button>
+                <Link to={`/problems/${problem.id}`} style={{ textDecoration: 'none' }}>
+                    <button className="solve-btn" style={{ cursor: 'pointer' }}>
+                        Solve →
+                    </button>
+                </Link>
             </td>
 
         </tr>

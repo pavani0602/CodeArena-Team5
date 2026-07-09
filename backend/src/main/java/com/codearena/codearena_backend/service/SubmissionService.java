@@ -56,7 +56,14 @@ public class SubmissionService {
                 .orElseThrow(() -> new RuntimeException("Problem not found"));
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseGet(() -> {
+                    User u = new User();
+                    u.setUsername(username);
+                    u.setEmail(username + "@codearena.com");
+                    u.setPasswordHash("password123");
+                    u.setRole(com.codearena.codearena_backend.enumtype.UserRole.USER);
+                    return userRepository.save(u);
+                });
 
         LocalDateTime oneMinuteAgo = LocalDateTime.now().minusMinutes(1);
 

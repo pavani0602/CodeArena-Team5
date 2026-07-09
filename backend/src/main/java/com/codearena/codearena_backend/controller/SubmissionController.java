@@ -20,13 +20,14 @@ public class SubmissionController {
     }
 
     @PostMapping("/problem/{problemId}")
-    public String createSubmission(
+    public Submission createSubmission(
             @PathVariable Long problemId,
             @RequestBody SubmissionRequest request
     ) {
         try {
-            Submission submission = submissionService.createSubmission(problemId, "testuser6", request);
-            return "Submission saved successfully. Status: " + submission.getStatus();
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            String username = (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) ? auth.getName() : "testuser6";
+            return submissionService.createSubmission(problemId, username, request);
         } catch (RuntimeException e) {
 
             if (e.getMessage() != null && e.getMessage().contains("Submission limit exceeded")) {
