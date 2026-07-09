@@ -1,31 +1,4 @@
 
--- Drop existing types if they exist (safe re-run)
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
-        CREATE TYPE user_role AS ENUM ('USER', 'ADMIN');
-    END IF;
-END $$;
-
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'difficulty_level') THEN
-        CREATE TYPE difficulty_level AS ENUM ('EASY', 'MEDIUM', 'HARD');
-    END IF;
-END $$;
-
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'submission_status') THEN
-        CREATE TYPE submission_status AS ENUM (
-            'PENDING',
-            'RUNNING',
-            'ACCEPTED',
-            'WRONG_ANSWER',
-            'TIME_LIMIT_EXCEEDED',
-            'MEMORY_LIMIT_EXCEEDED',
-            'RUNTIME_ERROR',
-            'COMPILATION_ERROR'
-        );
-    END IF;
-END $$;
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,

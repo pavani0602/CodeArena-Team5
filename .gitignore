@@ -12,3 +12,8 @@ Desktop.ini
 
 # Environment
 .env
+
+# Local Database Files
+backend/data/
+*.mv.db
+
