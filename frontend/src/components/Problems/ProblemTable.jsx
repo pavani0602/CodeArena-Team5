@@ -2,7 +2,7 @@ import "./ProblemTable.css";
 import { useState, useEffect } from "react";
 import ProblemRow from "./ProblemRow";
 
-function ProblemTable({ searchQuery, difficultyFilter }) {
+function ProblemTable({ searchQuery, difficultyFilter, refreshKey }) {
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -35,7 +35,7 @@ function ProblemTable({ searchQuery, difficultyFilter }) {
         };
 
         fetchProblems();
-    }, []);
+    }, [refreshKey]);
 
     const filtered = problems.filter((p) => {
         const matchSearch = searchQuery

@@ -21,6 +21,7 @@ public class ProblemService {
         problem.setTitle(request.getTitle());
         problem.setDescription(request.getDescription());
         problem.setDifficulty(request.getDifficulty());
+        problem.setTags(request.getTags());
 
         return problemRepository.save(problem);
     }
