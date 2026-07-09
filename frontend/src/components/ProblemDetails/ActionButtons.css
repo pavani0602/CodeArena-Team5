@@ -5,6 +5,7 @@
 }
 
 .action-buttons button{
+    margin-top: 10px;
     padding:14px 28px;
     border:none;
     border-radius:12px;
