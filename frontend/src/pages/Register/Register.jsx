@@ -1,6 +1,6 @@
 import "../Login/Login.css";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import {
     FaLaptopCode,
@@ -16,19 +16,14 @@ import {
 function Register() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const urlRole = searchParams.get("role");
+    const initialRole = urlRole && (urlRole.toUpperCase() === "ADMIN" || urlRole.toUpperCase() === "HOST")
+        ? "ADMIN"
+        : "USER";
     const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "" });
-    const [role, setRole] = useState("USER");
+    const [role, setRole] = useState(initialRole);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        const urlRole = searchParams.get("role");
-        if (urlRole && (urlRole.toUpperCase() === "ADMIN" || urlRole.toUpperCase() === "HOST")) {
-            setRole("ADMIN");
-        } else if (urlRole && urlRole.toUpperCase() === "USER") {
-            setRole("USER");
-        }
-    }, [searchParams]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.id]: e.target.value });
@@ -64,7 +59,7 @@ function Register() {
                 localStorage.setItem("userRole", data.role || role);
                 navigate("/problems");
             }
-        } catch (err) {
+        } catch {
             setError("Network error. Is the backend running?");
         } finally {
             setLoading(false);

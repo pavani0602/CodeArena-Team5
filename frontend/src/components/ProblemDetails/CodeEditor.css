@@ -1,0 +1,111 @@
+.editor-panel {
+    background: #0f172a; /* Rich dark layout slate */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Flex wrapper linking numbers side-by-side with text strings */
+.editor-workspace {
+    display: flex;
+    flex: 1;
+    overflow-y: auto;
+    background: #090d16; /* Deep dark code terminal fill */
+    position: relative;
+}
+
+/* --- 1. Line Numbers Sidebar --- */
+.line-numbers-sidebar {
+    width: 48px;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    user-select: none;
+    background: #0b111e; /* Distinct background accent for numbers layout */
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    padding-right: 12px;
+}
+
+.line-number {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #475569; /* Distinctive mute color for non-active items */
+}
+
+/* --- 2. Main Code Content Area --- */
+.code-area-wrapper {
+    flex: 1;
+    overflow-x: auto;
+}
+
+.code-editor-view {
+    margin: 0;
+    padding: 24px 16px;
+    font-family: 'Fira Code', 'Courier New', Courier, monospace;
+    font-size: 1.05rem; /* Upgraded easily readable text font scale */
+    line-height: 1.7;
+    color: #e2e8f0; /* Default white token base fallback */
+}
+
+.code-editor-view code {
+    font-family: inherit;
+}
+
+/* --- 3. Custom Syntax Highlighter Theme (VS Code Inspired) --- */
+.token.keyword {
+    color: #f43f5e; /* Vibrant pink/rose keyword keywords (class, public, return) */
+    font-weight: 600;
+}
+
+.token.function {
+    color: #38bdf8; /* Soft blue function names (twoSum) */
+}
+
+.token.class-name {
+    color: #fbbf24; /* Amber colored Class definition items */
+}
+
+.token.comment {
+    color: #64748b; /* Clean slate-gray code notations */
+    font-style: italic;
+}
+
+.token.string {
+    color: #34d399; /* Bright emerald for string parameters or includes */
+}
+
+.token.directive {
+    color: #a855f7; /* Purple accents for custom configurations */
+}
+
+/* --- 4. Premium Top Dropdown Selector --- */
+.lang-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-right: 12px;
+}
+
+.lang-dropdown {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f1f5f9;
+    padding: 6px 36px 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.lang-dropdown:hover {
+    background: #1e293b;
+    border-color: #10b981; /* Glow accent matching branding */
+}

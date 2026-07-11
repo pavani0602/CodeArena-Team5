@@ -1,10 +1,8 @@
 import './Dashboard.css';
-import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaCode, FaTrophy, FaBolt, FaChartBar } from 'react-icons/fa';
 
 function Dashboard() {
-    const navigate = useNavigate();
     const username = localStorage.getItem('username') || 'Coder';
 
     const stats = [

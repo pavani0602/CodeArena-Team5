@@ -1,0 +1,78 @@
+.action-buttons{
+    display:flex;
+    justify-content:flex-end;
+    gap:16px;
+}
+
+.action-buttons button{
+    margin-top: 10px;
+    padding:14px 28px;
+    border:none;
+    border-radius:12px;
+    font-size:1rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.25s;
+}
+
+.run-btn{
+    background:#1e293b;
+    color:white;
+}
+
+.run-btn:hover{
+    background:#334155;
+    transform:translateY(-2px);
+}
+
+.submit-btn{
+    background:var(--primary);
+    color:white;
+}
+
+.submit-btn:hover{
+    background:var(--primary-hover);
+    transform:translateY(-2px);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Adds explicit spacing between Run and Submit buttons */
+    margin-left: auto; /* Pushes the buttons perfectly to the right side */
+}
+
+.run-action-btn, .submit-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    white-space: nowrap; /* Prevents text from breaking or squishing */
+}
+
+.run-action-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+}
+
+.run-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+.submit-action-btn {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.submit-action-btn:hover {
+    background: #059669;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}

@@ -1,80 +1,127 @@
 import "./Navbar.css";
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import {
+    FaChevronDown,
+    FaFire,
+    FaSignOutAlt,
+    FaThLarge,
+    FaUserCircle
+} from "react-icons/fa";
+
+const normalizeRole = (role) => (role || "USER").toUpperCase();
 
 function Navbar() {
     const navigate = useNavigate();
-    const username = localStorage.getItem("username");
-    const userRole = localStorage.getItem("userRole") || "USER";
-    const isLoggedIn = !!localStorage.getItem("token");
+    const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
+    const [userRole] = useState(() => normalizeRole(localStorage.getItem("userRole")));
+    const [username] = useState(() => localStorage.getItem("username") || "");
+    const [showDropdown, setShowDropdown] = useState(false);
 
-    const handleLogout = () => {
+    const [userStats] = useState({
+        streak: 6
+    });
+
+    const handleSignOut = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("username");
         localStorage.removeItem("userRole");
-        navigate("/login");
+        setIsLoggedIn(false);
+        setShowDropdown(false);
+        navigate("/");
     };
+
+    const isAdmin = userRole === "ADMIN";
 
     return (
         <nav className="navbar">
             <div className="left">
-                <Link to="/" style={{ textDecoration: 'none' }}>
+                <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
                     <h2>Code<span className="arena">Arena</span></h2>
                 </Link>
             </div>
+
             <div className="middle">
-                <NavLink to="/problems">Problems</NavLink>
-                <NavLink to="/leaderboard">Leaderboard</NavLink>
-                <NavLink to="/discussion">Discussion</NavLink>
-            </div>
-            <div className="right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {isLoggedIn ? (
+                {isLoggedIn && isAdmin ? (
                     <>
-                        <span className="nav-username" style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            background: userRole === 'ADMIN' ? 'rgba(255, 85, 85, 0.2)' : 'rgba(99, 102, 241, 0.2)',
-                            border: userRole === 'ADMIN' ? '1px solid #ff5555' : '1px solid #6366f1',
-                            padding: '4px 10px',
-                            borderRadius: '20px',
-                            fontSize: '0.85rem',
-                            fontWeight: '600'
-                        }}>
-                            {userRole === 'ADMIN' ? '🛡️ Host:' : '💻 Solver:'} {username}
-                        </span>
-                        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+                        <NavLink to="/admin">Problem Workspace</NavLink>
+                        <NavLink to="/problems">Problems</NavLink>
+                        <NavLink to="/leaderboard">Leaderboard</NavLink>
                     </>
                 ) : (
                     <>
-                        <Link to="/register?role=ADMIN" style={{ textDecoration: 'none' }}>
-                            <button style={{
-                                background: 'transparent',
-                                border: '1px solid #ff5555',
-                                color: '#ff8888',
-                                padding: '8px 14px',
-                                borderRadius: '6px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                fontSize: '0.85rem'
-                            }}>
-                                🛡️ Host Admin
-                            </button>
-                        </Link>
-                        <Link to="/register?role=USER" style={{ textDecoration: 'none' }}>
-                            <button style={{
-                                background: 'var(--primary, #6366f1)',
-                                border: 'none',
-                                color: '#ffffff',
-                                padding: '8px 16px',
-                                borderRadius: '6px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                fontSize: '0.85rem'
-                            }}>
-                                💻 Solver Portal
-                            </button>
-                        </Link>
+                        <NavLink to="/problems">Problems</NavLink>
+                        <NavLink to="/leaderboard">Leaderboard</NavLink>
+                        <NavLink to="/discussion">Discussion</NavLink>
                     </>
+                )}
+            </div>
+
+            <div className="right">
+                {!isLoggedIn ? (
+                    <div className="public-nav-actions">
+                        <Link to="/login">
+                            <button>Login or Signup</button>
+                        </Link>
+                        <Link to="/register?role=ADMIN">
+                            <button className="host-admin-btn">Host Admin</button>
+                        </Link>
+                        <Link to="/register?role=USER">
+                            <button className="solver-portal-btn">Solver Portal</button>
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="authenticated-actions-wrapper">
+                        {!isAdmin && (
+                            <div className="streak-badge" title="Your daily coding streak">
+                                <FaFire className="streak-icon" />
+                                <span>{userStats.streak}</span>
+                            </div>
+                        )}
+
+                        <div className="profile-dropdown-container">
+                            <button
+                                className="profile-menu-trigger profile-trigger-btn"
+                                onClick={() => setShowDropdown(!showDropdown)}
+                                type="button"
+                            >
+                                <FaUserCircle size={18} className="avatar-placeholder" />
+                                <span className="user-role-label">
+                                    {isAdmin ? "Admin" : "Coder"}
+                                </span>
+                                <FaChevronDown
+                                    size={10}
+                                    className={`chevron-icon ${showDropdown ? "rotate" : ""}`}
+                                />
+                            </button>
+
+                            {showDropdown && (
+                                <div className="navbar-dropdown-menu">
+                                    <div className="dropdown-user-header">
+                                        <span>Signed in as</span>
+                                        <strong>{username || (isAdmin ? "Admin" : "Coder")}</strong>
+                                    </div>
+                                    <hr className="dropdown-divider" />
+
+                                    <Link
+                                        to={isAdmin ? "/admin" : "/dashboard"}
+                                        className="dropdown-item"
+                                        onClick={() => setShowDropdown(false)}
+                                    >
+                                        <FaThLarge size={14} /> Dashboard
+                                    </Link>
+
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="dropdown-item logout-btn dropdown-logout-action"
+                                        type="button"
+                                    >
+                                        <FaSignOutAlt size={14} /> Sign Out
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 )}
             </div>
         </nav>

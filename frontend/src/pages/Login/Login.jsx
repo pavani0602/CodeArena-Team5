@@ -39,7 +39,7 @@ function Login() {
                 localStorage.setItem("userRole", data.role || "USER");
                 navigate("/problems");
             }
-        } catch (err) {
+        } catch {
             setError("Network error. Is the backend running?");
         } finally {
             setLoading(false);

@@ -5,7 +5,6 @@ import ProblemRow from "./ProblemRow";
 function ProblemTable({ searchQuery, difficultyFilter, refreshKey }) {
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
 
     useEffect(() => {
         const fetchProblems = async () => {
@@ -14,7 +13,7 @@ function ProblemTable({ searchQuery, difficultyFilter, refreshKey }) {
                 if (!res.ok) throw new Error("Failed to load problems");
                 const data = await res.json();
                 setProblems(data);
-            } catch (err) {
+            } catch {
                 // Backend not running or no data yet — fall back to sample data
                 setProblems([
                     { id: 1, title: "Two Sum", difficulty: "EASY" },
@@ -28,7 +27,6 @@ function ProblemTable({ searchQuery, difficultyFilter, refreshKey }) {
                     { id: 9, title: "Climbing Stairs", difficulty: "EASY" },
                     { id: 10, title: "Median of Two Sorted Arrays", difficulty: "HARD" },
                 ]);
-                setError(""); // No error shown, sample data used
             } finally {
                 setLoading(false);
             }

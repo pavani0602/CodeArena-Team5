@@ -1,9 +1,8 @@
 import "./ProblemDetails.css";
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import {
     FaSpinner,
-    FaCheckCircle,
     FaTimesCircle
 } from "react-icons/fa";
 
@@ -653,11 +652,7 @@ function ProblemDetails() {
     const [loadingSubmissions, setLoadingSubmissions] = useState(false);
     const [selectedHistorySub, setSelectedHistorySub] = useState(null);
 
-    useEffect(() => {
-        fetchProblem();
-    }, [problemId]);
-
-    const fetchProblem = async () => {
+    const fetchProblem = useCallback(async () => {
         setLoading(true);
         setError("");
         try {
@@ -674,7 +669,12 @@ function ProblemDetails() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [language, problemId]);
+
+    useEffect(() => {
+        const timeoutId = window.setTimeout(fetchProblem, 0);
+        return () => window.clearTimeout(timeoutId);
+    }, [fetchProblem]);
 
     const fetchSubmissions = async () => {
         setLoadingSubmissions(true);
@@ -726,7 +726,7 @@ function ProblemDetails() {
             });
             const data = await res.json();
             setConsoleOutput(data);
-        } catch (err) {
+        } catch {
             setConsoleOutput({
                 status: "ERROR",
                 error: "Network failure: Could not connect to backend execution server."
@@ -761,7 +761,7 @@ function ProblemDetails() {
             if (activeTab === "submissions") {
                 fetchSubmissions();
             }
-        } catch (err) {
+        } catch {
             setSubmissionResult({
                 status: "RUNTIME_ERROR",
                 message: "Error submitting code. Check backend connection."
