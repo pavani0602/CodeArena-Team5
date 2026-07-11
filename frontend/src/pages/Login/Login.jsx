@@ -69,7 +69,7 @@ function Login() {
                 localStorage.setItem('userRole', 'user');
                 localStorage.setItem('token', 'mock-user-token');
                 alert('Login successful with custom testing account!');
-                navigate('/dashboard');
+                navigate('/problems');
             } else {
                 setError('Please fill in all fields.');
             }
