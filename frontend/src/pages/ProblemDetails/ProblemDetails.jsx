@@ -49,13 +49,42 @@ function ProblemDetails() {
     // Lifted State: Manage language here so ActionButtons can read it
     const [selectedLang, setSelectedLang] = useState('python');
 
-    // Execution Handlers
+    // 🛡️ Updated Guard: Checks for both login status and admin restrictions
+    const checkAuth = (actionType) => {
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('userRole');
+        
+        // 1. Guest Check
+        if (!token) {
+            const confirmLogin = window.confirm(
+                "You must be logged in to compile or submit solutions and track your progress! Would you like to go to the login page now?"
+            );
+            if (confirmLogin) {
+                navigate('/login');
+            }
+            return false; 
+        }
+
+        // 2. Admin Leaderboard Protection Guard
+        if (role === 'admin' && actionType === 'submit') {
+            alert("⚠️ Submission Access Denied: Admin accounts cannot submit solutions to the live leaderboard to prevent scoring conflicts. Please use a regular Coder account to test submissions.");
+            return false; // 🛑 Block the submission completely
+        }
+
+        return true; // Safe to proceed
+    };
+
+    // Execution Handlers passing the action type
     const handleRunCode = () => {
+        if (!checkAuth('run')) return; // Admins AND Coders are allowed to run test cases
+
         alert(`Running solution for "${problem.title}" using ${selectedLang.toUpperCase()}...`);
         // Future: Add your API call here to compile code against sample test cases
     };
 
     const handleSubmitCode = () => {
+        if (!checkAuth('submit')) return; // Admins will get blocked here!
+
         alert(`Submitting solution for "${problem.title}" using ${selectedLang.toUpperCase()}! Checking all test cases...`);
         // Future: Add your API call here to submit code to backend evaluation engine
     };
@@ -82,16 +111,28 @@ function ProblemDetails() {
                         <button className="nav-arrow-btn" onClick={handleNext} disabled={!MOCK_PROBLEMS[currentId + 1]}><FaChevronRight size={11} /></button>
                         <button className="nav-arrow-btn pick-one" onClick={handlePickOne} title="Pick Random Problem"><FaRandom size={12} /></button>
                     </div>
-                    {/* <span className="current-prob-title">{problem.id}. {problem.title}</span> */}
                 </div>
                 
-                {/* Pass functions into your Action Buttons component */}
                 <ActionButtons onRun={handleRunCode} onSubmit={handleSubmitCode} />
             </header>
 
+            {/* 💡 Guest Notification Banner directly above the split panel workspaces */}
+            {!localStorage.getItem('token') && (
+                <div style={{
+                    background: 'rgba(239, 68, 68, 0.08)',
+                    borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+                    color: '#ef4444',
+                    padding: '8px 16px',
+                    fontSize: '0.85rem',
+                    textAlign: 'center',
+                    fontWeight: '500'
+                }}>
+                    ⚠️ You are exploring this workspace as a guest. Please <Link to="/login" style={{ color: '#ef4444', fontWeight: '700', textDecoration: 'underline' }}>Sign In</Link> to save changes and execute code blocks.
+                </div>
+            )}
+
             <div className="workspace-panels">
                 <ProblemDescription problem={problem} />
-                {/* Pass state and setter down to CodeEditor */}
                 <CodeEditor selectedLang={selectedLang} setSelectedLang={setSelectedLang} />
             </div>
         </div>
