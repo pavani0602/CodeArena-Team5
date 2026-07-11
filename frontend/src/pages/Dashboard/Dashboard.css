@@ -152,3 +152,30 @@
 .activity-empty a:hover {
     text-decoration: underline;
 }
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activity-row {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 14px;
+    text-decoration: none;
+}
+
+.activity-row:hover {
+    border-color: var(--primary);
+}
+
+.activity-row strong {
+    color: var(--primary);
+    font-size: 0.82rem;
+}

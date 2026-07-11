@@ -1,5 +1,5 @@
 import "./Navbar.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
     FaChevronDown,
@@ -17,10 +17,40 @@ function Navbar() {
     const [userRole] = useState(() => normalizeRole(localStorage.getItem("userRole")));
     const [username] = useState(() => localStorage.getItem("username") || "");
     const [showDropdown, setShowDropdown] = useState(false);
+    const isAdmin = userRole === "ADMIN";
 
-    const [userStats] = useState({
-        streak: 6
-    });
+    const [userStats, setUserStats] = useState({ streak: 0 });
+
+    useEffect(() => {
+        if (!isLoggedIn || isAdmin) return undefined;
+
+        let mounted = true;
+        const loadStats = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                const res = await fetch("/api/submissions/summary", { headers, cache: "no-store" });
+                if (!res.ok) throw new Error("Failed to load stats");
+                const data = await res.json();
+                if (mounted) setUserStats({ streak: data.streak || 0 });
+            } catch {
+                if (mounted) setUserStats({ streak: 0 });
+            }
+        };
+
+        loadStats();
+        const intervalId = window.setInterval(loadStats, 5000);
+        const refreshHandler = () => loadStats();
+        window.addEventListener("codearena:leaderboard-updated", refreshHandler);
+        window.addEventListener("codearena:submission-updated", refreshHandler);
+
+        return () => {
+            mounted = false;
+            window.clearInterval(intervalId);
+            window.removeEventListener("codearena:leaderboard-updated", refreshHandler);
+            window.removeEventListener("codearena:submission-updated", refreshHandler);
+        };
+    }, [isAdmin, isLoggedIn]);
 
     const handleSignOut = () => {
         localStorage.removeItem("token");
@@ -31,8 +61,6 @@ function Navbar() {
         navigate("/");
     };
 
-    const isAdmin = userRole === "ADMIN";
-
     return (
         <nav className="navbar">
             <div className="left">
@@ -42,7 +70,7 @@ function Navbar() {
             </div>
 
             <div className="middle">
-                {isLoggedIn && isAdmin ? (
+                {!isLoggedIn ? null : isAdmin ? (
                     <>
                         <NavLink to="/admin">Problem Workspace</NavLink>
                         <NavLink to="/problems">Problems</NavLink>
@@ -62,12 +90,6 @@ function Navbar() {
                     <div className="public-nav-actions">
                         <Link to="/login">
                             <button>Login or Signup</button>
-                        </Link>
-                        <Link to="/register?role=ADMIN">
-                            <button className="host-admin-btn">Host Admin</button>
-                        </Link>
-                        <Link to="/register?role=USER">
-                            <button className="solver-portal-btn">Solver Portal</button>
                         </Link>
                     </div>
                 ) : (

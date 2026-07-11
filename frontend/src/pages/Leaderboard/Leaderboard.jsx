@@ -5,22 +5,38 @@ import { FaTrophy, FaMedal } from 'react-icons/fa';
 function Leaderboard() {
     const [entries, setEntries] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [lastUpdated, setLastUpdated] = useState(null);
 
     useEffect(() => {
-        fetch('/api/leaderboard')
-            .then(res => res.ok ? res.json() : Promise.reject())
-            .then(data => setEntries(data))
-            .catch(() => {
-                // Fallback sample data when backend not connected
-                setEntries([
-                    { id: 1, user: { username: 'codemaster' }, problemsSolved: 42, accuracy: 95.5, rank: 1 },
-                    { id: 2, user: { username: 'algo_ninja' }, problemsSolved: 38, accuracy: 88.2, rank: 2 },
-                    { id: 3, user: { username: 'dev_hero' }, problemsSolved: 31, accuracy: 79.0, rank: 3 },
-                    { id: 4, user: { username: 'byte_wizard' }, problemsSolved: 27, accuracy: 83.1, rank: 4 },
-                    { id: 5, user: { username: 'loop_breaker' }, problemsSolved: 20, accuracy: 70.5, rank: 5 },
-                ]);
-            })
-            .finally(() => setLoading(false));
+        let mounted = true;
+
+        const loadLeaderboard = async (showLoader = false) => {
+            if (showLoader) setLoading(true);
+
+            try {
+                const res = await fetch('/api/leaderboard', { cache: 'no-store' });
+                if (!res.ok) throw new Error('Failed to load leaderboard');
+                const data = await res.json();
+                if (!mounted) return;
+                setEntries(data);
+                setLastUpdated(new Date());
+            } catch {
+                if (mounted) setEntries([]);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+
+        loadLeaderboard(true);
+        const intervalId = window.setInterval(() => loadLeaderboard(false), 5000);
+        const refreshHandler = () => loadLeaderboard(false);
+        window.addEventListener('codearena:leaderboard-updated', refreshHandler);
+
+        return () => {
+            mounted = false;
+            window.clearInterval(intervalId);
+            window.removeEventListener('codearena:leaderboard-updated', refreshHandler);
+        };
     }, []);
 
     const getRankIcon = (rank) => {
@@ -34,8 +50,13 @@ function Leaderboard() {
         <section className="leaderboard-page">
             <div className="container">
                 <div className="leaderboard-header">
-                    <h1>🏆 Leaderboard</h1>
+                    <h1>Leaderboard</h1>
                     <p>Top performers ranked by problems solved on CodeArena.</p>
+                    {lastUpdated && (
+                        <span className="live-indicator">
+                            Live - updated {lastUpdated.toLocaleTimeString()}
+                        </span>
+                    )}
                 </div>
 
                 {loading ? (
@@ -49,20 +70,28 @@ function Leaderboard() {
                             <thead>
                                 <tr>
                                     <th>Rank</th>
+                                    <th>User ID</th>
                                     <th>Username</th>
                                     <th>Problems Solved</th>
                                     <th>Accuracy</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {entries.map((entry, i) => (
-                                    <tr key={entry.id} className={i < 3 ? `top-${i + 1}` : ''}>
+                                {entries.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="empty-leaderboard">
+                                            No submissions yet. Solve a problem to appear here.
+                                        </td>
+                                    </tr>
+                                ) : entries.map((entry, i) => (
+                                    <tr key={entry.id || entry.user?.username || i} className={i < 3 ? `top-${i + 1}` : ''}>
                                         <td className="rank-cell">
                                             {getRankIcon(entry.rank || i + 1)}
                                         </td>
+                                        <td className="user-id-cell">#{entry.user?.id || '-'}</td>
                                         <td className="username-cell">
-                                            <span className="avatar">{entry.user?.username?.charAt(0).toUpperCase()}</span>
-                                            {entry.user?.username}
+                                            <span className="avatar">{entry.user?.username?.charAt(0).toUpperCase() || '?'}</span>
+                                            {entry.user?.username || 'Unknown'}
                                         </td>
                                         <td className="solved-cell">
                                             <span className="solved-badge">{entry.problemsSolved}</span>

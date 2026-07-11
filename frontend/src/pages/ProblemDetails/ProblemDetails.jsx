@@ -45,6 +45,38 @@ const getDefaultInput = (problem) => {
     return "2 7 11 15\n9";
 };
 
+const getSolvedComplexity = (problem) => {
+    const title = (problem?.title || "").toLowerCase();
+
+    if (title.includes("two sum")) return "Time: O(n), Space: O(n)";
+    if (title.includes("reverse string")) return "Time: O(n), Space: O(1)";
+    if (title.includes("longest substring")) return "Time: O(n), Space: O(min(n, k))";
+    if (title.includes("merge intervals")) return "Time: O(n log n), Space: O(n)";
+    if (title.includes("valid parentheses")) return "Time: O(n), Space: O(n)";
+    if (title.includes("maximum subarray")) return "Time: O(n), Space: O(1)";
+    if (title.includes("level order") || title.includes("binary tree")) return "Time: O(n), Space: O(n)";
+    if (title.includes("climbing stairs")) return "Time: O(n), Space: O(1)";
+    if (title.includes("median")) return "Time: O((m + n) log(m + n)), Space: O(m + n)";
+    if (title.includes("queens")) return "Time: O(n!), Space: O(n^2)";
+
+    return "Time complexity available after solution review";
+};
+
+const formatExecutionTime = (value) => {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+        return "-";
+    }
+    return `${Number(value)} ms`;
+};
+
+const getSubmissionExecutionTime = (submission) => {
+    if (!submission?.results || !Array.isArray(submission.results)) {
+        return null;
+    }
+
+    return submission.results.reduce((total, result) => total + Number(result.executionTimeMs || 0), 0);
+};
+
 const getProblemBoilerplate = (problem, lang) => {
     if (!problem) return BOILERPLATES[lang] || "";
     const title = (problem.title || "").toLowerCase();
@@ -719,6 +751,7 @@ function ProblemDetails() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    problemId: Number(problemId),
                     language: language,
                     code: code,
                     input: customInput
@@ -758,6 +791,8 @@ function ProblemDetails() {
             });
             const data = await res.json();
             setSubmissionResult(data);
+            window.dispatchEvent(new Event("codearena:submission-updated"));
+            if (data?.status === "ACCEPTED") window.dispatchEvent(new Event("codearena:leaderboard-updated"));
             if (activeTab === "submissions") {
                 fetchSubmissions();
             }
@@ -844,6 +879,10 @@ function ProblemDetails() {
                                             <div className={`testcase-field-val ${!res.passed ? "actual-wrong" : ""}`}>
                                                 {res.actualOutput || "(No output produced)"}
                                             </div>
+                                        </div>
+                                        <div className="testcase-field">
+                                            <div className="testcase-field-label">Execution Time</div>
+                                            <div className="testcase-field-val">{formatExecutionTime(res.executionTimeMs)}</div>
                                         </div>
                                         {!res.passed && (
                                             <div className="failure-highlight-box">
@@ -967,6 +1006,8 @@ function ProblemDetails() {
                                                     <th>ID</th>
                                                     <th>Status</th>
                                                     <th>Language</th>
+                                                    <th>Complexity</th>
+                                                    <th>Runtime</th>
                                                     <th>Time</th>
                                                 </tr>
                                             </thead>
@@ -985,6 +1026,8 @@ function ProblemDetails() {
                                                             </span>
                                                         </td>
                                                         <td>{sub.language}</td>
+                                                        <td>{sub.status === "ACCEPTED" ? getSolvedComplexity(problem) : "-"}</td>
+                                                        <td>{sub.status === "ACCEPTED" ? formatExecutionTime(getSubmissionExecutionTime(sub)) : "-"}</td>
                                                         <td>{sub.submittedAt ? new Date(sub.submittedAt).toLocaleTimeString() : "Just now"}</td>
                                                     </tr>
                                                 ))}
@@ -1113,6 +1156,7 @@ function ProblemDetails() {
                                         {consoleOutput.output || "(No output produced)"}
                                     </div>
                                 )}
+                                <div className="runtime-line">Runtime: {formatExecutionTime(consoleOutput.executionTimeMs)}</div>
                             </div>
                         )}
 
@@ -1139,6 +1183,20 @@ function ProblemDetails() {
                                         `${submissionResult.status || "WRONG ANSWER"} ❌ Your code did not pass all test cases. See exact failure details below:`
                                     )}
                                 </div>
+
+                                {submissionResult.status === "ACCEPTED" && (
+                                    <div className="complexity-card">
+                                        <span className="complexity-label">Complexity</span>
+                                        <span>{getSolvedComplexity(problem)}</span>
+                                    </div>
+                                )}
+
+                                {submissionResult.status === "ACCEPTED" && (
+                                    <div className="complexity-card">
+                                        <span className="complexity-label">Runtime</span>
+                                        <span>{formatExecutionTime(getSubmissionExecutionTime(submissionResult))}</span>
+                                    </div>
+                                )}
 
                                 {renderTestCasesList(submissionResult.results)}
                             </div>

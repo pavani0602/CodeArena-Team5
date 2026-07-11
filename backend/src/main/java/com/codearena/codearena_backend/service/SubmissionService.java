@@ -1,7 +1,5 @@
 package com.codearena.codearena_backend.service;
 
-import com.codearena.codearena_backend.dto.CodeExecutionRequest;
-import com.codearena.codearena_backend.dto.CodeExecutionResponse;
 import com.codearena.codearena_backend.dto.SubmissionRequest;
 import com.codearena.codearena_backend.entity.Problem;
 import com.codearena.codearena_backend.entity.Submission;
@@ -9,6 +7,9 @@ import com.codearena.codearena_backend.entity.SubmissionResult;
 import com.codearena.codearena_backend.entity.TestCase;
 import com.codearena.codearena_backend.entity.User;
 import com.codearena.codearena_backend.enumtype.SubmissionStatus;
+import com.codearena.codearena_backend.judge.JudgeResult;
+import com.codearena.codearena_backend.judge.JudgeService;
+import com.codearena.codearena_backend.judge.JudgeVerdict;
 import com.codearena.codearena_backend.repository.ProblemRepository;
 import com.codearena.codearena_backend.repository.SubmissionRepository;
 import com.codearena.codearena_backend.repository.SubmissionResultRepository;
@@ -16,9 +17,15 @@ import com.codearena.codearena_backend.repository.TestCaseRepository;
 import com.codearena.codearena_backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class SubmissionService {
@@ -29,7 +36,7 @@ public class SubmissionService {
     private final ProblemRepository problemRepository;
     private final UserRepository userRepository;
     private final TestCaseRepository testCaseRepository;
-    private final CodeExecutionService codeExecutionService;
+    private final JudgeService judgeService;
     private final SubmissionResultRepository submissionResultRepository;
     private final LeaderboardService leaderboardService;
 
@@ -38,7 +45,7 @@ public class SubmissionService {
             ProblemRepository problemRepository,
             UserRepository userRepository,
             TestCaseRepository testCaseRepository,
-            CodeExecutionService codeExecutionService,
+            JudgeService judgeService,
             SubmissionResultRepository submissionResultRepository,
             LeaderboardService leaderboardService
     ) {
@@ -46,7 +53,7 @@ public class SubmissionService {
         this.problemRepository = problemRepository;
         this.userRepository = userRepository;
         this.testCaseRepository = testCaseRepository;
-        this.codeExecutionService = codeExecutionService;
+        this.judgeService = judgeService;
         this.submissionResultRepository = submissionResultRepository;
         this.leaderboardService = leaderboardService;
     }
@@ -101,42 +108,27 @@ public class SubmissionService {
 
         for (TestCase testCase : testCases) {
 
-            CodeExecutionRequest executionRequest = new CodeExecutionRequest();
-            executionRequest.setLanguage(request.getLanguage());
-            executionRequest.setCode(request.getCode());
-            executionRequest.setInput(testCase.getInputData());
-
-            CodeExecutionResponse executionResponse =
-                    codeExecutionService.executeCode(executionRequest);
-
-            String actualOutput = normalizeOutput(executionResponse.getOutput());
-            String expectedOutput = normalizeOutput(testCase.getExpectedOutput());
+            JudgeResult judgeResult = judgeService.judge(problem, testCase, request.getLanguage(), request.getCode());
 
             SubmissionResult result = new SubmissionResult();
             result.setSubmission(submission);
             result.setTestCase(testCase);
             result.setInputData(testCase.getInputData());
-            result.setExpectedOutput(testCase.getExpectedOutput());
-            result.setActualOutput(executionResponse.getOutput());
-            result.setErrorMessage(executionResponse.getError());
+            result.setExpectedOutput(judgeResult.getExpectedOutput());
+            result.setActualOutput(judgeResult.getActualOutput());
+            result.setErrorMessage(judgeResult.getErrorMessage());
+            result.setExecutionTimeMs(judgeResult.getExecutionTimeMs());
 
-            if (!executionResponse.getStatus().equals("SUCCESS")) {
-                result.setStatus(executionResponse.getStatus());
+            if (judgeResult.getVerdict() != JudgeVerdict.ACCEPTED) {
+                result.setStatus(judgeResult.getVerdict().name());
                 result.setPassed(false);
                 allPassed = false;
                 if (firstFailureStatus == null) {
-                    firstFailureStatus = executionResponse.getStatus();
+                    firstFailureStatus = judgeResult.getVerdict().name();
                 }
-            } else if (actualOutput.equals(expectedOutput)) {
+            } else {
                 result.setStatus("PASSED");
                 result.setPassed(true);
-            } else {
-                result.setStatus("FAILED");
-                result.setPassed(false);
-                allPassed = false;
-                if (firstFailureStatus == null) {
-                    firstFailureStatus = "WRONG_ANSWER";
-                }
             }
 
             savedResults.add(submissionResultRepository.save(result));
@@ -145,8 +137,15 @@ public class SubmissionService {
         submission.setResults(savedResults);
 
         if (allPassed) {
+            boolean alreadySolved = submissionRepository.existsByUserIdAndProblemIdAndStatus(
+                    user.getId(),
+                    problem.getId(),
+                    SubmissionStatus.ACCEPTED
+            );
             submission.setStatus(SubmissionStatus.ACCEPTED);
-            leaderboardService.updateLeaderboard(user);
+            if (!alreadySolved) {
+                leaderboardService.updateLeaderboard(user);
+            }
         } else if ("WRONG_ANSWER".equals(firstFailureStatus)) {
             submission.setStatus(SubmissionStatus.WRONG_ANSWER);
         } else if (firstFailureStatus != null) {
@@ -162,12 +161,84 @@ public class SubmissionService {
         return submissionRepository.findByProblemId(problemId);
     }
 
-    private String normalizeOutput(String output) {
-        if (output == null) {
-            return "";
+    public Map<Long, String> getProblemStatusesForUser(String username) {
+        Map<Long, String> statuses = new HashMap<>();
+
+        for (Submission submission : submissionRepository.findByUserUsername(username)) {
+            Long submittedProblemId = submission.getProblem().getId();
+            String current = statuses.get(submittedProblemId);
+
+            if (submission.getStatus() == SubmissionStatus.ACCEPTED) {
+                statuses.put(submittedProblemId, "Completed");
+            } else if (!"Completed".equals(current)) {
+                statuses.put(submittedProblemId, "In Progress");
+            }
         }
 
-        return output.trim().replace("\r\n", "\n").replace("\r", "\n");
+        return statuses;
+    }
+
+    public Map<String, Object> getUserSummary(String username) {
+        List<Submission> submissions = submissionRepository.findByUserUsername(username);
+        Set<Long> solvedProblemIds = new HashSet<>();
+        long acceptedSubmissions = 0;
+        Set<LocalDate> solvedDates = new HashSet<>();
+
+        for (Submission submission : submissions) {
+            if (submission.getStatus() == SubmissionStatus.ACCEPTED) {
+                acceptedSubmissions++;
+                solvedProblemIds.add(submission.getProblem().getId());
+                if (submission.getSubmittedAt() != null) {
+                    solvedDates.add(submission.getSubmittedAt().toLocalDate());
+                }
+            }
+        }
+
+        double accuracy = submissions.isEmpty() ? 0.0 : (acceptedSubmissions * 100.0) / submissions.size();
+
+        Map<String, Object> summary = new HashMap<>();
+        summary.put("problemsSolved", solvedProblemIds.size());
+        summary.put("submissions", submissions.size());
+        summary.put("accuracy", accuracy);
+        summary.put("streak", calculateCurrentStreak(solvedDates));
+        summary.put("recentSubmissions", submissions.stream()
+                .sorted(Comparator.comparing(Submission::getSubmittedAt, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .limit(5)
+                .map(this::toRecentSubmission)
+                .toList());
+        return summary;
+    }
+
+    private Map<String, Object> toRecentSubmission(Submission submission) {
+        Map<String, Object> recent = new HashMap<>();
+        Map<String, Object> problemInfo = new HashMap<>();
+        problemInfo.put("id", submission.getProblem().getId());
+        problemInfo.put("title", submission.getProblem().getTitle());
+
+        recent.put("id", submission.getId());
+        recent.put("problem", problemInfo);
+        recent.put("status", submission.getStatus());
+        recent.put("language", submission.getLanguage());
+        recent.put("submittedAt", submission.getSubmittedAt());
+        return recent;
+    }
+
+    private int calculateCurrentStreak(Set<LocalDate> solvedDates) {
+        if (solvedDates.isEmpty()) {
+            return 0;
+        }
+
+        LocalDate cursor = LocalDate.now();
+        if (!solvedDates.contains(cursor)) {
+            cursor = cursor.minusDays(1);
+        }
+
+        int streak = 0;
+        while (solvedDates.contains(cursor)) {
+            streak++;
+            cursor = cursor.minusDays(1);
+        }
+        return streak;
     }
 
     private SubmissionStatus convertStatus(String executionStatus) {

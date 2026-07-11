@@ -40,6 +40,9 @@ public class SubmissionResult {
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
+    @Column(name = "exec_time_ms")
+    private Long executionTimeMs;
+
     @Column(name = "executed_at")
     private LocalDateTime executedAt;
 
@@ -119,6 +122,14 @@ public class SubmissionResult {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public Long getExecutionTimeMs() {
+        return executionTimeMs;
+    }
+
+    public void setExecutionTimeMs(Long executionTimeMs) {
+        this.executionTimeMs = executionTimeMs;
     }
 
     public LocalDateTime getExecutedAt() {

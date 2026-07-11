@@ -6,14 +6,16 @@ function ProblemRow({ problem }) {
 
     const getStatusIcon = () => {
         switch (problem.status) {
+            case "Completed":
             case "Solved":
-                return <FaCheckCircle className="status solved" />;
+                return <FaCheckCircle className="status solved" title="Completed" />;
 
+            case "In Progress":
             case "Attempted":
-                return <FaClock className="status attempted" />;
+                return <FaClock className="status attempted" title="In Progress" />;
 
             default:
-                return <FaRegCircle className="status unsolved" />;
+                return <FaRegCircle className="status unsolved" title="Not started" />;
         }
     };
 

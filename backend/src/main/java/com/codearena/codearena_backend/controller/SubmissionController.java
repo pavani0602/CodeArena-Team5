@@ -2,12 +2,14 @@ package com.codearena.codearena_backend.controller;
 
 import com.codearena.codearena_backend.dto.SubmissionRequest;
 import com.codearena.codearena_backend.entity.Submission;
+import com.codearena.codearena_backend.entity.User;
 import com.codearena.codearena_backend.service.SubmissionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/submissions")
@@ -25,8 +27,7 @@ public class SubmissionController {
             @RequestBody SubmissionRequest request
     ) {
         try {
-            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-            String username = (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) ? auth.getName() : "testuser6";
+            String username = currentUsername();
             return submissionService.createSubmission(problemId, username, request);
         } catch (RuntimeException e) {
 
@@ -41,5 +42,29 @@ public class SubmissionController {
     @GetMapping("/problem/{problemId}")
     public List<Submission> getSubmissionsByProblem(@PathVariable Long problemId) {
         return submissionService.getSubmissionsByProblemId(problemId);
+    }
+
+    @GetMapping("/statuses")
+    public Map<Long, String> getProblemStatuses() {
+        return submissionService.getProblemStatusesForUser(currentUsername());
+    }
+
+    @GetMapping("/summary")
+    public Map<String, Object> getUserSummary() {
+        return submissionService.getUserSummary(currentUsername());
+    }
+
+    private String currentUsername() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return "testuser6";
+        }
+
+        Object principal = auth.getPrincipal();
+        if (principal instanceof User user) {
+            return user.getUsername();
+        }
+
+        return auth.getName();
     }
 }

@@ -14,8 +14,8 @@ function Hero() {
                     Practice data structures and algorithms, solve coding challenges, track your progress, and climb the leaderboard—all in one place.
                 </p>
                 <div className="hero-buttons">
-                    <Link to="/problems">
-                        <button className="primary-butt">Start Solving</button>
+                    <Link to="/login">
+                        <button className="primary-butt">Login or Signup</button>
                     </Link>
                     {/* <Link to="/leaderboard">
                         <button className="secondary-butt">View Leaderboard</button>

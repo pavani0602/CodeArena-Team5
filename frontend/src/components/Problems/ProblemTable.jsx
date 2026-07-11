@@ -2,8 +2,24 @@ import "./ProblemTable.css";
 import { useState, useEffect } from "react";
 import ProblemRow from "./ProblemRow";
 
+const normalizeProblemStatus = (status) => {
+    if (!status) return "";
+    const value = String(status).toUpperCase();
+
+    if (value === "COMPLETED" || value === "SOLVED" || value === "ACCEPTED") {
+        return "Completed";
+    }
+
+    if (value === "IN PROGRESS" || value === "ATTEMPTED" || value === "WRONG_ANSWER" || value === "RUNTIME_ERROR" || value === "COMPILATION_ERROR" || value === "TIME_LIMIT_EXCEEDED") {
+        return "In Progress";
+    }
+
+    return status;
+};
+
 function ProblemTable({ searchQuery, difficultyFilter, refreshKey }) {
     const [problems, setProblems] = useState([]);
+    const [problemStatuses, setProblemStatuses] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -14,25 +30,40 @@ function ProblemTable({ searchQuery, difficultyFilter, refreshKey }) {
                 const data = await res.json();
                 setProblems(data);
             } catch {
-                // Backend not running or no data yet — fall back to sample data
-                setProblems([
-                    { id: 1, title: "Two Sum", difficulty: "EASY" },
-                    { id: 2, title: "Reverse String", difficulty: "EASY" },
-                    { id: 3, title: "Longest Substring Without Repeating Characters", difficulty: "MEDIUM" },
-                    { id: 4, title: "Merge Intervals", difficulty: "MEDIUM" },
-                    { id: 5, title: "N Queens", difficulty: "HARD" },
-                    { id: 6, title: "Binary Tree Level Order Traversal", difficulty: "MEDIUM" },
-                    { id: 7, title: "Valid Parentheses", difficulty: "EASY" },
-                    { id: 8, title: "Maximum Subarray", difficulty: "MEDIUM" },
-                    { id: 9, title: "Climbing Stairs", difficulty: "EASY" },
-                    { id: 10, title: "Median of Two Sorted Arrays", difficulty: "HARD" },
-                ]);
+                setProblems([]);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProblems();
+    }, [refreshKey]);
+
+    useEffect(() => {
+        const fetchProblemStatuses = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                const res = await fetch("/api/submissions/statuses", { headers });
+                if (!res.ok) throw new Error("Failed to load statuses");
+                const data = await res.json();
+                setProblemStatuses(Object.fromEntries(
+                    Object.entries(data).map(([problemId, status]) => [String(problemId), normalizeProblemStatus(status)])
+                ));
+            } catch {
+                setProblemStatuses({});
+            }
+        };
+
+        fetchProblemStatuses();
+        const intervalId = window.setInterval(fetchProblemStatuses, 5000);
+        const refreshHandler = () => fetchProblemStatuses();
+        window.addEventListener("codearena:submission-updated", refreshHandler);
+
+        return () => {
+            window.clearInterval(intervalId);
+            window.removeEventListener("codearena:submission-updated", refreshHandler);
+        };
     }, [refreshKey]);
 
     const filtered = problems.filter((p) => {
@@ -43,6 +74,17 @@ function ProblemTable({ searchQuery, difficultyFilter, refreshKey }) {
             ? p.difficulty.toUpperCase() === difficultyFilter.toUpperCase()
             : true;
         return matchSearch && matchDifficulty;
+    }).sort((left, right) => {
+        const leftStatus = normalizeProblemStatus(problemStatuses[String(left.id)] || left.status);
+        const rightStatus = normalizeProblemStatus(problemStatuses[String(right.id)] || right.status);
+        const leftCompleted = leftStatus === "Completed";
+        const rightCompleted = rightStatus === "Completed";
+
+        if (leftCompleted !== rightCompleted) {
+            return leftCompleted ? 1 : -1;
+        }
+
+        return left.id - right.id;
     });
 
     if (loading) {
@@ -79,7 +121,12 @@ function ProblemTable({ searchQuery, difficultyFilter, refreshKey }) {
                 {filtered.map((problem, index) => (
                     <ProblemRow
                         key={problem.id}
-                        problem={{ ...problem, index: index + 1, difficulty: problem.difficulty.charAt(0).toUpperCase() + problem.difficulty.slice(1).toLowerCase() }}
+                        problem={{
+                            ...problem,
+                            index: index + 1,
+                            difficulty: problem.difficulty.charAt(0).toUpperCase() + problem.difficulty.slice(1).toLowerCase(),
+                            status: normalizeProblemStatus(problemStatuses[String(problem.id)] || problem.status)
+                        }}
                     />
                 ))}
             </tbody>

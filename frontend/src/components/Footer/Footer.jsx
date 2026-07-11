@@ -2,6 +2,8 @@ import "./Footer.css";
 import { Link } from 'react-router-dom';
 
 function Footer() {
+    const isLoggedIn = !!localStorage.getItem("token");
+
     return (
         <footer className="footer">
             <div className="top">
@@ -13,9 +15,15 @@ function Footer() {
                 </div>
                 <div className="links">
                     <Link to="/">Home</Link>
-                    <Link to="/problems">Problems</Link>
-                    <Link to="/leaderboard">Leaderboard</Link>
-                    <Link to="/discussion">Discussion</Link>
+                    {isLoggedIn ? (
+                        <>
+                            <Link to="/problems">Problems</Link>
+                            <Link to="/leaderboard">Leaderboard</Link>
+                            <Link to="/discussion">Discussion</Link>
+                        </>
+                    ) : (
+                        <Link to="/login">Login or Signup</Link>
+                    )}
                 </div>
             </div>
             <div className="bottom">
