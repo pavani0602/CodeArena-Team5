@@ -1,160 +1,107 @@
-import "../Login/Login.css";
-import { Link } from "react-router-dom";
-
-import {
-    FaLaptopCode,
-    FaCheckCircle,
-    FaUser,
-    FaEnvelope,
-    FaLock
-} from "react-icons/fa";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import '../../pages/Admin/AuthStyles.css'; // Reusing your beautiful central auth styles
 
 function Register() {
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        fullName: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const [error, setError] = useState('');
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleRegister = (e) => {
+        e.preventDefault();
+        setError('');
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
+
+        // Simulate successful registration
+        console.log("Registering user:", formData);
+        alert('Account created successfully!');
+        navigate('/login');
+    };
+
     return (
-        <section className="login-page">
-            <div className="auth-container">
-
-                {/* Left Section */}
-                <div className="auth-left">
-
-                    <div className="brand-logo">
-                        <FaLaptopCode />
-                    </div>
-
-                    <h1>CodeArena</h1>
-
-                    <h2>Master Coding.<br />One Problem at a Time.</h2>
-
-                    <p>
-                        Practice coding challenges, improve your problem-solving
-                        skills, and compete with developers around the world.
-                    </p>
-
-                    <div className="auth-features">
-
-                        <div className="feature">
-                            <FaCheckCircle />
-                            <span>500+ Coding Problems</span>
-                        </div>
-
-                        <div className="feature">
-                            <FaCheckCircle />
-                            <span>Track Your Progress</span>
-                        </div>
-
-                        <div className="feature">
-                            <FaCheckCircle />
-                            <span>Community Discussions</span>
-                        </div>
-
-                        <div className="feature">
-                            <FaCheckCircle />
-                            <span>Global Leaderboard</span>
-                        </div>
-
-                    </div>
-
+        <div className="auth-page-container">
+            <div className="auth-card">
+                <div className="auth-header">
+                    <span className="auth-logo">CodeArena</span>
                 </div>
 
-                {/* Right Section */}
-                <div className="auth-right">
+                <h2 className="auth-title">Create Your Account 🚀</h2>
+                <p className="auth-subtitle">Join CodeArena and start solving coding challenges today.</p>
 
-                    <div className="auth-card">
+                {error && <div className="auth-error-banner">{error}</div>}
 
-                        <h2>Create Your Account 🚀</h2>
-
-                        <p>
-                            Join CodeArena and start solving coding challenges today.
-                        </p>
-
-                        <form>
-
-                            <div className="form-group">
-                                <label htmlFor="name">
-                                    Full Name
-                                </label>
-
-                                <div className="input-box">
-                                    <FaUser className="input-icon" />
-
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        placeholder="Enter your full name"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="email">
-                                    Email
-                                </label>
-
-                                <div className="input-box">
-                                    <FaEnvelope className="input-icon" />
-
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        placeholder="Enter your email"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="password">
-                                    Password
-                                </label>
-
-                                <div className="input-box">
-                                    <FaLock className="input-icon" />
-
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        placeholder="Create a password"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="confirm-password">
-                                    Confirm Password
-                                </label>
-
-                                <div className="input-box">
-                                    <FaLock className="input-icon" />
-
-                                    <input
-                                        type="password"
-                                        id="confirm-password"
-                                        placeholder="Confirm your password"
-                                    />
-                                </div>
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="login-button"
-                            >
-                                Create Account
-                            </button>
-
-                        </form>
-
-                        <p className="auth-switch">
-                            Already have an account?{" "}
-                            <Link to="/login">
-                                Login
-                            </Link>
-                        </p>
-
+                <form onSubmit={handleRegister} className="auth-form">
+                    <div className="input-group">
+                        <label>Full Name</label>
+                        <input 
+                            type="text" 
+                            name="fullName" 
+                            required 
+                            placeholder="Enter your full name"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                        />
                     </div>
 
-                </div>
+                    <div className="input-group">
+                        <label>Email Address</label>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            required 
+                            placeholder="you@example.com"
+                            value={formData.email}
+                            onChange={handleChange}
+                        />
+                    </div>
 
+                    <div className="input-group">
+                        <label>Password</label>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            required 
+                            placeholder="••••••••"
+                            value={formData.password}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label>Confirm Password</label>
+                        <input 
+                            type="password" 
+                            name="confirmPassword" 
+                            required 
+                            placeholder="Confirm your password"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <button type="submit" className="auth-submit-btn">
+                        Create Account
+                    </button>
+                </form>
+
+                <div className="auth-footer-prompt">
+                    Already have an account? <Link to="/login">Login</Link>
+                </div>
             </div>
-        </section>
+        </div>
     );
 }
 

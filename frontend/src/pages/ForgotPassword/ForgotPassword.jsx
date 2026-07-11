@@ -1,144 +1,100 @@
-import "./ForgotPassword.css";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import {
-    FaEnvelope,
-    FaArrowLeft
-} from "react-icons/fa";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FaUser, FaUserShield, FaArrowLeft } from 'react-icons/fa';
+import '../../pages/Admin/AuthStyles.css';
 
 function ForgotPassword() {
-    const [email, setEmail] = useState("");
-    const [isSubmitted, setIsSubmitted] = useState(false);
-    const [isLoading, setIsLoading] = useState(false); 
+    const [role, setRole] = useState('user'); // 'user' or 'admin'
+    const [email, setEmail] = useState('');
+    const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    // Fixed for Vite: Completely removed 'process.env' to stop the crash
-    const API_BASE_URL = import.meta.env?.VITE_API_URL || "http://localhost:8080";
-    const ENDPOINT_URL = `${API_BASE_URL}/api/auth/forgot-password`;
-
-    // 1. First time sending the link
-    const handleSubmit = async (e) => {
+    const handleRecover = (e) => {
         e.preventDefault();
-        if (!email) return;
+        setLoading(true);
 
-        setIsLoading(true);
-        try {
-            const response = await fetch(ENDPOINT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email }),
-            });
-
-            if (response.ok) {
-                setIsSubmitted(true);
-            } else {
-                const errorData = await response.json().catch(() => ({}));
-                alert(errorData.message || "Something went wrong. Please try again.");
-            }
-        } catch (error) {
-            console.error("Network error:", error);
-            alert("Network error. Make sure your backend server is running and accessible!");
-        } finally {
-            setIsLoading(false);
-        }
+        // Simulate backend recovery API call
+        setTimeout(() => {
+            setLoading(false);
+            setSubmitted(true);
+        }, 1200);
     };
 
-    // 2. Clicking the Resend Link button
-    const handleResend = async () => {
-        setIsLoading(true);
-        try {
-            const response = await fetch(ENDPOINT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email }),
-            });
-
-            if (response.ok) {
-                alert("A new link has been sent!");
-            } else {
-                const errorData = await response.json().catch(() => ({}));
-                alert(errorData.message || "Failed to resend. Please try again.");
-            }
-        } catch (error) {
-            console.error("Network error:", error);
-            alert("Network error. Is the backend server still running?");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Resets the state variables when returning to a fresh form setup
-    const handleBackToForm = () => {
-        setIsSubmitted(false);
-        setEmail("");
+    const handleTabChange = (selectedRole) => {
+        setRole(selectedRole);
+        setSubmitted(false);
+        setEmail('');
     };
 
     return (
-        <section className="login-page">
-            <div className="forgot-container">
-                <div className="auth-card">
-                    {!isSubmitted ? (
-                        <>
-                            <h2>Reset Password 🔒</h2>
-                            <p>
-                                Enter your registered email address below and we'll send you instructions to reset your password.
-                            </p>
+        <div className="auth-page-container">
+            <div className="auth-card">
+                <div className="auth-header">
+                    <span className="auth-logo">CodeArena</span>
+                </div>
 
-                            <form onSubmit={handleSubmit}>
-                                <div className="form-group">
-                                    <label htmlFor="email">Email Address</label>
-                                    <div className="input-box">
-                                        <FaEnvelope className="input-icon" />
-                                        <input
-                                            type="email"
-                                            id="email"
-                                            placeholder="Enter your email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            required
-                                            disabled={isLoading}
-                                        />
-                                    </div>
-                                </div>
+                {/* 🎛️ Shared Role Switcher */}
+                <div className="role-selector-tabs">
+                    <button 
+                        type="button"
+                        className={`role-tab ${role === 'user' ? 'active' : ''}`}
+                        onClick={() => handleTabChange('user')}
+                    >
+                        <FaUser size={12} /> User
+                    </button>
+                    <button 
+                        type="button"
+                        className={`role-tab ${role === 'admin' ? 'active' : ''}`}
+                        onClick={() => handleTabChange('admin')}
+                    >
+                        <FaUserShield size={13} /> Admin
+                    </button>
+                </div>
 
-                                <button type="submit" className="login-button" disabled={isLoading}>
-                                    {isLoading ? "Sending..." : "Send Reset Link"}
-                                </button>
-                            </form>
-                        </>
-                    ) : (
-                        <div className="success-state">
-                            <h2>Check Your Email 📩</h2>
-                            <p>
-                                We have sent a password reset link to <strong>{email}</strong>. Please check your inbox and spam folder.
-                            </p>
-                            <div className="success-actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <button 
-                                    className="login-button"
-                                    onClick={handleResend} 
-                                    disabled={isLoading}
-                                    style={{ width: '100%' }}
-                                >
-                                    {isLoading ? "Resending..." : "Resend Link"}
-                                </button>
-                                <button 
-                                    className="login-button" 
-                                    onClick={handleBackToForm}
-                                    style={{ backgroundColor: 'transparent', color: 'var(--primary-color, #fff)', border: '1px solid currentColor', width: '100%' }}
-                                >
-                                    Try Another Email
-                                </button>
+                {!submitted ? (
+                    <>
+                        <h2 className="auth-title">Reset Password</h2>
+                        <p className="auth-subtitle">
+                            {role === 'admin' 
+                                ? 'Enter your admin credentials to reset your workspace access token.' 
+                                : 'Enter your registered email to receive a secure account recovery link.'}
+                        </p>
+
+                        <form onSubmit={handleRecover} className="auth-form">
+                            <div className="input-group">
+                                <label>{role === 'admin' ? 'Admin Email' : 'Email Address'}</label>
+                                <input 
+                                    type="email" 
+                                    required 
+                                    placeholder={role === 'admin' ? 'admin@codearena.com' : 'you@example.com'}
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    disabled={loading}
+                                />
                             </div>
-                        </div>
-                    )}
 
-                    <div className="back-to-login">
-                        <Link to="/login">
-                            <FaArrowLeft /> Back to Login
-                        </Link>
+                            <button type="submit" className="auth-submit-btn" disabled={loading}>
+                                {loading ? 'Processing...' : 'Send Recovery Link'}
+                            </button>
+                        </form>
+                    </>
+                ) : (
+                    <div className="auth-success-view">
+                        <div style={{ color: '#10b981', fontSize: '2rem', textAlign: 'center', marginBottom: '12px' }}>✓</div>
+                        <h2 className="auth-title">Check Your Inbox</h2>
+                        <p className="auth-subtitle">
+                            We have sent a secure confirmation recovery path to <strong>{email}</strong>.
+                        </p>
                     </div>
+                )}
+
+                <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                    <Link to="/login" className="back-to-login-link" style={{ color: '#64748b', fontSize: '0.88rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <FaArrowLeft size={10} /> Back to Sign In
+                    </Link>
                 </div>
             </div>
-        </section>
+        </div>
     );
 }
 

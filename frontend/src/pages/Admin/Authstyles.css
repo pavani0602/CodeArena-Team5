@@ -1,0 +1,274 @@
+/* Role Switcher Layout Container */
+.role-selector-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #090d16;
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 20px;
+}
+
+.role-tab {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    padding: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.role-tab:hover {
+    color: #cbd5e1;
+}
+
+.role-tab.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+/* Auth Error Message Banner */
+.auth-error-banner {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.auth-footer-prompt {
+    font-size: 0.85rem;
+    color: #64748b;
+    text-align: center;
+    margin-top: 16px;
+}
+
+.auth-footer-prompt a {
+    color: #10b981;
+    text-decoration: none;
+    font-weight: 600;
+}
+.auth-footer-prompt a:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   Central Auth Layout Utilities
+   ========================================== */
+
+/* Full screen wrapper centering the card */
+.auth-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #0b0f19;
+    padding: 20px;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
+
+/* Central card styling */
+.auth-card {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+}
+
+/* Header branding and logos */
+.auth-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.auth-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.auth-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+}
+
+.auth-subtitle {
+    font-size: 0.95rem;
+    color: #9ca3af;
+    line-height: 1.5;
+    margin: 0 0 24px 0;
+}
+
+/* ==========================================
+   Form Controls and Input Styling
+   ========================================== */
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.input-group label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #d1d5db;
+}
+
+/* Text rows for matching password + forgot links */
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+#forgot-link {
+    font-size: 0.82rem;
+    color: #10b981;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+#forgot-link:hover {
+    text-decoration: underline;
+}
+
+/* Standard Inputs */
+.auth-form input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #090d16;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.auth-form input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+
+/* Submit Interactive Buttons */
+.auth-submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: #10b981;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 8px;
+}
+
+.auth-submit-btn:hover {
+    background: #059669;
+}
+
+.auth-submit-btn:disabled {
+    background: #374151;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   Dynamic Role Selector Tabs 
+   ========================================== */
+.role-selector-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #090d16;
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 24px;
+}
+
+.role-tab {
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    padding: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.role-tab:hover {
+    color: #e5e7eb;
+}
+
+.role-tab.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+/* Feedback banners */
+.auth-error-banner {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.auth-footer-prompt {
+    font-size: 0.88rem;
+    color: #9ca3af;
+    text-align: center;
+    margin-top: 24px;
+}
+
+.auth-footer-prompt a {
+    color: #10b981;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer-prompt a:hover {
+    text-decoration: underline;
+}
