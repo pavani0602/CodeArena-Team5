@@ -12,6 +12,7 @@ import MainLayout from "./layouts/MainLayout";
 import Discussion from "./pages/Discussion/Discussion";
 import PublicLayout from "./layouts/PublicLayout";
 import Standalone from "./layouts/Standalone";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 
 function App() {
   return (
@@ -31,6 +32,8 @@ function App() {
     <Route element={<Standalone />} >
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgotpassword" element={<ForgotPassword />} />
+      <Route path="/login/forgotpassword" element={<ForgotPassword />} />
     </Route>
   </Routes>
 </BrowserRouter>

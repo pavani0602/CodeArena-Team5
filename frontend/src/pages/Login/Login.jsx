@@ -1,5 +1,6 @@
 import "./Login.css";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
     FaLaptopCode,
@@ -90,7 +91,7 @@ function Login() {
                             </div>
 
                             <div className="forgot-password">
-                                <Link to="#">
+                                <Link to="/forgotpassword">
                                     Forgot Password?
                                 </Link>
                             </div>
