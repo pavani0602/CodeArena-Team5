@@ -1,9 +1,7 @@
 import "./ProblemTable.css";
 import ProblemRow from "./ProblemRow";
 
-
-function ProblemTable() {
-
+function ProblemTable({ searchQuery, difficulty, sortBy, onRowClick }) {
     const problems = [
         { id: 1, title: "Two Sum", difficulty: "Easy", status: "Solved" },
         { id: 2, title: "Valid Parentheses", difficulty: "Easy", status: "Solved" },
@@ -19,11 +17,30 @@ function ProblemTable() {
         { id: 12, title: "Search in Rotated Sorted Array", difficulty: "Medium", status: "Attempted" }
     ];
 
+    // 1. Filter the problems first
+    const filteredProblems = problems.filter((prob) => {
+        const matchesSearch = prob.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesDifficulty = difficulty === "All" || prob.difficulty === difficulty;
+        return matchesSearch && matchesDifficulty;
+    });
+
+    // 2. Sort the filtered array dynamically
+    const sortedProblems = [...filteredProblems].sort((a, b) => {
+        if (sortBy === "name") {
+            return a.title.localeCompare(b.title); // Sort alphabetically A-Z
+        }
+        if (sortBy === "difficulty") {
+            // Mapping difficulties to values to sort easily (Easy -> Medium -> Hard)
+            const difficultyOrder = { "Easy": 1, "Medium": 2, "Hard": 3 };
+            return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+        }
+        // "latest" defaults to sorting by ID descending (highest/newest first)
+        return a.id - b.id; 
+    });
+
     return (
         <div className="problem-table-container">
-
             <table className="problem-table">
-
                 <thead>
                     <tr>
                         <th>#</th>
@@ -33,20 +50,24 @@ function ProblemTable() {
                         <th>Action</th>
                     </tr>
                 </thead>
-
                 <tbody>
-
-                    {problems.map((problem) => (
-                        <ProblemRow
-                            key={problem.id}
-                            problem={problem}
-                        />
-                    ))}
-
+                    {sortedProblems.length > 0 ? (
+                        sortedProblems.map((problem) => (
+                            <ProblemRow
+                                key={problem.id}
+                                problem={problem}
+                                onRowClick={onRowClick}
+                            />
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="5" style={{ textAlign: "center", padding: "30px", color: "var(--text-secondary)" }}>
+                                No problems found matching your criteria.
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
-
             </table>
-
         </div>
     );
 }

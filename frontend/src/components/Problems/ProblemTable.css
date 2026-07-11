@@ -1,112 +1,34 @@
 .problem-table-container {
-    margin-top: 30px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
+    background: #0f172a; /* Rich dark layout container backing */
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     overflow: hidden;
-    box-shadow: var(--shadow);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
 .problem-table {
     width: 100%;
     border-collapse: collapse;
-}
-
-.problem-table thead {
-    background: rgba(255, 255, 255, 0.03);
-}
-
-.problem-table thead th {
-    padding: 18px 22px;
     text-align: left;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    border-bottom: 1px solid var(--border);
 }
 
-.problem-table tbody tr {
-    transition: all 0.25s ease;
-}
-
-.problem-table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.04);
-}
-
-.problem-table tbody td {
-    padding: 18px 22px;
-    color: var(--text-secondary);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    font-size: 0.95rem;
-}
-
-.problem-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.solve-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.25s;
-}
-
-.solve-btn:hover {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
-}
-
-.status {
-    font-size: 1.1rem;
-}
-
-.status.solved {
-    color: #22c55e;
-}
-
-.status.attempted {
-    color: #f59e0b;
-}
-
-.status.unsolved {
+.problem-table th {
+    background: rgba(30, 41, 59, 0.5);
     color: #94a3b8;
-}
-
-.difficulty {
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.difficulty.easy {
-    background: rgba(34,197,94,0.15);
-    color: #22c55e;
+.problem-table td {
+    padding: 16px 24px;
+    vertical-align: middle;
 }
 
-.difficulty.medium {
-    background: rgba(245,158,11,0.15);
-    color: #f59e0b;
-}
-
-.difficulty.hard {
-    background: rgba(239,68,68,0.15);
-    color: #ef4444;
-}
-
-@media (max-width: 900px) {
-
-    .problem-table {
-        min-width: 700px;
-    }
-
-    .problem-table-container {
-        overflow-x: auto;
-    }
-
+/* Zebra striping for modern visual rhythm */
+.problem-table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.01);
 }
