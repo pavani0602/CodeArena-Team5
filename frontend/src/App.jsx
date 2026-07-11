@@ -23,7 +23,6 @@ function App() {
         <Route path="/problems" element={<Problems />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/problems/:id" element={<ProblemDetails />} />
     </Route>
     <Route element={<PublicLayout />} >
         <Route path="/" element={<Home />} />
@@ -34,6 +33,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/forgotpassword" element={<ForgotPassword />} />
       <Route path="/login/forgotpassword" element={<ForgotPassword />} />
+      <Route path="/problems/:id" element={<ProblemDetails />} />
     </Route>
   </Routes>
 </BrowserRouter>

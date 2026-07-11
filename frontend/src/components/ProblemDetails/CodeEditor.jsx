@@ -1,71 +1,59 @@
-import { useState, useEffect } from "react";
-import "./CodeEditor.css";
+import { useEffect, useState } from 'react';
+import './CodeEditor.css';
+import { FaCode } from 'react-icons/fa';
 
-// Boilerplate data structured by Problem ID -> Language
-const BOILERPLATE_CODE = {
-    "1": {
-        python: "def twoSum(nums, target):\n    # Write your Python code here\n    pass",
-        java: "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your Java code here\n        return new int[0];\n    }\n}",
-        cpp: "class Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        // Write your C++ code here\n        return {};\n    }\n};"
-    },
-    "2": {
-        python: "def isValid(s: str) -> bool:\n    # Write your Python code here\n    pass",
-        java: "class Solution {\n    public boolean isValid(String s) {\n        // Write your Java code here\n        return false;\n    }\n}",
-        cpp: "class Solution {\npublic:\n    bool isValid(string s) {\n        // Write your C++ code here\n        return false;\n    }\n};"
-    }
-    // You can add 3 through 12 following this same layout pattern later!
+const BOILERPLATE_DATA = {
+    python: `<span class="token keyword">def</span> <span class="token function">twoSum</span>(nums, target):\n    <span class="token comment"># Write your Python code here</span>\n    <span class="token keyword">pass</span>`,
+    java: `<span class="token keyword">class</span> <span class="token class-name">Solution</span> {\n    <span class="token keyword">public</span> <span class="token keyword">int</span>[] <span class="token function">twoSum</span>(<span class="token keyword">int</span>[] nums, <span class="token keyword">int</span> target) {\n        <span class="token comment">// Write your Java code here</span>\n        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token keyword">int</span>[0];\n    }\n}`,
+    cpp: `<span class="token directive">#include</span> <span class="token string">&lt;vector&gt;</span>\n\n<span class="token keyword">class</span> <span class="token class-name">Solution</span> {\n<span class="token keyword">public</span>:\n    std::vector&lt;<span class="token keyword">int</span>&gt; <span class="token function">twoSum</span>(std::vector&lt;<span class="token keyword">int</span>&gt;&amp; nums, <span class="token keyword">int</span> target) {\n        <span class="token comment">// Write your C++ code here</span>\n        <span class="token keyword">return</span> {};\n    }\n};`,
+    javascript: `<span class="token keyword">function</span> <span class="token function">twoSum</span>(nums, target) {\n    <span class="token comment">// Write your JavaScript code here</span>\n    \n}`
 };
 
-function CodeEditor({ problemId }) {
-    // 1. Keep track of the selected language (default to Python)
-    const [language, setLanguage] = useState("python");
-    const [code, setCode] = useState("");
+function CodeEditor({ selectedLang, setSelectedLang }) {
+    const [htmlContent, setHtmlContent] = useState(BOILERPLATE_DATA.python);
 
-    // 2. Change code when the problem or language switches
+    // Track active changes when language selections swap or route updates
     useEffect(() => {
-        const problemTemplates = BOILERPLATE_CODE[problemId];
-        if (problemTemplates && problemTemplates[language]) {
-            setCode(problemTemplates[language]);
-        } else {
-            // Fallback template if specific problem data isn't written out yet
-            const generalFallbacks = {
-                python: "# Write your Python code here\n",
-                java: "class Solution {\n    // Write your Java code here\n}",
-                cpp: "// Write your C++ code here\n"
-            };
-            setCode(generalFallbacks[language]);
-        }
-    }, [problemId, language]);
+        setHtmlContent(BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python);
+    }, [selectedLang]);
+
+    const linesCount = htmlContent.split('\n').length;
 
     return (
-        <div className="code-editor-container">
-            <div className="editor-header">
-                {/* Dynamically update the extension tag in the corner */}
-                <span>
-                    {language === "python" && "solution.py"}
-                    {language === "java" && "Solution.java"}
-                    {language === "cpp" && "solution.cpp"}
-                </span>
+        <section className="panel editor-panel">
+            <div className="panel-tabs justify-between">
+                <div className="tab-left">
+                    <button className="tab-item active"><FaCode size={13} /> Code</button>
+                </div>
                 
-                {/* Updated Language Dropdown */}
-                <select 
-                    className="language-select" 
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                >
-                    <option value="python">Python</option>
-                    <option value="java">Java</option>
-                    <option value="cpp">C++</option>
-                </select>
+                <div className="lang-dropdown-wrapper">
+                    <select 
+                        className="lang-dropdown" 
+                        value={selectedLang} 
+                        onChange={(e) => setSelectedLang(e.target.value)}
+                    >
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                        <option value="cpp">C++</option>
+                        <option value="javascript">JavaScript</option>
+                    </select>
+                </div>
             </div>
             
-            <textarea
-                className="code-textarea"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                spellCheck="false"
-            />
-        </div>
+            <div className="editor-workspace">
+                <div className="line-numbers-sidebar">
+                    {Array.from({ length: linesCount }).map((_, index) => (
+                        <div key={index} className="line-number">{index + 1}</div>
+                    ))}
+                </div>
+
+                <div className="code-area-wrapper">
+                    <pre className="code-editor-view">
+                        <code dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                    </pre>
+                </div>
+            </div>
+        </section>
     );
 }
 

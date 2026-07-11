@@ -1,17 +1,15 @@
-import "./ActionButtons.css";
+import './ActionButtons.css';
+import { FaPlay, FaCheck } from 'react-icons/fa';
 
-function ActionButtons() {
+function ActionButtons({ onRun, onSubmit }) {
     return (
-        <div className="action-buttons">
-
-            <button className="run-btn">
-                Run Code
+        <div className="header-actions">
+            <button className="run-action-btn" onClick={onRun}>
+                <FaPlay size={11} /> Run
             </button>
-
-            <button className="submit-btn">
-                Submit Code
+            <button className="submit-action-btn" onClick={onSubmit}>
+                <FaCheck size={11} /> Submit
             </button>
-
         </div>
     );
 }

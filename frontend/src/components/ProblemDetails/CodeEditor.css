@@ -1,76 +1,111 @@
-/* Container holding the header and the textarea */
-.code-editor-container {
+.editor-panel {
+    background: #0f172a; /* Rich dark layout slate */
     display: flex;
     flex-direction: column;
-    background-color: #152238; /* Matches your card background */
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    height: 420px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    height: 100%;
 }
 
-/* Header bar containing file name and language selector */
-.editor-header {
-    background-color: #1e2d4a; /* Slightly lighter slate for contrast */
-    padding: 10px 16px;
+/* Flex wrapper linking numbers side-by-side with text strings */
+.editor-workspace {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: #94a3b8; /* Muted text color */
-    font-family: 'Fira Code', 'Courier New', monospace;
-    font-size: 0.9rem;
+    flex: 1;
+    overflow-y: auto;
+    background: #090d16; /* Deep dark code terminal fill */
+    position: relative;
 }
 
-/* Language Selection dropdown styling */
-.language-select {
-    background-color: #152238;
-    color: #f8fafc;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 4px 12px;
+/* --- 1. Line Numbers Sidebar --- */
+.line-numbers-sidebar {
+    width: 48px;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    user-select: none;
+    background: #0b111e; /* Distinct background accent for numbers layout */
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    padding-right: 12px;
+}
+
+.line-number {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #475569; /* Distinctive mute color for non-active items */
+}
+
+/* --- 2. Main Code Content Area --- */
+.code-area-wrapper {
+    flex: 1;
+    overflow-x: auto;
+}
+
+.code-editor-view {
+    margin: 0;
+    padding: 24px 16px;
+    font-family: 'Fira Code', 'Courier New', Courier, monospace;
+    font-size: 1.05rem; /* Upgraded easily readable text font scale */
+    line-height: 1.7;
+    color: #e2e8f0; /* Default white token base fallback */
+}
+
+.code-editor-view code {
+    font-family: inherit;
+}
+
+/* --- 3. Custom Syntax Highlighter Theme (VS Code Inspired) --- */
+.token.keyword {
+    color: #f43f5e; /* Vibrant pink/rose keyword keywords (class, public, return) */
+    font-weight: 600;
+}
+
+.token.function {
+    color: #38bdf8; /* Soft blue function names (twoSum) */
+}
+
+.token.class-name {
+    color: #fbbf24; /* Amber colored Class definition items */
+}
+
+.token.comment {
+    color: #64748b; /* Clean slate-gray code notations */
+    font-style: italic;
+}
+
+.token.string {
+    color: #34d399; /* Bright emerald for string parameters or includes */
+}
+
+.token.directive {
+    color: #a855f7; /* Purple accents for custom configurations */
+}
+
+/* --- 4. Premium Top Dropdown Selector --- */
+.lang-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-right: 12px;
+}
+
+.lang-dropdown {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f1f5f9;
+    padding: 6px 36px 6px 14px;
     border-radius: 6px;
     font-size: 0.85rem;
+    font-weight: 600;
+    outline: none;
     cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
 }
 
-.language-select:focus {
-    border-color: #10b981; /* Accent green glow on click */
-}
-
-/* Interactive Textarea behaving like a terminal workspace */
-.code-textarea {
-    flex: 1;
-    background-color: #111a2e; /* Darker interior area for code emphasis */
-    color: #e2e8f0; /* Crisp white-grey text for code readability */
-    font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
-    font-size: 14px;
-    padding: 20px;
-    border: none;
-    resize: none;
-    outline: none;
-    line-height: 1.6;
-    letter-spacing: 0.3px;
-    tab-size: 4; /* Ensures clean indentation when using tabs */
-}
-
-/* Smooth custom scrollbar tracking for extensive solution code blocks */
-.code-textarea::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.code-textarea::-webkit-scrollbar-track {
-    background: #111a2e;
-}
-
-.code-textarea::-webkit-scrollbar-thumb {
-    background: #1e2d4a;
-    border-radius: 4px;
-}
-
-.code-textarea::-webkit-scrollbar-thumb:hover {
-    background: #2a3e65;
+.lang-dropdown:hover {
+    background: #1e293b;
+    border-color: #10b981; /* Glow accent matching branding */
 }
