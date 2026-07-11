@@ -80,7 +80,7 @@ function ForgotPassword() {
                     </>
                 ) : (
                     <div className="auth-success-view">
-                        <div style={{ color: '#10b981', fontSize: '2rem', textAlign: 'center', marginBottom: '12px' }}>✓</div>
+                        <div style={{ color: '#10b981', fontSize: '2rem', textAlign: 'center', marginBottom: '12px' }}>📩</div>
                         <h2 className="auth-title">Check Your Inbox</h2>
                         <p className="auth-subtitle">
                             We have sent a secure confirmation recovery path to <strong>{email}</strong>.

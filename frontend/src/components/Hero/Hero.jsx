@@ -17,9 +17,9 @@ function Hero() {
                     <Link to="/problems">
                         <button className="primary-butt">Start Solving</button>
                     </Link>
-                    <Link to="/leaderboard">
+                    {/* <Link to="/leaderboard">
                         <button className="secondary-butt">View Leaderboard</button>
-                    </Link>
+                    </Link> */}
                 </div>
             </div>
             <div className="hero-right">
