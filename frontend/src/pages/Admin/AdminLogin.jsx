@@ -20,6 +20,7 @@ function AdminLogin() {
             // Set an admin flag in localStorage so MainLayout can verify role later
             localStorage.setItem('userRole', 'admin');
             localStorage.setItem('token', 'mock-admin-jwt-token');
+            window.dispatchEvent(new Event("codearena:auth-updated"));
 
             alert('Welcome back, Admin!');
             navigate('/admin'); // 🚀 Redirects to your clean workspace grid table

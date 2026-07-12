@@ -20,11 +20,11 @@ function ProblemRow({ problem }) {
     };
 
     return (
-        <tr>
+        <tr className="table-row-item">
 
-            <td>{problem.id}</td>
+            <td className="row-id">{problem.id}</td>
 
-            <td>
+            <td className="problem-title">
                 <Link to={`/problems/${problem.id}`} style={{ color: 'inherit', textDecoration: 'none', fontWeight: '600' }}>
                     {problem.title}
                 </Link>
@@ -32,7 +32,7 @@ function ProblemRow({ problem }) {
 
             <td>
                 <span
-                    className={`difficulty ${problem.difficulty.toLowerCase()}`}
+                    className={`difficulty-badge ${problem.difficulty.toLowerCase()}`}
                 >
                     {problem.difficulty}
                 </span>

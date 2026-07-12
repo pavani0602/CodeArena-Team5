@@ -37,6 +37,7 @@ function Login() {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("username", form.username);
                 localStorage.setItem("userRole", data.role || "USER");
+                window.dispatchEvent(new Event("codearena:auth-updated"));
                 navigate("/problems");
             }
         } catch {
@@ -124,6 +125,12 @@ function Login() {
                                         required
                                     />
                                 </div>
+                            </div>
+
+                            <div className="forgot-password">
+                                <Link to="/forgotpassword">
+                                    Forgot Password?
+                                </Link>
                             </div>
 
                             <button

@@ -1,6 +1,6 @@
 import "./Navbar.css";
 import { useEffect, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
     FaChevronDown,
     FaFire,
@@ -13,13 +13,29 @@ const normalizeRole = (role) => (role || "USER").toUpperCase();
 
 function Navbar() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
-    const [userRole] = useState(() => normalizeRole(localStorage.getItem("userRole")));
-    const [username] = useState(() => localStorage.getItem("username") || "");
+    const [userRole, setUserRole] = useState(() => normalizeRole(localStorage.getItem("userRole")));
+    const [username, setUsername] = useState(() => localStorage.getItem("username") || "");
     const [showDropdown, setShowDropdown] = useState(false);
     const isAdmin = userRole === "ADMIN";
 
     const [userStats, setUserStats] = useState({ streak: 0 });
+
+    useEffect(() => {
+        const syncAuth = () => {
+            setIsLoggedIn(!!localStorage.getItem("token"));
+            setUserRole(normalizeRole(localStorage.getItem("userRole")));
+            setUsername(localStorage.getItem("username") || "");
+        };
+        syncAuth();
+        window.addEventListener("codearena:auth-updated", syncAuth);
+        window.addEventListener("storage", syncAuth);
+        return () => {
+            window.removeEventListener("codearena:auth-updated", syncAuth);
+            window.removeEventListener("storage", syncAuth);
+        };
+    }, [location.pathname]);
 
     useEffect(() => {
         if (!isLoggedIn || isAdmin) return undefined;
@@ -58,6 +74,7 @@ function Navbar() {
         localStorage.removeItem("userRole");
         setIsLoggedIn(false);
         setShowDropdown(false);
+        window.dispatchEvent(new Event("codearena:auth-updated"));
         navigate("/");
     };
 

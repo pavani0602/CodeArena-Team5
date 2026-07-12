@@ -175,6 +175,16 @@
     box-sizing: border-box;
 }
 
+.auth-form input:-webkit-autofill,
+.auth-form input:-webkit-autofill:hover,
+.auth-form input:-webkit-autofill:focus,
+.auth-form input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #090d16 inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+    border-radius: 6px !important;
+}
+
 .auth-form input:focus {
     border-color: #10b981;
     box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);

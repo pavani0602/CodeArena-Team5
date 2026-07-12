@@ -9,15 +9,21 @@ function ForgotPassword() {
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const handleRecover = (e) => {
+    const handleRecover = async (e) => {
         e.preventDefault();
         setLoading(true);
-
-        // Simulate backend recovery API call
-        setTimeout(() => {
+        try {
+            await fetch("/api/auth/forgot-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, role }),
+            });
+        } catch {
+            // Fallback for UI flow if backend unreachable
+        } finally {
             setLoading(false);
             setSubmitted(true);
-        }, 1200);
+        }
     };
 
     const handleTabChange = (selectedRole) => {

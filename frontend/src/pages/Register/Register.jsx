@@ -57,6 +57,7 @@ function Register() {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("username", form.username);
                 localStorage.setItem("userRole", data.role || role);
+                window.dispatchEvent(new Event("codearena:auth-updated"));
                 navigate("/problems");
             }
         } catch {

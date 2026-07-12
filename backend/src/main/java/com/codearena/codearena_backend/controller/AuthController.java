@@ -26,12 +26,32 @@ public class AuthController {
         return authService.login(request);
     }
 
+    @PostMapping("/forgot-password")
+    public java.util.Map<String, String> forgotPassword(@RequestBody java.util.Map<String, String> request) {
+        return authService.forgotPassword(request.get("email"), request.get("role"));
+    }
+
     @GetMapping("/me")
     public AuthResponse getMe() {
         org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof com.codearena.codearena_backend.entity.User user) {
             return new AuthResponse(null, user.getUsername(), user.getRole().name());
         }
-        throw new RuntimeException("Not authenticated");
+        throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Not authenticated");
+    }
+
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public org.springframework.http.ResponseEntity<java.util.Map<String, String>> handleResponseStatusException(org.springframework.web.server.ResponseStatusException e) {
+        String message = e.getReason() != null ? e.getReason() : e.getMessage();
+        return org.springframework.http.ResponseEntity.status(e.getStatusCode()).body(java.util.Map.of("message", message));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public org.springframework.http.ResponseEntity<java.util.Map<String, String>> handleRuntimeException(RuntimeException e) {
+        org.springframework.http.HttpStatus status = org.springframework.http.HttpStatus.BAD_REQUEST;
+        if ("Invalid username or password".equals(e.getMessage()) || "Not authenticated".equals(e.getMessage())) {
+            status = org.springframework.http.HttpStatus.UNAUTHORIZED;
+        }
+        return org.springframework.http.ResponseEntity.status(status).body(java.util.Map.of("message", e.getMessage()));
     }
 }
