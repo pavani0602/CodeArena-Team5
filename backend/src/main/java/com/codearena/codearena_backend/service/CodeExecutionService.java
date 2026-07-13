@@ -12,11 +12,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class CodeExecutionService {
 
-    private static final String GPP_PATH =
-            "C:\\mingw64\\bin\\g++.exe";
-
-    private static final String GPP_BIN_PATH =
-            "C:\\mingw64\\bin";
+    
 
     public CodeExecutionResponse executeCode(CodeExecutionRequest request) {
 
@@ -58,9 +54,21 @@ public class CodeExecutionService {
             Path javaFile = tempDir.resolve("Main.java");
             Files.writeString(javaFile, code);
 
-            ProcessBuilder compileBuilder = new ProcessBuilder("javac", "Main.java");
-            compileBuilder.directory(tempDir.toFile());
-
+            ProcessBuilder compileBuilder = new ProcessBuilder(
+    "docker",
+    "run",
+    "--rm",
+    "--memory=512m",
+    "--cpus=1",
+    "-v",
+    tempDir.toAbsolutePath() + ":/app",
+    "-w",
+    "/app",
+    "eclipse-temurin:17",
+    "javac",
+    "Main.java"
+);
+compileBuilder.directory(tempDir.toFile());
             Process compileProcess = compileBuilder.start();
 
             boolean compileFinished = compileProcess.waitFor(10, TimeUnit.SECONDS);
@@ -76,28 +84,75 @@ public class CodeExecutionService {
                 return new CodeExecutionResponse("", compileError, "COMPILATION_ERROR");
             }
 
-            ProcessBuilder runBuilder = new ProcessBuilder("java", "Main");
-            runBuilder.directory(tempDir.toFile());
-
+            ProcessBuilder runBuilder = new ProcessBuilder(
+    "docker",
+    "run",
+    "--rm",
+    "--memory=512m",
+    "--cpus=1",
+    "-i",
+    "-v",
+    tempDir.toAbsolutePath() + ":/app",
+    "-w",
+    "/app",
+    "eclipse-temurin:17",
+    "java",
+    "Main"
+);
+runBuilder.directory(tempDir.toFile());
             Process runProcess = runBuilder.start();
 
             writeInput(runProcess, input);
 
-            boolean runFinished = runProcess.waitFor(5, TimeUnit.SECONDS);
+           boolean runFinished = runProcess.waitFor(5, TimeUnit.SECONDS);
 
-            if (!runFinished) {
-                runProcess.destroyForcibly();
-                return new CodeExecutionResponse("", "Time limit exceeded", "TIME_LIMIT_EXCEEDED");
-            }
+if (!runFinished) {
+    runProcess.destroyForcibly();
+    return new CodeExecutionResponse(
+            "",
+            "Time limit exceeded",
+            "TIME_LIMIT_EXCEEDED"
+    );
+}
 
-            String output = readStream(runProcess.getInputStream());
-            String error = readStream(runProcess.getErrorStream());
+String output = readStream(runProcess.getInputStream());
+String error = readStream(runProcess.getErrorStream());
 
-            if (runProcess.exitValue() != 0) {
-                return new CodeExecutionResponse(output, error, "RUNTIME_ERROR");
-            }
+int exitCode = runProcess.exitValue();
 
-            return new CodeExecutionResponse(output.trim(), "", "SUCCESS");
+System.out.println("Exit Code : " + exitCode);
+System.out.println("Error : " + error);
+System.out.println("Output : " + output);
+
+if (exitCode != 0) {
+
+    // Detect Out Of Memory
+    if (exitCode == 137
+            || error.contains("OutOfMemoryError")
+            || error.contains("Java heap space")
+            || error.contains("Cannot allocate memory")
+            || error.contains("Killed")) {
+
+        return new CodeExecutionResponse(
+                "",
+                "Memory limit exceeded",
+                "MEMORY_LIMIT_EXCEEDED"
+        );
+    }
+
+    // Other runtime errors
+    return new CodeExecutionResponse(
+            output,
+            error,
+            "RUNTIME_ERROR"
+    );
+}
+
+return new CodeExecutionResponse(
+        output.trim(),
+        "",
+        "SUCCESS"
+);
 
         } catch (Exception e) {
             return new CodeExecutionResponse("", e.getMessage(), "ERROR");
@@ -117,7 +172,20 @@ public class CodeExecutionService {
             Path pythonFile = tempDir.resolve("main.py");
             Files.writeString(pythonFile, code);
 
-            ProcessBuilder runBuilder = new ProcessBuilder("py", "main.py");
+            ProcessBuilder runBuilder = new ProcessBuilder(
+    "docker",
+    "run",
+    "--rm",
+    "--memory=512m",
+    "--cpus=1",
+    "-v",
+    tempDir.toAbsolutePath() + ":/app",
+    "-w",
+    "/app",
+    "python:3.11",
+    "python",
+    "main.py"
+);
             runBuilder.directory(tempDir.toFile());
 
             Process runProcess = runBuilder.start();
@@ -158,15 +226,23 @@ public class CodeExecutionService {
             Path cppFile = tempDir.resolve("main.cpp");
             Files.writeString(cppFile, code);
 
-            ProcessBuilder compileBuilder = new ProcessBuilder(
-                    GPP_PATH,
-                    "main.cpp",
-                    "-o",
-                    "main.exe",
-                    "-static",
-                    "-static-libgcc",
-                    "-static-libstdc++"
-            );
+           ProcessBuilder compileBuilder = new ProcessBuilder(
+        "docker",
+        "run",
+        "--rm",
+        "--memory=512m",
+        "--cpus=1",
+        "-v",
+    
+        tempDir.toAbsolutePath() + ":/app",
+        "-w",
+        "/app",
+        "gcc:latest",
+        "g++",
+        "main.cpp",
+        "-o",
+        "main"
+);
             compileBuilder.directory(tempDir.toFile());
 
             Process compileProcess = compileBuilder.start();
@@ -185,16 +261,21 @@ public class CodeExecutionService {
             }
 
             ProcessBuilder runBuilder = new ProcessBuilder(
-                    tempDir.resolve("main.exe").toString()
-            );
-            runBuilder.directory(tempDir.toFile());
+        "docker",
+        "run",
+        "--rm",
+        "--memory=512m",
+        "--cpus=1",
+        "-i",
+        "-v",
+        tempDir.toAbsolutePath() + ":/app",
+        "-w",
+        "/app",
+        "gcc:latest",
+        "./main"
+);
 
-            String currentPath = runBuilder.environment().get("PATH");
-            runBuilder.environment().put(
-                    "PATH",
-                    GPP_BIN_PATH + ";" + currentPath
-            );
-
+runBuilder.directory(tempDir.toFile());
             Process runProcess = runBuilder.start();
 
             writeInput(runProcess, input);
