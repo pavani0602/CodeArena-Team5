@@ -18,6 +18,7 @@ import java.util.Comparator;
 @Service
 public class CodeExecutionService {
 
+
     private final ProblemRepository problemRepository;
     private final TestCaseRepository testCaseRepository;
     private final JudgeService judgeService;
@@ -34,6 +35,7 @@ public class CodeExecutionService {
         this.judgeService = judgeService;
         this.executionService = executionService;
     }
+
 
     public CodeExecutionResponse executeCode(CodeExecutionRequest request) {
         if (request.getLanguage() == null || request.getLanguage().isBlank()) {
@@ -62,18 +64,21 @@ public class CodeExecutionService {
                 .orElseThrow(() -> new RuntimeException("No visible sample test case found"));
 
         JudgeResult result = judgeService.judge(problem, sample, request.getLanguage(), request.getCode());
-        return new CodeExecutionResponse(
-                result.getActualOutput(),
-                result.getErrorMessage(),
-                toApiStatus(result.getVerdict()),
-                result.getExecutionTimeMs()
-        );
-    }
 
-    private String toApiStatus(JudgeVerdict verdict) {
-        if (verdict == JudgeVerdict.ACCEPTED) {
-            return "SUCCESS";
-        }
-        return verdict.name();
+return new CodeExecutionResponse(
+        result.getActualOutput(),
+        result.getErrorMessage(),
+        toApiStatus(result.getVerdict()),
+        result.getExecutionTimeMs()
+);
+}
+
+private String toApiStatus(JudgeVerdict verdict) {
+    if (verdict == JudgeVerdict.ACCEPTED) {
+        return "SUCCESS";
     }
+    return verdict.name();
+}
+
+
 }
