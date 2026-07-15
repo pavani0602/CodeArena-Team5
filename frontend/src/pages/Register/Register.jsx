@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google'; // Imported Google OAuth component
 import '../../pages/Admin/AuthStyles.css'; // Reusing your beautiful central auth styles
 
 function Register() {
@@ -29,6 +30,66 @@ function Register() {
         console.log("Registering user:", formData);
         alert('Account created successfully!');
         navigate('/login');
+    };
+
+    // --- GOOGLE SIGN-UP SUCCESS HANDLER ---
+    const handleGoogleSuccess = async (credentialResponse) => {
+        const token = credentialResponse.credential; // Secure JWT from Google
+        
+        try {
+            // Decode the JWT payload locally to extract user profile info
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(
+                window.atob(base64)
+                    .split('')
+                    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+            );
+            
+            const googleUser = JSON.parse(jsonPayload);
+            
+            // Simulating successful registration/login storage
+            localStorage.setItem('userRole', 'user');
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify({
+                username: googleUser.name,
+                email: googleUser.email,
+                picture: googleUser.picture
+            }));
+
+            /* 
+              ============================================================
+              FUTURE BACKEND INTEGRATION (When your teammate connects Spring Boot):
+              ============================================================
+              You'll send this token to their endpoint instead of handling it locally:
+
+              const response = await fetch('http://localhost:8080/api/auth/google-signup', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ idToken: token })
+              });
+
+              if (response.ok) {
+                  const data = await response.json();
+                  localStorage.setItem('token', data.jwtToken);
+                  localStorage.setItem('user', JSON.stringify(data.user));
+                  navigate('/problems');
+              }
+              ============================================================
+            */
+
+            alert(`Welcome to CodeArena, ${googleUser.name}! 🚀`);
+            navigate('/problems');
+
+        } catch (error) {
+            console.error("Error parsing Google credentials:", error);
+            setError("Google registration succeeded, but profile parsing failed.");
+        }
+    };
+
+    const handleGoogleFailure = () => {
+        setError("Google Sign-Up failed. Please try again.");
     };
 
     return (
@@ -96,6 +157,22 @@ function Register() {
                         Create Account
                     </button>
                 </form>
+
+                {/* --- GOOGLE OAUTH SIGN-UP SECTION --- */}
+                <div className="divider-line">
+                    <span>or sign up with</span>
+                </div>
+
+                <div className="google-auth-box">
+                    <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleFailure}
+                        theme="dark"
+                        shape="pill"
+                        text="signup_with" // Displays: "Sign up with Google"
+                        width="100%"
+                    />
+                </div>
 
                 <div className="auth-footer-prompt">
                     Already have an account? <Link to="/login">Login</Link>

@@ -191,7 +191,7 @@
 }
 
 .auth-switch {
-    margin-top: 28px;
+    margin-top: 24px;
     text-align: center;
     color: var(--text-secondary);
 }
@@ -204,6 +204,42 @@
 
 .auth-switch a:hover {
     text-decoration: underline;
+}
+
+/* ---------- GOOGLE OAUTH ELEMENTS ---------- */
+
+.divider-line {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.divider-line::before,
+.divider-line::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+}
+
+.divider-line span {
+    padding: 0 10px;
+}
+
+.google-auth-box {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Force Google wrapper iframe to render edge-to-edge inside container */
+.google-auth-box > div {
+    width: 100% !important;
 }
 
 /* ---------- RESPONSIVE ---------- */
