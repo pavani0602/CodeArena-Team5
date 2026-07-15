@@ -94,4 +94,16 @@ public class Submission {
     public LocalDateTime getSubmittedAt() {
         return submittedAt;
     }
+
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("submission")
+    private java.util.List<SubmissionResult> results = new java.util.ArrayList<>();
+
+    public java.util.List<SubmissionResult> getResults() {
+        return results;
+    }
+
+    public void setResults(java.util.List<SubmissionResult> results) {
+        this.results = results;
+    }
 }

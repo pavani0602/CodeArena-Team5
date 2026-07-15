@@ -2,20 +2,42 @@ package com.codearena.codearena_backend.service;
 
 import com.codearena.codearena_backend.dto.CodeExecutionRequest;
 import com.codearena.codearena_backend.dto.CodeExecutionResponse;
+import com.codearena.codearena_backend.entity.Problem;
+import com.codearena.codearena_backend.entity.TestCase;
+import com.codearena.codearena_backend.judge.ExecutionResult;
+import com.codearena.codearena_backend.judge.ExecutionService;
+import com.codearena.codearena_backend.judge.JudgeResult;
+import com.codearena.codearena_backend.judge.JudgeService;
+import com.codearena.codearena_backend.judge.JudgeVerdict;
+import com.codearena.codearena_backend.repository.ProblemRepository;
+import com.codearena.codearena_backend.repository.TestCaseRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
+import java.util.Comparator;
 
 @Service
 public class CodeExecutionService {
 
-    
+
+    private final ProblemRepository problemRepository;
+    private final TestCaseRepository testCaseRepository;
+    private final JudgeService judgeService;
+    private final ExecutionService executionService;
+
+    public CodeExecutionService(
+            ProblemRepository problemRepository,
+            TestCaseRepository testCaseRepository,
+            JudgeService judgeService,
+            ExecutionService executionService
+    ) {
+        this.problemRepository = problemRepository;
+        this.testCaseRepository = testCaseRepository;
+        this.judgeService = judgeService;
+        this.executionService = executionService;
+    }
+
 
     public CodeExecutionResponse executeCode(CodeExecutionRequest request) {
-
         if (request.getLanguage() == null || request.getLanguage().isBlank()) {
             return new CodeExecutionResponse("", "Language is required", "ERROR");
         }
@@ -24,327 +46,39 @@ public class CodeExecutionService {
             return new CodeExecutionResponse("", "Code is required", "ERROR");
         }
 
-        String language = request.getLanguage().toUpperCase();
-
-        if (language.equals("JAVA")) {
-            return executeJava(request.getCode(), request.getInput());
+        if (request.getProblemId() != null) {
+            return executeFunctionSample(request);
         }
 
-        if (language.equals("PYTHON")) {
-            return executePython(request.getCode(), request.getInput());
-        }
-
-        if (language.equals("CPP") || language.equals("C++")) {
-            return executeCpp(request.getCode(), request.getInput());
-        }
-
-        return new CodeExecutionResponse(
-                "",
-                "Unsupported language: " + request.getLanguage(),
-                "ERROR"
-        );
+        ExecutionResult result = executionService.execute(request.getLanguage(), request.getCode());
+        return new CodeExecutionResponse(result.output(), result.error(), toApiStatus(result.verdict()), result.executionTimeMs());
     }
 
-    private CodeExecutionResponse executeJava(String code, String input) {
-        Path tempDir = null;
+    private CodeExecutionResponse executeFunctionSample(CodeExecutionRequest request) {
+        Problem problem = problemRepository.findById(request.getProblemId())
+                .orElseThrow(() -> new RuntimeException("Problem not found"));
 
-        try {
-            tempDir = Files.createTempDirectory("codearena-java-");
+        TestCase sample = testCaseRepository.findByProblemId(problem.getId()).stream()
+                .filter(testCase -> !Boolean.TRUE.equals(testCase.getHidden()))
+                .min(Comparator.comparing(TestCase::getId))
+                .orElseThrow(() -> new RuntimeException("No visible sample test case found"));
 
-            Path javaFile = tempDir.resolve("Main.java");
-            Files.writeString(javaFile, code);
-
-            ProcessBuilder compileBuilder = new ProcessBuilder(
-    "docker",
-    "run",
-    "--rm",
-    "--memory=512m",
-    "--cpus=1",
-    "-v",
-    tempDir.toAbsolutePath() + ":/app",
-    "-w",
-    "/app",
-    "eclipse-temurin:17",
-    "javac",
-    "Main.java"
-);
-compileBuilder.directory(tempDir.toFile());
-            Process compileProcess = compileBuilder.start();
-
-            boolean compileFinished = compileProcess.waitFor(10, TimeUnit.SECONDS);
-
-            if (!compileFinished) {
-                compileProcess.destroyForcibly();
-                return new CodeExecutionResponse("", "Compilation timeout", "COMPILATION_ERROR");
-            }
-
-            String compileError = readStream(compileProcess.getErrorStream());
-
-            if (compileProcess.exitValue() != 0) {
-                return new CodeExecutionResponse("", compileError, "COMPILATION_ERROR");
-            }
-
-            ProcessBuilder runBuilder = new ProcessBuilder(
-    "docker",
-    "run",
-    "--rm",
-    "--memory=512m",
-    "--cpus=1",
-    "-i",
-    "-v",
-    tempDir.toAbsolutePath() + ":/app",
-    "-w",
-    "/app",
-    "eclipse-temurin:17",
-    "java",
-    "Main"
-);
-runBuilder.directory(tempDir.toFile());
-            Process runProcess = runBuilder.start();
-
-            writeInput(runProcess, input);
-
-           boolean runFinished = runProcess.waitFor(5, TimeUnit.SECONDS);
-
-if (!runFinished) {
-    runProcess.destroyForcibly();
-    return new CodeExecutionResponse(
-            "",
-            "Time limit exceeded",
-            "TIME_LIMIT_EXCEEDED"
-    );
-}
-
-String output = readStream(runProcess.getInputStream());
-String error = readStream(runProcess.getErrorStream());
-
-int exitCode = runProcess.exitValue();
-
-System.out.println("Exit Code : " + exitCode);
-System.out.println("Error : " + error);
-System.out.println("Output : " + output);
-
-if (exitCode != 0) {
-
-    // Detect Out Of Memory
-    if (exitCode == 137
-            || error.contains("OutOfMemoryError")
-            || error.contains("Java heap space")
-            || error.contains("Cannot allocate memory")
-            || error.contains("Killed")) {
-
-        return new CodeExecutionResponse(
-                "",
-                "Memory limit exceeded",
-                "MEMORY_LIMIT_EXCEEDED"
-        );
-    }
-
-    // Other runtime errors
-    return new CodeExecutionResponse(
-            output,
-            error,
-            "RUNTIME_ERROR"
-    );
-}
+        JudgeResult result = judgeService.judge(problem, sample, request.getLanguage(), request.getCode());
 
 return new CodeExecutionResponse(
-        output.trim(),
-        "",
-        "SUCCESS"
+        result.getActualOutput(),
+        result.getErrorMessage(),
+        toApiStatus(result.getVerdict()),
+        result.getExecutionTimeMs()
 );
+}
 
-        } catch (Exception e) {
-            return new CodeExecutionResponse("", e.getMessage(), "ERROR");
-        } finally {
-            if (tempDir != null) {
-                deleteDirectory(tempDir.toFile());
-            }
-        }
+private String toApiStatus(JudgeVerdict verdict) {
+    if (verdict == JudgeVerdict.ACCEPTED) {
+        return "SUCCESS";
     }
+    return verdict.name();
+}
 
-    private CodeExecutionResponse executePython(String code, String input) {
-        Path tempDir = null;
 
-        try {
-            tempDir = Files.createTempDirectory("codearena-python-");
-
-            Path pythonFile = tempDir.resolve("main.py");
-            Files.writeString(pythonFile, code);
-
-            ProcessBuilder runBuilder = new ProcessBuilder(
-    "docker",
-    "run",
-    "--rm",
-    "--memory=512m",
-    "--cpus=1",
-    "-v",
-    tempDir.toAbsolutePath() + ":/app",
-    "-w",
-    "/app",
-    "python:3.11",
-    "python",
-    "main.py"
-);
-            runBuilder.directory(tempDir.toFile());
-
-            Process runProcess = runBuilder.start();
-
-            writeInput(runProcess, input);
-
-            boolean runFinished = runProcess.waitFor(5, TimeUnit.SECONDS);
-
-            if (!runFinished) {
-                runProcess.destroyForcibly();
-                return new CodeExecutionResponse("", "Time limit exceeded", "TIME_LIMIT_EXCEEDED");
-            }
-
-            String output = readStream(runProcess.getInputStream());
-            String error = readStream(runProcess.getErrorStream());
-
-            if (runProcess.exitValue() != 0) {
-                return new CodeExecutionResponse(output, error, "RUNTIME_ERROR");
-            }
-
-            return new CodeExecutionResponse(output.trim(), "", "SUCCESS");
-
-        } catch (Exception e) {
-            return new CodeExecutionResponse("", e.getMessage(), "ERROR");
-        } finally {
-            if (tempDir != null) {
-                deleteDirectory(tempDir.toFile());
-            }
-        }
-    }
-
-    private CodeExecutionResponse executeCpp(String code, String input) {
-        Path tempDir = null;
-
-        try {
-            tempDir = Files.createTempDirectory("codearena-cpp-");
-
-            Path cppFile = tempDir.resolve("main.cpp");
-            Files.writeString(cppFile, code);
-
-           ProcessBuilder compileBuilder = new ProcessBuilder(
-        "docker",
-        "run",
-        "--rm",
-        "--memory=512m",
-        "--cpus=1",
-        "-v",
-    
-        tempDir.toAbsolutePath() + ":/app",
-        "-w",
-        "/app",
-        "gcc:latest",
-        "g++",
-        "main.cpp",
-        "-o",
-        "main"
-);
-            compileBuilder.directory(tempDir.toFile());
-
-            Process compileProcess = compileBuilder.start();
-
-            boolean compileFinished = compileProcess.waitFor(15, TimeUnit.SECONDS);
-
-            if (!compileFinished) {
-                compileProcess.destroyForcibly();
-                return new CodeExecutionResponse("", "Compilation timeout", "COMPILATION_ERROR");
-            }
-
-            String compileError = readStream(compileProcess.getErrorStream());
-
-            if (compileProcess.exitValue() != 0) {
-                return new CodeExecutionResponse("", compileError, "COMPILATION_ERROR");
-            }
-
-            ProcessBuilder runBuilder = new ProcessBuilder(
-        "docker",
-        "run",
-        "--rm",
-        "--memory=512m",
-        "--cpus=1",
-        "-i",
-        "-v",
-        tempDir.toAbsolutePath() + ":/app",
-        "-w",
-        "/app",
-        "gcc:latest",
-        "./main"
-);
-
-runBuilder.directory(tempDir.toFile());
-            Process runProcess = runBuilder.start();
-
-            writeInput(runProcess, input);
-
-            boolean runFinished = runProcess.waitFor(5, TimeUnit.SECONDS);
-
-            if (!runFinished) {
-                runProcess.destroyForcibly();
-                return new CodeExecutionResponse("", "Time limit exceeded", "TIME_LIMIT_EXCEEDED");
-            }
-
-            String output = readStream(runProcess.getInputStream());
-            String error = readStream(runProcess.getErrorStream());
-
-            if (runProcess.exitValue() != 0) {
-                return new CodeExecutionResponse(output, error, "RUNTIME_ERROR");
-            }
-
-            return new CodeExecutionResponse(output.trim(), "", "SUCCESS");
-
-        } catch (Exception e) {
-            return new CodeExecutionResponse("", e.getMessage(), "ERROR");
-        } finally {
-            if (tempDir != null) {
-                deleteDirectory(tempDir.toFile());
-            }
-        }
-    }
-
-    private void writeInput(Process process, String input) throws IOException {
-        if (input != null && !input.isBlank()) {
-            try (BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(process.getOutputStream())
-            )) {
-                writer.write(input);
-                writer.flush();
-            }
-        } else {
-            process.getOutputStream().close();
-        }
-    }
-
-    private String readStream(InputStream inputStream) throws IOException {
-        StringBuilder result = new StringBuilder();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                result.append(line).append(System.lineSeparator());
-            }
-        }
-
-        return result.toString();
-    }
-
-    private void deleteDirectory(File file) {
-        if (file == null || !file.exists()) {
-            return;
-        }
-
-        File[] files = file.listFiles();
-
-        if (files != null) {
-            for (File child : files) {
-                deleteDirectory(child);
-            }
-        }
-
-        file.delete();
-    }
 }

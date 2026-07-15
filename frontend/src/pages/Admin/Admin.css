@@ -1,0 +1,333 @@
+.admin-dashboard-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 24px;
+    color: #e2e8f0;
+}
+
+.admin-page-header {
+    margin-bottom: 24px;
+}
+
+.admin-page-header h2 {
+    font-size: 1.6rem;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.admin-page-header p {
+    font-size: 0.92rem;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+/* Two Column Grid setup */
+.admin-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .admin-grid-layout { grid-template-columns: 1fr; }
+}
+
+.admin-panel-card {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card-header-accent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 12px;
+}
+
+.justify-between { justify-content: space-between; }
+.flex-align-center { display: flex; align-items: center; }
+.gap-8 { gap: 8px; }
+
+.panel-helper-text {
+    font-size: 0.82rem;
+    color: #64748b;
+    line-height: 1.4;
+    margin-top: -6px;
+}
+
+/* --- Form Field Control Blocks --- */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.label-tip {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: normal;
+}
+
+.form-row-split {
+    display: flex;
+    gap: 16px;
+}
+
+.admin-panel-card input,
+.admin-panel-card select,
+.admin-panel-card textarea {
+    background: #090d16;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: #ffffff;
+    font-size: 0.92rem;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s;
+}
+
+.admin-panel-card input:focus,
+.admin-panel-card textarea:focus,
+.admin-panel-card select:focus {
+    border-color: #10b981;
+}
+
+/* --- Dynamic Testcase Row Styling --- */
+.testcase-scroller-box {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.testcase-row-card {
+    background: #090d16;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.testcase-badge-index {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #38bdf8;
+    text-transform: uppercase;
+}
+
+.testcase-inputs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.testcase-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    padding-top: 8px;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: #94a3b8;
+}
+
+.add-testcase-btn {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.add-testcase-btn:hover { background: rgba(56, 189, 248, 0.18); }
+
+.delete-testcase-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 4px;
+}
+
+.delete-testcase-btn:hover:not(:disabled) { opacity: 1; }
+.delete-testcase-btn:disabled { color: #475569; cursor: not-allowed; }
+
+.save-problem-submit {
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 0.98rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.save-problem-submit:hover { background: #059669; }
+
+/* Admin Sub-tabs Layout */
+.admin-tabs {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+}
+
+.admin-tab-btn {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.admin-tab-btn:hover {
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.admin-tab-btn.active {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.08);
+}
+
+/* Editing Notification Bar */
+.editing-banner {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #e2e8f0;
+}
+
+.cancel-edit-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.cancel-edit-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+/* Management Table Presentation Styles */
+.admin-table-wrapper {
+    margin-top: 8px;
+    overflow-x: auto;
+}
+
+.admin-problems-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+.admin-problems-table th {
+    text-align: left;
+    color: #64748b;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-table-row td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: #cbd5e1;
+}
+
+.prob-title-cell {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.tc-count-badge {
+    background: #1e293b;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.actions-cell {
+    text-align: right;
+}
+
+.edit-action-btn {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.edit-action-btn:hover {
+    background: rgba(16, 185, 129, 0.2);
+}

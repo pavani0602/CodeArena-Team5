@@ -5,6 +5,7 @@ public class CodeExecutionRequest {
     private String language;
     private String code;
     private String input;
+    private Long problemId;
 
     public String getLanguage() {
         return language;
@@ -28,5 +29,13 @@ public class CodeExecutionRequest {
 
     public void setInput(String input) {
         this.input = input;
+    }
+
+    public Long getProblemId() {
+        return problemId;
+    }
+
+    public void setProblemId(Long problemId) {
+        this.problemId = problemId;
     }
 }

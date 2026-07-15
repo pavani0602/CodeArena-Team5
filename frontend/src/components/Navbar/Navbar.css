@@ -1,0 +1,326 @@
+.navbar {
+    width: 100%;
+    background: var(--surface);
+    padding: 16px 40px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.left img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
+.left h2 {
+    color: var(--primary);
+    font-size: 1.5rem;
+}
+
+.middle {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.middle a {
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.middle a:hover {
+    color: var(--primary);
+}
+
+.right button {
+    background: var(--primary);
+    color: var(--text-primary);
+
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: var(--radius);
+
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.right button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.public-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar .right .host-admin-btn {
+    background: transparent;
+    border: 1px solid #ff5555;
+    color: #ff8888;
+}
+
+.navbar .right .solver-portal-btn {
+    background: var(--primary, #6366f1);
+    border: 1px solid var(--primary, #6366f1);
+    color: #ffffff;
+}
+
+.middle .active {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.arena {
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Authenticated Actions Layout Alignment */
+.authenticated-actions-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+/* 🔥 Streak Display Elements */
+.streak-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(249, 115, 22, 0.1);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    color: #f97316;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+/* 👤 Dropdown Trigger Menu Layout */
+.profile-dropdown-container {
+    position: relative;
+}
+
+.profile-menu-trigger {
+    background: transparent;
+    border: none;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+.profile-menu-trigger:hover {
+    color: #ffffff;
+}
+
+.user-role-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.chevron-icon {
+    color: #64748b;
+    transition: transform 0.2s;
+}
+.chevron-icon.rotate {
+    transform: rotate(180deg);
+}
+
+/* 📋 Floating Dropdown Card Content Panel */
+.navbar-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 12px);
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    width: 220px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    padding: 6px 0;
+    text-align: left;
+}
+
+.dropdown-user-header {
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dropdown-user-header span {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.dropdown-user-header strong {
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dropdown-divider {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin: 6px 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    color: #cbd5e1;
+    font-size: 0.88rem;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #ffffff;
+}
+
+.dropdown-item.logout-btn {
+    color: #ef4444;
+}
+.dropdown-item.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.05);
+}
+/* 👤 Specific Profile Trigger Fixes */
+.navbar .right button.profile-trigger-btn {
+    background: #1f2937 !important; /* Elegant dark slate gray tile */
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 8px 14px !important;
+    border-radius: 6px !important;
+    height: auto !important;
+    width: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    font-size: 0.9rem !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.navbar .right button.profile-trigger-btn:hover {
+    background: #374151 !important;
+    color: #ffffff !important;
+}
+
+/* 📋 Floating Card Base Container */
+.navbar-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    width: 220px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    z-index: 1000 !important;
+    padding: 6px 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Header Text formatting */
+.dropdown-user-header {
+    padding: 12px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    text-align: left !important;
+}
+
+.dropdown-user-header span {
+    font-size: 0.75rem !important;
+    color: #9ca3af !important;
+    text-transform: none !important;
+}
+
+.dropdown-user-header strong {
+    font-size: 0.85rem !important;
+    color: #f3f4f6 !important;
+    font-weight: 600 !important;
+}
+
+.dropdown-divider {
+    border: 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    margin: 6px 0 !important;
+}
+
+/* 🔗 Standard Row Items (Links and Buttons alike) */
+.dropdown-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    padding: 10px 16px !important;
+    background: transparent !important;
+    border: none !important;
+    color: #cbd5e1 !important;
+    font-size: 0.88rem !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    text-align: left !important;
+    border-radius: 0 !important;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #ffffff !important;
+}
+
+/* 🚪 Completely Reset the Logout Button Block */
+.navbar .right button.dropdown-logout-action {
+    background: transparent !important;
+    color: #ef4444 !important; /* Beautiful crisp destructive red text */
+    border: none !important;
+    padding: 10px 16px !important;
+    width: 100% !important;
+    height: auto !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.navbar .right button.dropdown-logout-action:hover {
+    background: rgba(239, 68, 68, 0.08) !important;
+    color: #f87171 !important;
+}

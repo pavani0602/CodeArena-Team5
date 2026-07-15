@@ -1,0 +1,295 @@
+.problem-description{
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:30px;
+    margin-bottom:25px;
+}
+
+.problem-header h1{
+    color:var(--text-primary);
+    font-size:2rem;
+    margin-bottom:15px;
+}
+
+.problem-meta{
+    display:flex;
+    gap:12px;
+    margin-bottom:25px;
+}
+
+.tag{
+    background:rgba(255,255,255,.05);
+    color:var(--text-secondary);
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:.85rem;
+}
+
+.description{
+    color:var(--text-secondary);
+    line-height:1.8;
+}
+
+.description h3{
+    margin-top:28px;
+    margin-bottom:15px;
+    color:var(--text-primary);
+}
+
+.example-box{
+    background:#111827;
+    border-radius:12px;
+    padding:18px;
+    border:1px solid var(--border);
+}
+
+.example-box p{
+    margin:8px 0;
+}
+
+.description ul{
+    padding-left:22px;
+}
+
+.description li{
+    margin-bottom:10px;
+}
+
+.description-panel {
+    background: #111827;
+}
+
+.panel-content h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+/* Paragraph layout fixes */
+.description-text p {
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+}
+
+.description-text code {
+    background: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+/* --- High-end Code Example Cards --- */
+.example-block {
+    margin-top: 28px;
+}
+
+.example-block h4 {
+    font-size: 0.95rem;
+    color: #f8fafc;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.example-block pre {
+    background: #090d16;
+    padding: 18px;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6; /* Modern left highlight bar accent */
+    font-family: 'Fira Code', monospace;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+}
+
+/* Emphasize Example interior variables */
+.example-block pre strong {
+    color: #94a3b8;
+    font-weight: 600;
+}
+/* --- Submissions View Restructuring --- */
+.submissions-heading {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.submissions-table-wrapper {
+    background: #090d16;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+}
+
+.submissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.92rem;
+    table-layout: fixed; /* 💡 Forces strict cell constraints so columns stay perfectly aligned */
+}
+
+/* Explicitly distribute column spaces across 100% table width */
+.submissions-table th:nth-child(1), .submissions-table td:nth-child(1) { width: 35%; } /* Status */
+.submissions-table th:nth-child(2), .submissions-table td:nth-child(2) { width: 20%; } /* Language */
+.submissions-table th:nth-child(3), .submissions-table td:nth-child(3) { width: 20%; } /* Runtime */
+.submissions-table th:nth-child(4), .submissions-table td:nth-child(4) { width: 25%; } /* Time */
+
+.submissions-table th {
+    background: rgba(15, 23, 42, 0.6);
+    color: #94a3b8;
+    font-weight: 600;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.submissions-table td {
+    padding: 16px;
+    color: #cbd5e1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    vertical-align: middle; /* Keeps text completely centered vertically */
+}
+
+.submissions-table tr:last-child td {
+    border-bottom: none;
+}
+
+.submissions-table tr:hover td {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+/* Status Column Layout Fixes */
+.status-cell {
+    display: inline-flex; /* Use inline-flex so text and icons align correctly on 1 row */
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-icon {
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.status-cell.accepted { color: #10b981; }
+.status-cell.wrong-answer { color: #ef4444; }
+.status-cell.time-limit-exceeded { color: #f59e0b; }
+
+/* Language Badge Layout Fixes */
+.lang-cell-badge {
+    display: inline-block;
+    font-family: 'Fira Code', monospace;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    white-space: nowrap;
+}
+
+.date-cell {
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.submissions-subtitle {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: -14px;
+    margin-bottom: 16px;
+}
+
+/* Row interaction changes */
+.submission-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.submission-row:hover td {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.submission-row.is-expanded td {
+    background: rgba(30, 41, 59, 0.3) !important;
+    border-bottom: none;
+}
+
+/* Small visual marker indicating a note exists */
+.has-note-icon {
+    color: #38bdf8;
+    margin-left: 6px;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.arrow-cell {
+    color: #475569;
+    text-align: right;
+    padding-right: 16px !important;
+}
+
+/* --- Expanded Notes Area Layout --- */
+.notes-expansion-row td {
+    padding: 0 16px 16px 16px !important;
+    background: rgba(30, 41, 59, 0.3) !important;
+}
+
+.notes-container {
+    background: #0b111e;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.notes-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.notes-textarea {
+    width: 100%;
+    height: 70px;
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    color: #e2e8f0;
+    padding: 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.notes-textarea:focus {
+    border-color: #3b82f6; /* Accent glow indicator on focus */
+}
+
+/* Smooth expansion motion */
+.animate-slide-down {
+    animation: slideDown 0.18s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.submissions-subtitle {
+    color : #10B981;
+}

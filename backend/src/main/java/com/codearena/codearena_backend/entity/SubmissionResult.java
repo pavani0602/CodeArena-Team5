@@ -14,10 +14,12 @@ public class SubmissionResult {
 
     @ManyToOne
     @JoinColumn(name = "submission_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("results")
     private Submission submission;
 
     @ManyToOne
     @JoinColumn(name = "test_case_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("problem")
     private TestCase testCase;
 
     @Column(name = "input_data", columnDefinition = "TEXT")
@@ -32,8 +34,14 @@ public class SubmissionResult {
     @Column(nullable = false, length = 50)
     private String status;
 
+    @Column(name = "passed", nullable = false)
+    private Boolean passed = false;
+
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
+
+    @Column(name = "exec_time_ms")
+    private Long executionTimeMs;
 
     @Column(name = "executed_at")
     private LocalDateTime executedAt;
@@ -100,12 +108,28 @@ public class SubmissionResult {
         this.status = status;
     }
 
+    public Boolean getPassed() {
+        return passed;
+    }
+
+    public void setPassed(Boolean passed) {
+        this.passed = passed;
+    }
+
     public String getErrorMessage() {
         return errorMessage;
     }
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public Long getExecutionTimeMs() {
+        return executionTimeMs;
+    }
+
+    public void setExecutionTimeMs(Long executionTimeMs) {
+        this.executionTimeMs = executionTimeMs;
     }
 
     public LocalDateTime getExecutedAt() {

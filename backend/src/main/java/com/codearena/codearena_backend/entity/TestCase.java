@@ -14,13 +14,13 @@ public class TestCase {
     @JoinColumn(name = "problem_id", nullable = false)
     private Problem problem;
 
-    @Column(name = "input_data", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "input", nullable = false, columnDefinition = "TEXT")
     private String inputData;
 
     @Column(name = "expected_output", nullable = false, columnDefinition = "TEXT")
     private String expectedOutput;
 
-    @Column(name = "hidden", nullable = false)
+    @Column(name = "is_hidden", nullable = false)
     private Boolean hidden = false;
 
     public TestCase() {

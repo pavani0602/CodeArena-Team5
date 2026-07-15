@@ -1,0 +1,90 @@
+/* Container formatting for rows */
+.table-row-item {
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.table-row-item:hover {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.row-id {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.problem-title {
+    color: #f8fafc;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* --- Status Symbols Coloring --- */
+.status-cell {
+    font-size: 1.1rem;
+    vertical-align: middle;
+}
+
+.status.solved,
+.status-icon.solved {
+    color: #10b981; /* Premium Emerald Green */
+    filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.2));
+}
+
+.status.attempted,
+.status-icon.attempted {
+    color: #f59e0b; /* Vibrant Amber/Yellow */
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.2));
+}
+
+.status.unsolved,
+.status-icon.unsolved {
+    color: #475569; /* Balanced slate outline */
+    opacity: 0.6;
+}
+
+/* --- Premium Difficulty Badges --- */
+.difficulty-badge {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.difficulty-badge.easy {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.difficulty-badge.medium {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.difficulty-badge.hard {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* --- Premium Action Button --- */
+.solve-btn {
+    background: #059669;
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.solve-btn:hover {
+    background: #10b981;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}

@@ -1,22 +1,29 @@
 package com.codearena.codearena_backend.service;
 
 import com.codearena.codearena_backend.entity.LeaderboardEntry;
+import com.codearena.codearena_backend.entity.Submission;
 import com.codearena.codearena_backend.entity.User;
+import com.codearena.codearena_backend.enumtype.SubmissionStatus;
 import com.codearena.codearena_backend.repository.LeaderboardEntryRepository;
+import com.codearena.codearena_backend.repository.SubmissionRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class LeaderboardService {
 
-    private static final int POINTS_PER_ACCEPTED_SUBMISSION = 100;
-
     private final LeaderboardEntryRepository leaderboardEntryRepository;
+    private final SubmissionRepository submissionRepository;
 
-    public LeaderboardService(LeaderboardEntryRepository leaderboardEntryRepository) {
+    public LeaderboardService(LeaderboardEntryRepository leaderboardEntryRepository, SubmissionRepository submissionRepository) {
         this.leaderboardEntryRepository = leaderboardEntryRepository;
+        this.submissionRepository = submissionRepository;
     }
 
     public void updateLeaderboard(User user) {
@@ -25,19 +32,62 @@ public class LeaderboardService {
                 .orElseGet(() -> {
                     LeaderboardEntry newEntry = new LeaderboardEntry();
                     newEntry.setUser(user);
-                    newEntry.setScore(0);
-                    newEntry.setSolvedCount(0);
+                    newEntry.setProblemsSolved(0);
+                    newEntry.setAccuracy(0.0);
                     return newEntry;
                 });
 
-        entry.setScore(entry.getScore() + POINTS_PER_ACCEPTED_SUBMISSION);
-        entry.setSolvedCount(entry.getSolvedCount() + 1);
-        entry.setLastAcceptedAt(LocalDateTime.now());
+        entry.setProblemsSolved(entry.getProblemsSolved() + 1);
 
         leaderboardEntryRepository.save(entry);
     }
 
     public List<LeaderboardEntry> getLeaderboard() {
-        return leaderboardEntryRepository.findAllByOrderByScoreDescSolvedCountDescLastAcceptedAtAsc();
+        Map<Long, UserStats> statsByUser = new HashMap<>();
+
+        for (Submission submission : submissionRepository.findAll()) {
+            User user = submission.getUser();
+            UserStats stats = statsByUser.computeIfAbsent(user.getId(), ignored -> new UserStats(user));
+            stats.totalSubmissions++;
+
+            if (submission.getStatus() == SubmissionStatus.ACCEPTED) {
+                stats.acceptedSubmissions++;
+                stats.solvedProblemIds.add(submission.getProblem().getId());
+            }
+        }
+
+        List<LeaderboardEntry> entries = new ArrayList<>();
+        for (UserStats stats : statsByUser.values()) {
+            LeaderboardEntry entry = new LeaderboardEntry();
+            entry.setUser(stats.user);
+            entry.setProblemsSolved(stats.solvedProblemIds.size());
+            entry.setAccuracy(stats.totalSubmissions == 0
+                    ? 0.0
+                    : (stats.acceptedSubmissions * 100.0) / stats.totalSubmissions);
+            entries.add(entry);
+        }
+
+        entries.sort((left, right) -> {
+            int bySolved = Integer.compare(right.getProblemsSolved(), left.getProblemsSolved());
+            if (bySolved != 0) return bySolved;
+            return Double.compare(right.getAccuracy(), left.getAccuracy());
+        });
+
+        for (int index = 0; index < entries.size(); index++) {
+            entries.get(index).setRank(index + 1);
+        }
+
+        return entries;
+    }
+
+    private static class UserStats {
+        private final User user;
+        private final Set<Long> solvedProblemIds = new HashSet<>();
+        private int totalSubmissions;
+        private int acceptedSubmissions;
+
+        private UserStats(User user) {
+            this.user = user;
+        }
     }
 }

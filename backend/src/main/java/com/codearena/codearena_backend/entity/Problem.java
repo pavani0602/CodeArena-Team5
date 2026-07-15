@@ -13,15 +13,18 @@ public class Problem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 255)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "description_md", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private DifficultyLevel difficulty;
+
+    @Column(length = 500)
+    private String tags;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -64,7 +67,15 @@ public class Problem {
         this.difficulty = difficulty;
     }
 
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-}
+}

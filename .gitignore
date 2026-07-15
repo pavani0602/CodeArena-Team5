@@ -1,0 +1,19 @@
+# === Root-level gitignore ===
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env
+
+# Local Database Files
+backend/data/
+*.mv.db
+

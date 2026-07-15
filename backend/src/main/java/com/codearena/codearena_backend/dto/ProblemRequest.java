@@ -7,6 +7,7 @@ public class ProblemRequest {
     private String title;
     private String description;
     private DifficultyLevel difficulty;
+    private String tags;
 
     public String getTitle() {
         return title;
@@ -30,5 +31,13 @@ public class ProblemRequest {
 
     public void setDifficulty(DifficultyLevel difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }

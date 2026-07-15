@@ -2,8 +2,6 @@ package com.codearena.codearena_backend.entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "leaderboard_entries")
 public class LeaderboardEntry {
@@ -16,14 +14,14 @@ public class LeaderboardEntry {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(nullable = false)
-    private Integer score = 0;
+    @Column(name = "problems_solved", nullable = false)
+    private Integer problemsSolved = 0;
 
-    @Column(name = "solved_count", nullable = false)
-    private Integer solvedCount = 0;
+    @Column(name = "accuracy")
+    private Double accuracy = 0.0;
 
-    @Column(name = "last_accepted_at")
-    private LocalDateTime lastAcceptedAt;
+    @Column(name = "rank")
+    private Integer rank;
 
     public LeaderboardEntry() {
     }
@@ -40,27 +38,27 @@ public class LeaderboardEntry {
         this.user = user;
     }
 
-    public Integer getScore() {
-        return score;
+    public Integer getProblemsSolved() {
+        return problemsSolved;
     }
 
-    public void setScore(Integer score) {
-        this.score = score;
+    public void setProblemsSolved(Integer problemsSolved) {
+        this.problemsSolved = problemsSolved;
     }
 
-    public Integer getSolvedCount() {
-        return solvedCount;
+    public Double getAccuracy() {
+        return accuracy;
     }
 
-    public void setSolvedCount(Integer solvedCount) {
-        this.solvedCount = solvedCount;
+    public void setAccuracy(Double accuracy) {
+        this.accuracy = accuracy;
     }
 
-    public LocalDateTime getLastAcceptedAt() {
-        return lastAcceptedAt;
+    public Integer getRank() {
+        return rank;
     }
 
-    public void setLastAcceptedAt(LocalDateTime lastAcceptedAt) {
-        this.lastAcceptedAt = lastAcceptedAt;
+    public void setRank(Integer rank) {
+        this.rank = rank;
     }
-}
+}

@@ -1,0 +1,491 @@
+/* Exact styling matching the CodeArena Solver Design */
+.problem-details-page {
+    min-height: calc(100vh - 80px);
+    background: #0B1320; /* Deep navy/slate background from design */
+    color: #FFFFFF;
+    padding: 28px 0 60px 0;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+}
+
+.solver-container {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+/* Back Link */
+.back-link-wrapper {
+    margin-bottom: 20px;
+}
+
+.back-link {
+    color: #10B981; /* Emerald green */
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.2s;
+}
+
+.back-link:hover {
+    opacity: 0.8;
+}
+
+/* 2-Column Grid Layout */
+.solver-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 28px;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .solver-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Left Card: Problem Statement Panel */
+.problem-pane {
+    background: #131F33; /* Dark blue-gray card */
+    border: 1px solid #1E2E48;
+    border-radius: 16px;
+    padding: 28px 32px;
+    min-height: 560px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.problem-title {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 0 0 16px 0;
+}
+
+.problem-meta-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.difficulty-badge {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.difficulty-badge.easy {
+    background: #064e3b;
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.difficulty-badge.medium {
+    background: rgba(245, 158, 11, 0.18);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.difficulty-badge.hard {
+    background: rgba(239, 68, 68, 0.18);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.tag-chip {
+    background: #1E2E48;
+    color: #CBD5E1;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+/* Description formatting to match clean typography */
+.problem-description {
+    line-height: 1.7;
+    color: #CBD5E1;
+    font-size: 0.98rem;
+    white-space: pre-wrap;
+}
+
+.problem-description h3, 
+.problem-description h4 {
+    color: #FFFFFF;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 24px 0 12px 0;
+}
+
+/* Example Box matching the dark card with code format inside */
+.example-box {
+    background: #0D1626;
+    border: 1px solid #1E2E48;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 14px;
+    margin-bottom: 20px;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: #E2E8F0;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.example-title {
+    font-weight: 700;
+    color: #FFFFFF;
+    font-size: 1.05rem;
+    margin: 24px 0 10px 0;
+}
+
+/* Tabs switcher inside left pane if needed */
+.pane-tabs {
+    display: flex;
+    gap: 16px;
+    border-bottom: 1px solid #1E2E48;
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+}
+
+.pane-tab {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    padding: 6px 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.pane-tab.active {
+    color: #10B981;
+    border-bottom: 2px solid #10B981;
+}
+
+.submissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.submissions-table th, .submissions-table td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #1E2E48;
+    font-size: 0.9rem;
+}
+
+/* Right Card: Code Editor Panel & IDE */
+.editor-container-right {
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-card {
+    background: #131F33;
+    border: 1px solid #1E2E48;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.editor-header-bar {
+    background: #182842;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1E2E48;
+}
+
+.editor-file-name {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9rem;
+    color: #94A3B8;
+}
+
+.language-select {
+    background: #131F33;
+    border: 1px solid #1E2E48;
+    color: #FFFFFF;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+.language-select:focus {
+    border-color: #10B981;
+}
+
+.code-textarea {
+    width: 100%;
+    min-height: 420px;
+    background: #0D1626;
+    border: none;
+    color: #E2E8F0;
+    font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    padding: 24px;
+    resize: vertical;
+    outline: none;
+    tab-size: 4;
+}
+
+/* Buttons Row exactly below the code editor card aligned right */
+.editor-buttons-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.run-code-btn {
+    background: #1E2E48;
+    color: #E2E8F0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 11px 26px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.run-code-btn:hover {
+    background: #283C5C;
+    color: #FFFFFF;
+}
+
+.submit-code-btn {
+    background: #10B981; /* Exact emerald green from design */
+    color: #FFFFFF;
+    border: none;
+    padding: 11px 32px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.submit-code-btn:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+}
+
+.run-code-btn:disabled, .submit-code-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Optional Custom Input & Results Terminal */
+.execution-panel {
+    margin-top: 24px;
+    background: #131F33;
+    border: 1px solid #1E2E48;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.custom-input-toggle {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 0.88rem;
+    cursor: pointer;
+    margin-top: 14px;
+    text-decoration: underline;
+}
+
+.custom-input-box {
+    width: 100%;
+    min-height: 70px;
+    background: #0D1626;
+    border: 1px solid #1E2E48;
+    border-radius: 8px;
+    color: #CBD5E1;
+    font-family: monospace;
+    padding: 12px;
+    margin-top: 10px;
+    resize: vertical;
+}
+
+.console-output {
+    background: #0D1626;
+    border: 1px solid #1E2E48;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1E2E48;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.console-header h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #FFFFFF;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.status-badge.accepted {
+    background: #064e3b;
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.wrong {
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+}
+
+.console-text {
+    font-family: 'Consolas', monospace;
+    font-size: 0.9rem;
+    color: #E2E8F0;
+    white-space: pre-wrap;
+}
+
+.runtime-line {
+    color: #94A3B8;
+    font-family: 'Consolas', monospace;
+    font-size: 0.86rem;
+    margin-top: 10px;
+}
+
+.complexity-card {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 8px;
+    color: #D1FAE5;
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+}
+
+.complexity-label {
+    color: #10B981;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+/* Rich Test Cases List in Submission Verdict */
+.testcases-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.testcase-card {
+    background: #131F33;
+    border: 1px solid #1E2E48;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+}
+
+.testcase-card.passed {
+    border-left: 4px solid #10B981;
+}
+
+.testcase-card.failed {
+    border-left: 4px solid #EF4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.testcase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #FFFFFF;
+}
+
+.testcase-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.88rem;
+}
+
+.testcase-field {
+    background: #0D1626;
+    border: 1px solid #1E2E48;
+    border-radius: 6px;
+    padding: 8px 12px;
+}
+
+.testcase-field-label {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.testcase-field-val {
+    color: #E2E8F0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.testcase-field-val.expected {
+    color: #10B981;
+}
+
+.testcase-field-val.actual-wrong {
+    color: #EF4444;
+    font-weight: 600;
+}
+
+.failure-highlight-box {
+    margin-top: 6px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px dashed #EF4444;
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: #FCA5A5;
+    font-size: 0.85rem;
+}

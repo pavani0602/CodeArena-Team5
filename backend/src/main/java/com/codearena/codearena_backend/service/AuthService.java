@@ -28,37 +28,55 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Username already exists");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRole(UserRole.USER);
+        if (request.getRole() != null && (request.getRole().equalsIgnoreCase("ADMIN") || request.getRole().equalsIgnoreCase("HOST"))) {
+            user.setRole(UserRole.ADMIN);
+        } else {
+            user.setRole(UserRole.USER);
+        }
 
         userRepository.save(user);
 
         String token = jwtService.generateToken(user.getUsername());
 
-        return new AuthResponse(token);
+        return new AuthResponse(token, user.getUsername(), user.getRole().name());
     }
 
     public AuthResponse login(LoginRequest request) {
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+        java.util.Optional<User> userOpt = userRepository.findByUsername(request.getUsername());
+        if (userOpt.isEmpty()) {
+            userOpt = userRepository.findByEmail(request.getUsername());
+        }
+        User user = userOpt.orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.UNAUTHORIZED, "Invalid username or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid username or password");
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.UNAUTHORIZED, "Invalid username or password");
         }
 
         String token = jwtService.generateToken(user.getUsername());
 
-        return new AuthResponse(token);
+        return new AuthResponse(token, user.getUsername(), user.getRole().name());
+    }
+
+    public java.util.Map<String, String> forgotPassword(String email, String role) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Email address is required");
+        }
+        // Check if email exists in database (optional for security, return success regardless)
+        userRepository.findByEmail(email.trim());
+        return java.util.Map.of("message", "If an account matching " + email + " exists, a recovery link has been sent.");
     }
 }

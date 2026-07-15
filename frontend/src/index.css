@@ -1,0 +1,35 @@
+/* Reset */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #ffffff;
+  color: #222;
+}
+
+/* Links */
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Lists */
+
+ul {
+  list-style: none;
+}
+
+/* Images */
+
+img {
+  max-width: 100%;
+  display: block;
+}
