@@ -76,3 +76,59 @@
     background: #059669;
     box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
 }
+
+/* Save this as ActionButtons.css */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Base button layouts */
+.run-action-btn,
+.submit-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+/* Run Button styling (Muted dark slate with subtle hover) */
+.run-action-btn {
+    background-color: #334155;
+    color: #f1f5f9;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.run-action-btn:hover {
+    background-color: #475569;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.run-action-btn:active {
+    background-color: #1e293b;
+}
+
+/* Submit Button styling (Vibrant Green Leetcode theme) */
+.submit-action-btn {
+    background-color: #10b981;
+    color: #ffffff;
+}
+
+.submit-action-btn:hover {
+    background-color: #059669;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+.submit-action-btn:active {
+    background-color: #047857;
+    transform: scale(0.98);
+}

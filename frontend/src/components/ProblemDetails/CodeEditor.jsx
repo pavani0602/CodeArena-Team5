@@ -1,23 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './CodeEditor.css';
 import { FaCode } from 'react-icons/fa';
 
+// Store raw text instead of fixed HTML strings so it remains clean to edit
 const BOILERPLATE_DATA = {
-    python: `<span class="token keyword">def</span> <span class="token function">twoSum</span>(nums, target):\n    <span class="token comment"># Write your Python code here</span>\n    <span class="token keyword">pass</span>`,
-    java: `<span class="token keyword">class</span> <span class="token class-name">Solution</span> {\n    <span class="token keyword">public</span> <span class="token keyword">int</span>[] <span class="token function">twoSum</span>(<span class="token keyword">int</span>[] nums, <span class="token keyword">int</span> target) {\n        <span class="token comment">// Write your Java code here</span>\n        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token keyword">int</span>[0];\n    }\n}`,
-    cpp: `<span class="token directive">#include</span> <span class="token string">&lt;vector&gt;</span>\n\n<span class="token keyword">class</span> <span class="token class-name">Solution</span> {\n<span class="token keyword">public</span>:\n    std::vector&lt;<span class="token keyword">int</span>&gt; <span class="token function">twoSum</span>(std::vector&lt;<span class="token keyword">int</span>&gt;&amp; nums, <span class="token keyword">int</span> target) {\n        <span class="token comment">// Write your C++ code here</span>\n        <span class="token keyword">return</span> {};\n    }\n};`,
-    javascript: `<span class="token keyword">function</span> <span class="token function">twoSum</span>(nums, target) {\n    <span class="token comment">// Write your JavaScript code here</span>\n    \n}`
+    python: `def twoSum(nums, target):\n    # Write your Python code here\n    pass`,
+    java: `class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your Java code here\n        return new int[0];\n    }\n}`,
+    cpp: `#include <vector>\n\nclass Solution {\npublic:\n    std::vector<int> twoSum(std::vector<int>& nums, int target) {\n        // Write your C++ code here\n        return {};\n    }\n};`,
+    javascript: `function twoSum(nums, target) {\n    // Write your JavaScript code here\n    \n}`
 };
 
-function CodeEditor({ selectedLang, setSelectedLang }) {
-    const [htmlContent, setHtmlContent] = useState(BOILERPLATE_DATA.python);
+function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
+    const [codeText, setCodeText] = useState(BOILERPLATE_DATA.python);
+    const editorRef = useRef(null);
 
-    // Track active changes when language selections swap or route updates
+    // Swap boilerplate text cleanly whenever language changes
     useEffect(() => {
-        setHtmlContent(BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python);
+        const defaultCode = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
+        setCodeText(defaultCode);
+        if (onChange) onChange(defaultCode); // Notify parent component layout state loop
+        
+        if (editorRef.current) {
+            editorRef.current.innerText = defaultCode;
+        }
     }, [selectedLang]);
 
-    const linesCount = htmlContent.split('\n').length;
+    const handleInput = (e) => {
+        const currentText = e.target.innerText;
+        setCodeText(currentText);
+        if (onChange) onChange(currentText); // Send updated code string straight to execution hook
+    };
+
+    // Calculate dynamic line rows based on string break points
+    const linesCount = codeText.split('\n').length || 1;
 
     return (
         <section className="panel editor-panel">
@@ -41,6 +56,7 @@ function CodeEditor({ selectedLang, setSelectedLang }) {
             </div>
             
             <div className="editor-workspace">
+                {/* Dynamically expanding structural row side margins */}
                 <div className="line-numbers-sidebar">
                     {Array.from({ length: linesCount }).map((_, index) => (
                         <div key={index} className="line-number">{index + 1}</div>
@@ -48,9 +64,20 @@ function CodeEditor({ selectedLang, setSelectedLang }) {
                 </div>
 
                 <div className="code-area-wrapper">
-                    <pre className="code-editor-view">
-                        <code dangerouslySetInnerHTML={{ __html: htmlContent }} />
-                    </pre>
+                    {/* contentEditable="true" makes standard tags fully interactive and typeable */}
+                    <pre 
+                        ref={editorRef}
+                        className="code-editor-view"
+                        contentEditable="true"
+                        onInput={handleInput}
+                        suppressContentEditableWarning={true}
+                        style={{
+                            outline: 'none',
+                            whiteSpace: 'pre',
+                            margin: 0,
+                            fontFamily: 'monospace'
+                        }}
+                    />
                 </div>
             </div>
         </section>

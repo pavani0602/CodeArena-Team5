@@ -167,3 +167,49 @@
     background: rgba(16, 185, 129, 0.1) !important;
 }
 
+/* --- Main Split Layout Configuration --- */
+.workspace-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Exact 50/50 split */
+    flex: 1;
+    overflow: hidden;
+    background-color: #0b0f19;
+    padding: 8px;
+    gap: 8px;
+}
+
+/* This targets the right grid item wrapper */
+.editor-side-container {
+    position: relative; 
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+/* --- Main Split Layout Configuration --- */
+.workspace-panels {
+    display: flex !important; /* Switch from grid to flex for stricter half-and-half enforcement */
+    flex-direction: row;
+    flex: 1;
+    overflow: hidden;
+    background-color: #0b0f19;
+    padding: 8px;
+    gap: 8px;
+    width: 100%;
+    height: calc(100vh - 50px); /* Adjusts for the header height */
+}
+
+/* Force both the description block and the editor block to stay exactly 50% width */
+.workspace-panels > :first-child,
+.editor-side-container {
+    flex: 1 !important;
+    width: 50% !important; /* Limits the description from expanding past the middle */
+    max-width: 50% !important;
+    min-width: 0; /* Prevents text overflow elements from stretching the block width */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
