@@ -141,7 +141,7 @@ function Admin() {
             {activeTab === 'create' ? (
                 <form onSubmit={handleSubmit} className="admin-problem-form">
                     {editingProblemId && (
-                        <div className="editing-banner">
+                        <div classsName="editing-banner">
                             <span>You are currently editing <strong>{problemData.title}</strong></span>
                             <button type="button" className="cancel-edit-btn" onClick={handleCancelEdit}>Cancel & Clear</button>
                         </div>

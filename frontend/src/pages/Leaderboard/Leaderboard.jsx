@@ -42,10 +42,10 @@ function Leaderboard() {
         fetchLeaderboard();
     }, [timeframe, languageFilter]);
 
-    // Apply client-side search query filtering
+    // Map original rank first, THEN filter by search query
     const rankedData = leaderboardData
-        .filter(user => user.username?.toLowerCase().includes(searchQuery.toLowerCase()))
-        .map((user, idx) => ({ ...user, overallRank: idx + 1 }));
+    .map((user, idx) => ({ ...user, overallRank: idx + 1 }))
+    .filter(user => user.username?.toLowerCase().includes(searchQuery.toLowerCase()));
 
     // Split filtered database items into Podium (1-3) and Table Queue (4+)
     const podiumUsers = rankedData.slice(0, 3);
