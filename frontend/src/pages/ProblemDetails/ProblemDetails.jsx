@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { FaChevronLeft, FaChevronRight, FaRandom } from 'react-icons/fa';
 import ProblemDescription from '../../components/ProblemDetails/ProblemDescription';
 import CodeEditor from '../../components/ProblemDetails/CodeEditor';
 import ActionButtons from '../../components/ProblemDetails/ActionButtons';
-import ConsoleDrawer from '../../components/ProblemDetails/ConsoleDrawer'; // 1. Import ConsoleDrawer Component
-import { useSubmissionStateMachine } from '../../hooks/useSubmissionStateMachine'; // 2. Import the State Hook
+import ConsoleDrawer from '../../components/ProblemDetails/ConsoleDrawer'; 
+import { useSubmissionStateMachine } from '../../hooks/useSubmissionStateMachine'; 
 import './ProblemDetails.css';
 
 const MOCK_PROBLEMS = {
@@ -18,7 +18,7 @@ const MOCK_PROBLEMS = {
         exampleInput: "nums = [2,7,11,15], target = 9",
         exampleOutput: "[0,1]",
         explanation: "Because nums[0] + nums[1] == 9, we return [0, 1].",
-        testCases: [{ expectedOutput: "[0,1]" }, { expectedOutput: "[1,2]" }] // Added basic array structure for the simulation loop
+        testCases: [{ expectedOutput: "[0,1]" }, { expectedOutput: "[1,2]" }] 
     },
     2: {
         id: 2,
@@ -52,10 +52,14 @@ function ProblemDetails() {
 
     // Lifted States
     const [selectedLang, setSelectedLang] = useState('python');
-    const [userCode, setUserCode] = useState(''); // 3. State to capture the actual code text from CodeEditor
-    const [isConsoleOpen, setIsConsoleOpen] = useState(false); // 4. Controls drawer opening/closing
+    const [userCode, setUserCode] = useState(''); 
+    const [isConsoleOpen, setIsConsoleOpen] = useState(false); 
+    
+    // Dynamic array tracker to manage solution submission history profiles
+    const [submissionHistory, setSubmissionHistory] = useState([]);
+    const [isSubmitTriggered, setIsSubmitTriggered] = useState(false);
 
-    // 5. Initialize State Machine Hook
+    // Initialize State Machine Hook
     const {
         currentState,
         currentTestIndex,
@@ -64,7 +68,28 @@ function ProblemDetails() {
         totalTestCases
     } = useSubmissionStateMachine(problem);
 
-    // 🛡️ Guard checks
+    // Watcher effect loop: Automatically detects when submission execution completes
+    useEffect(() => {
+        if (isSubmitTriggered && (currentState === 'SUCCESS' || currentState === 'FAILED_TEST')) {
+            const newSubmission = {
+                status: feedback?.status || (currentState === 'SUCCESS' ? 'Accepted' : 'Wrong Answer'),
+                language: selectedLang.charAt(0).toUpperCase() + selectedLang.slice(1),
+                runtime: feedback?.runtime || "N/A",
+                timeSubmitted: "Just now"
+            };
+
+            // Prepend new record directly into history state container
+            setSubmissionHistory(prev => [newSubmission, ...prev]);
+            setIsSubmitTriggered(false); // Reset tracking flag trigger
+        }
+    }, [currentState, feedback, isSubmitTriggered, selectedLang]);
+
+    // Clear submission window data view arrays whenever problem route swaps
+    useEffect(() => {
+        setSubmissionHistory([]);
+    }, [currentId]);
+
+    // Guard checks
     const checkAuth = (actionType) => {
         const token = localStorage.getItem('token');
         const role = localStorage.getItem('userRole');
@@ -87,15 +112,17 @@ function ProblemDetails() {
         return true; 
     };
 
-    // 6. Execution Handlers linked to State Machine
+    // Execution Handlers linked to State Machine
     const handleRunCode = () => {
         if (!checkAuth('run')) return;
-        setIsConsoleOpen(true); // Open console panel view immediately
-        simulateExecution(userCode); // Run execution sequence
+        setIsSubmitTriggered(false); // Make sure it doesn't log into submission tab
+        setIsConsoleOpen(true); 
+        simulateExecution(userCode); 
     };
 
     const handleSubmitCode = () => {
         if (!checkAuth('submit')) return;
+        setIsSubmitTriggered(true); // Flag this execution run as a true profile submission
         setIsConsoleOpen(true);
         simulateExecution(userCode);
     };
@@ -124,7 +151,6 @@ function ProblemDetails() {
                     </div>
                 </div>
                 
-                {/* Disabled while actively evaluating code to prevent script conflicts */}
                 <ActionButtons 
                     onRun={handleRunCode} 
                     onSubmit={handleSubmitCode} 
@@ -147,23 +173,21 @@ function ProblemDetails() {
                 </div>
             )}
 
-            {/* Main panels view row */}
             <div className="workspace-panels" style={{ position: 'relative', flex: 1, display: 'flex', overflow: 'hidden' }}>
                 
-                {/* Left Column Component: Stays cleanly isolated on the left half */}
-                <ProblemDescription problem={problem} />
+                {/* Pass our newly created submissionHistory array down as a prop */}
+                <ProblemDescription 
+                    problem={problem} 
+                    submissionHistory={submissionHistory} 
+                />
                 
-                {/* Right Column Container: Strictly houses the code layout and terminal overlay */}
                 <div className="editor-side-container" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                    
-                    {/* 7. Pass setter to tracking changes inside custom CodeEditor wrapper component */}
                     <CodeEditor 
                         selectedLang={selectedLang} 
                         setSelectedLang={setSelectedLang} 
                         onChange={(code) => setUserCode(code)} 
                     />
 
-                    {/* 8. Slide-Up Drawer layer restricted exactly to the code view layout container width */}
                     <ConsoleDrawer 
                         isOpen={isConsoleOpen}
                         onClose={() => setIsConsoleOpen(false)}

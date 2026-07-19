@@ -1,18 +1,43 @@
-import { useState, Fragment } from 'react'; // 💡 Explicitly import Fragment here
+import { useState, useEffect, Fragment } from 'react'; 
 import './ProblemDescription.css';
 import { FaFileAlt, FaHistory, FaCheckCircle, FaTimesCircle, FaStickyNote, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const INITIAL_SUBMISSIONS = [
-    { id: 1, status: "Accepted", lang: "Python", runtime: "45 ms", date: "Just now", notes: "Optimized sliding window approach. Space complexity is O(1)." },
-    { id: 2, status: "Wrong Answer", lang: "Python", runtime: "N/A", date: "2 mins ago", notes: "Forgot to handle negative integers." },
-    { id: 3, status: "Time Limit Exceeded", lang: "Java", runtime: "N/A", date: "1 day ago", notes: "" },
-    { id: 4, status: "Accepted", lang: "JavaScript", runtime: "68 ms", date: "3 days ago", notes: "" },
+    { id: 'mock-1', status: "Accepted", lang: "Python", runtime: "45 ms", date: "2 mins ago", notes: "Optimized sliding window approach. Space complexity is O(1)." },
+    { id: 'mock-2', status: "Wrong Answer", lang: "Python", runtime: "N/A", date: "10 mins ago", notes: "Forgot to handle negative integers." },
+    { id: 'mock-3', status: "Time Limit Exceeded", lang: "Java", runtime: "N/A", date: "1 day ago", notes: "" },
+    { id: 'mock-4', status: "Accepted", lang: "JavaScript", runtime: "68 ms", date: "3 days ago", notes: "" },
 ];
 
-function ProblemDescription({ problem }) {
-    const [activeTab, setActiveTab] = useState('submissions'); 
+// 1. Accept submissionHistory as a prop passed down from the parent component
+function ProblemDescription({ problem, submissionHistory = [] }) {
+    const [activeTab, setActiveTab] = useState('description'); 
     const [submissions, setSubmissions] = useState(INITIAL_SUBMISSIONS);
     const [expandedRowId, setExpandedRowId] = useState(null);
+
+    // 2. Synchronize external live submission array changes with this internal rendering state
+    useEffect(() => {
+        if (submissionHistory.length > 0) {
+            // Map incoming items to fit layout parameters cleanly
+            const formattedLiveItems = submissionHistory.map((item, idx) => ({
+                id: `live-${idx}-${item.timeSubmitted}`,
+                status: item.status,
+                lang: item.language,
+                runtime: item.runtime,
+                date: item.timeSubmitted,
+                notes: "" // Empty notepad layer ready for custom student inputs
+            }));
+
+            // Prepend new interactive rows on top of base history rows
+            setSubmissions([...formattedLiveItems, ...INITIAL_SUBMISSIONS]);
+            
+            // Automatically snap active tab focus to 'submissions' view to show off the update
+            setActiveTab('submissions');
+        } else {
+            // Reset back to base mockups if the user navigates between different code exercises
+            setSubmissions(INITIAL_SUBMISSIONS);
+        }
+    }, [submissionHistory]);
 
     // Toggle expand/collapse when clicking a row
     const toggleRow = (id) => {
@@ -45,7 +70,6 @@ function ProblemDescription({ problem }) {
             
             <div className="panel-content">
                 {activeTab === 'description' ? (
-                    /* --- FULL DESCRIPTION VIEW REINSTATED --- */
                     <div className="tab-view-container animate-fade-in">
                         <h2>{problem.title}</h2>
                         <div className="meta-tags">
@@ -71,7 +95,6 @@ function ProblemDescription({ problem }) {
                         </div>
                     </div>
                 ) : (
-                    /* --- SUBMISSIONS VIEW WITH ACCORDION NOTES --- */
                     <div className="tab-view-container animate-fade-in">
                         <h3 className="submissions-heading">Past Submissions</h3>
                         <p className="submissions-subtitle">Click on a row to view or add notes</p>
