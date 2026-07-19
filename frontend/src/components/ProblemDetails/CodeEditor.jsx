@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import './CodeEditor.css';
-import { FaCode } from 'react-icons/fa';
+import { FaCode, FaUndo, FaExclamationTriangle } from 'react-icons/fa';
 
-// Store raw text instead of fixed HTML strings so it remains clean to edit
 const BOILERPLATE_DATA = {
     python: `def twoSum(nums, target):\n    # Write your Python code here\n    pass`,
     java: `class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your Java code here\n        return new int[0];\n    }\n}`,
@@ -12,26 +11,61 @@ const BOILERPLATE_DATA = {
 
 function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
     const [codeText, setCodeText] = useState(BOILERPLATE_DATA.python);
+    const [isConfirming, setIsConfirming] = useState(false); // Track inline reset confirmation state
     const editorRef = useRef(null);
+    const timerRef = useRef(null);
 
     // Swap boilerplate text cleanly whenever language changes
     useEffect(() => {
         const defaultCode = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
         setCodeText(defaultCode);
-        if (onChange) onChange(defaultCode); // Notify parent component layout state loop
+        if (onChange) onChange(defaultCode); 
         
         if (editorRef.current) {
             editorRef.current.innerText = defaultCode;
         }
+        setIsConfirming(false); // Reset confirmation state if they switch languages
     }, [selectedLang]);
+
+    // Clean up timer on unmount
+    useEffect(() => {
+        return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    }, []);
 
     const handleInput = (e) => {
         const currentText = e.target.innerText;
         setCodeText(currentText);
-        if (onChange) onChange(currentText); // Send updated code string straight to execution hook
+        if (onChange) onChange(currentText); 
     };
 
-    // Calculate dynamic line rows based on string break points
+    // 🔄 Smooth Inline Reset Handler
+    const handleResetCode = () => {
+        if (!isConfirming) {
+            // First click: prompt for confirmation inline
+            setIsConfirming(true);
+            
+            // Auto-cancel confirmation after 4 seconds of inactivity
+            if (timerRef.current) clearTimeout(timerRef.current);
+            timerRef.current = setTimeout(() => {
+                setIsConfirming(false);
+            }, 4000);
+            return;
+        }
+
+        // Second click: perform the actual structural reset
+        if (timerRef.current) clearTimeout(timerRef.current);
+        setIsConfirming(false);
+
+        const originalTemplate = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
+        setCodeText(originalTemplate);
+        if (onChange) onChange(originalTemplate);
+
+        if (editorRef.current) {
+            editorRef.current.innerText = originalTemplate;
+        }
+    };
+
+    // Dynamic line numbers based on code text row splits
     const linesCount = codeText.split('\n').length || 1;
 
     return (
@@ -41,22 +75,45 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
                     <button className="tab-item active"><FaCode size={13} /> Code</button>
                 </div>
                 
-                <div className="lang-dropdown-wrapper">
-                    <select 
-                        className="lang-dropdown" 
-                        value={selectedLang} 
-                        onChange={(e) => setSelectedLang(e.target.value)}
+                <div className="editor-controls-right">
+                    <button 
+                        className={`reset-code-btn ${isConfirming ? 'confirm-mode' : ''}`}
+                        onClick={handleResetCode}
+                        onMouseLeave={() => {
+                            // Optional comfort feature: reset warning if mouse leaves button area long enough
+                            if (isConfirming) {
+                                timerRef.current = setTimeout(() => setIsConfirming(false), 1500);
+                            }
+                        }}
+                        title={isConfirming ? "Click again to confirm erasing changes" : "Reset code to template"}
                     >
-                        <option value="python">Python</option>
-                        <option value="java">Java</option>
-                        <option value="cpp">C++</option>
-                        <option value="javascript">JavaScript</option>
-                    </select>
+                        {isConfirming ? (
+                            <>
+                                <FaExclamationTriangle size={11} /> Confirm Reset?
+                            </>
+                        ) : (
+                            <>
+                                <FaUndo size={10} /> 
+                            </>
+                        )}
+                    </button>
+
+                    <div className="lang-dropdown-wrapper">
+                        <select 
+                            className="lang-dropdown" 
+                            value={selectedLang} 
+                            onChange={(e) => setSelectedLang(e.target.value)}
+                        >
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>
+                            <option value="cpp">C++</option>
+                            <option value="javascript">JavaScript</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             
             <div className="editor-workspace">
-                {/* Dynamically expanding structural row side margins */}
                 <div className="line-numbers-sidebar">
                     {Array.from({ length: linesCount }).map((_, index) => (
                         <div key={index} className="line-number">{index + 1}</div>
@@ -64,7 +121,6 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
                 </div>
 
                 <div className="code-area-wrapper">
-                    {/* contentEditable="true" makes standard tags fully interactive and typeable */}
                     <pre 
                         ref={editorRef}
                         className="code-editor-view"

@@ -115,3 +115,71 @@
     width: 100%;
     cursor: text; /* Changes cursor arrow into a standard typing selection marker */
 }
+
+.reset-code-btn:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #ef4444 !important; /* Changes text/icon red on hover */
+    border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Layout wrapper for top right toolbar alignment */
+.editor-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-right: 8px;
+}
+
+/* Base styling for the interactive Reset Button */
+.reset-code-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94a3b8; /* Premium slate-gray tone matching modern IDEs */
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    user-select: none;
+    height: 32px; /* Standardize layout match against the select tag wrapper height */
+    box-sizing: border-box;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Standard hover configuration state */
+.reset-code-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f1f5f9;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Active pressed down shadow state depth */
+.reset-code-btn:active {
+    transform: scale(0.97);
+}
+
+/* 🚨 Dynamic Confirmation UI State Rule changes */
+.reset-code-btn.confirm-mode {
+    background: rgba(239, 68, 68, 0.12); /* Subtle error amber backdrop */
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171; /* High visibility attention red tone */
+    font-weight: 600;
+    animation: microPulse 0.3s ease-in-out alternate infinite;
+}
+
+.reset-code-btn.confirm-mode:hover {
+    background: #ef4444; /* Solid color drop if intent is clicked again */
+    color: #ffffff;
+    border-color: #ef4444;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
+}
+
+/* Dynamic attention warning pulse accent micro frame */
+@keyframes microPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.02); }
+}
