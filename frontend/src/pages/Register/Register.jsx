@@ -1,11 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useLottie } from 'lottie-react';
 import { GoogleLogin } from '@react-oauth/google'; 
-import LottieComponent from 'lottie-react';
+import { registerUser } from "/src/services/authService.js";
 import '../../pages/Admin/AuthStyles.css';
 
-// Safety check for Vite/ESM default import resolution
-const Lottie = LottieComponent.default || LottieComponent;
+function RocketAnimation({ animationData }) {
+    const options = {
+        animationData: animationData,
+        loop: true,
+        autoplay: true,
+    };
+    const { View } = useLottie(options);
+    
+    return (
+        <div style={{ width: '70px', height: '70px', margin: '0 auto 10px auto' }}>
+            {View}
+        </div>
+    );
+}
 
 function Register() {
     const navigate = useNavigate();
@@ -17,23 +30,23 @@ function Register() {
         confirmPassword: ''
     });
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Fetch local json file from public/rocket.json
     useEffect(() => {
         fetch('/rocket.json')
             .then((res) => {
-                if (!res.ok) throw new Error("Local rocket.json not found in public/");
+                if (!res.ok) throw new Error('Failed to load rocket.json');
                 return res.json();
             })
             .then((data) => setAnimationData(data))
-            .catch((err) => console.error("Error loading Lottie animation:", err));
+            .catch((err) => console.error('Error loading Lottie animation:', err));
     }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -42,9 +55,23 @@ function Register() {
             return;
         }
 
-        console.log("Registering user:", formData);
-        alert('Account created successfully!');
-        navigate('/login');
+        setIsSubmitting(true);
+
+        try {
+            // Call the service layer
+            await registerUser({
+                fullName: formData.fullName,
+                email: formData.email,
+                password: formData.password
+            });
+
+            alert('Account created successfully! Check your inbox for a welcome email.');
+            navigate('/login');
+        } catch (err) {
+            setError(err.message || 'Failed to create account.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleGoogleSuccess = async (credentialResponse) => {
@@ -86,27 +113,17 @@ function Register() {
     return (
         <div className="auth-page-container">
             <div className="auth-card">
-                <div className="auth-header">
+                <div className="auth-header" style={{ marginBottom: '12px', textAlign: 'center' }}>
                     <span className="auth-logo">CodeArena</span>
                 </div>
 
-                {/* --- LOTTIE ANIMATION --- */}
-                {animationData && (
-                    <div style={{ width: '100px', height: '100px', margin: '0 auto 12px auto' }}>
-                        <Lottie 
-                            animationData={animationData} 
-                            loop={true} 
-                            autoplay={true} 
-                        />
-                    </div>
-                )}
+                {animationData && <RocketAnimation animationData={animationData} />}
 
                 <h2 className="auth-title">Create Your Account</h2>
                 <p className="auth-subtitle">Join CodeArena and start solving coding challenges today.</p>
 
                 {error && <div className="auth-error-banner">{error}</div>}
 
-                {/* --- REGISTRATION FORM --- */}
                 <form onSubmit={handleRegister} className="auth-form">
                     <div className="input-group">
                         <label>Full Name</label>
@@ -156,27 +173,16 @@ function Register() {
                         />
                     </div>
 
-                    <button type="submit" className="auth-submit-btn">
-                        Create Account
+                    <button type="submit" className="auth-submit-btn" disabled={isSubmitting}>
+                        {isSubmitting ? 'Creating Account...' : 'Create Account'}
                     </button>
                 </form>
 
-                {/* --- DIVIDER --- */}
                 <div className="divider-line">
-                    <span>or sign up with</span>
+                    <span>or continue with</span>
                 </div>
 
-                {/* --- GOOGLE LOGIN BUTTON --- */}
-                <div 
-                    className="google-auth-box" 
-                    style={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        alignItems: 'center', 
-                        width: '100%', 
-                        marginTop: '12px' 
-                    }}
-                >
+                <div className="google-auth-box">
                     <GoogleLogin
                         onSuccess={handleGoogleSuccess}
                         onError={handleGoogleFailure}
@@ -184,12 +190,11 @@ function Register() {
                         shape="pill"
                         type="standard"
                         size="large"
-                        width="300"
+                        width="350"
                         useOneTap={false}
                     />
                 </div>
 
-                {/* --- FOOTER --- */}
                 <div className="auth-footer-prompt" style={{ marginTop: '16px', textAlign: 'center' }}>
                     Already have an account? <Link to="/login" style={{ color: '#10b981' }}>Login</Link>
                 </div>
