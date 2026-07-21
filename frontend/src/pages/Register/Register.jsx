@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google'; // Imported Google OAuth component
-import '../../pages/Admin/AuthStyles.css'; // Reusing your beautiful central auth styles
+import { GoogleLogin } from '@react-oauth/google'; 
+import LottieComponent from 'lottie-react';
+import '../../pages/Admin/AuthStyles.css';
+
+// Safety check for Vite/ESM default import resolution
+const Lottie = LottieComponent.default || LottieComponent;
 
 function Register() {
     const navigate = useNavigate();
+    const [animationData, setAnimationData] = useState(null);
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -12,6 +17,17 @@ function Register() {
         confirmPassword: ''
     });
     const [error, setError] = useState('');
+
+    // Fetch local json file from public/rocket.json
+    useEffect(() => {
+        fetch('/rocket.json')
+            .then((res) => {
+                if (!res.ok) throw new Error("Local rocket.json not found in public/");
+                return res.json();
+            })
+            .then((data) => setAnimationData(data))
+            .catch((err) => console.error("Error loading Lottie animation:", err));
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,18 +42,15 @@ function Register() {
             return;
         }
 
-        // Simulate successful registration
         console.log("Registering user:", formData);
         alert('Account created successfully!');
         navigate('/login');
     };
 
-    // --- GOOGLE SIGN-UP SUCCESS HANDLER ---
     const handleGoogleSuccess = async (credentialResponse) => {
-        const token = credentialResponse.credential; // Secure JWT from Google
+        const token = credentialResponse.credential;
         
         try {
-            // Decode the JWT payload locally to extract user profile info
             const base64Url = token.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
             const jsonPayload = decodeURIComponent(
@@ -49,7 +62,6 @@ function Register() {
             
             const googleUser = JSON.parse(jsonPayload);
             
-            // Simulating successful registration/login storage
             localStorage.setItem('userRole', 'user');
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify({
@@ -57,27 +69,6 @@ function Register() {
                 email: googleUser.email,
                 picture: googleUser.picture
             }));
-
-            /* 
-              ============================================================
-              FUTURE BACKEND INTEGRATION (When your teammate connects Spring Boot):
-              ============================================================
-              You'll send this token to their endpoint instead of handling it locally:
-
-              const response = await fetch('http://localhost:8080/api/auth/google-signup', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ idToken: token })
-              });
-
-              if (response.ok) {
-                  const data = await response.json();
-                  localStorage.setItem('token', data.jwtToken);
-                  localStorage.setItem('user', JSON.stringify(data.user));
-                  navigate('/problems');
-              }
-              ============================================================
-            */
 
             alert(`Welcome to CodeArena, ${googleUser.name}! 🚀`);
             navigate('/problems');
@@ -99,11 +90,23 @@ function Register() {
                     <span className="auth-logo">CodeArena</span>
                 </div>
 
-                <h2 className="auth-title">Create Your Account 🚀</h2>
+                {/* --- LOTTIE ANIMATION --- */}
+                {animationData && (
+                    <div style={{ width: '100px', height: '100px', margin: '0 auto 12px auto' }}>
+                        <Lottie 
+                            animationData={animationData} 
+                            loop={true} 
+                            autoplay={true} 
+                        />
+                    </div>
+                )}
+
+                <h2 className="auth-title">Create Your Account</h2>
                 <p className="auth-subtitle">Join CodeArena and start solving coding challenges today.</p>
 
                 {error && <div className="auth-error-banner">{error}</div>}
 
+                {/* --- REGISTRATION FORM --- */}
                 <form onSubmit={handleRegister} className="auth-form">
                     <div className="input-group">
                         <label>Full Name</label>
@@ -158,24 +161,37 @@ function Register() {
                     </button>
                 </form>
 
-                {/* --- GOOGLE OAUTH SIGN-UP SECTION --- */}
+                {/* --- DIVIDER --- */}
                 <div className="divider-line">
                     <span>or sign up with</span>
                 </div>
 
-                <div className="google-auth-box">
+                {/* --- GOOGLE LOGIN BUTTON --- */}
+                <div 
+                    className="google-auth-box" 
+                    style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center', 
+                        width: '100%', 
+                        marginTop: '12px' 
+                    }}
+                >
                     <GoogleLogin
                         onSuccess={handleGoogleSuccess}
                         onError={handleGoogleFailure}
-                        theme="dark"
+                        theme="outline"
                         shape="pill"
-                        text="signup_with" // Displays: "Sign up with Google"
-                        width="100%"
+                        type="standard"
+                        size="large"
+                        width="300"
+                        useOneTap={false}
                     />
                 </div>
 
-                <div className="auth-footer-prompt">
-                    Already have an account? <Link to="/login">Login</Link>
+                {/* --- FOOTER --- */}
+                <div className="auth-footer-prompt" style={{ marginTop: '16px', textAlign: 'center' }}>
+                    Already have an account? <Link to="/login" style={{ color: '#10b981' }}>Login</Link>
                 </div>
             </div>
         </div>

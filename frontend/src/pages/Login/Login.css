@@ -7,7 +7,6 @@
     background: var(--background);
 }
 
-
 .auth-container {
     width: 100%;
     max-width: 1020px;
@@ -43,7 +42,6 @@
     margin-bottom: 20px;
 }
 
-
 .auth-left h1 {
     font-size: 2.3rem;
     color: var(--text-primary);
@@ -62,7 +60,6 @@
     line-height: 1.6;
     margin-bottom: 24px;
 }
-
 
 .auth-features {
     display: flex;
@@ -183,7 +180,6 @@
     transition: var(--transition);
 }
 
-
 .login-button:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
@@ -206,7 +202,7 @@
     text-decoration: underline;
 }
 
-/* ---------- GOOGLE OAUTH ELEMENTS ---------- */
+/* ---------- GOOGLE OAUTH ELEMENTS (FIXED) ---------- */
 
 .divider-line {
     display: flex;
@@ -231,15 +227,23 @@
 }
 
 .google-auth-box {
-    display: flex;
-    justify-content: center;
-    width: 100%;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
     margin-bottom: 1rem;
 }
 
-/* Force Google wrapper iframe to render edge-to-edge inside container */
+/* Ensure Google's internal elements scale and center naturally */
 .google-auth-box > div {
-    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    max-width: 100% !important;
+}
+
+.google-auth-box iframe {
+    margin: 0 auto !important;
+    max-width: 100% !important;
 }
 
 /* ---------- RESPONSIVE ---------- */
