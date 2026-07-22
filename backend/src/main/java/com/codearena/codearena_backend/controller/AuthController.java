@@ -40,6 +40,16 @@ public class AuthController {
         throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Not authenticated");
     }
 
+    @GetMapping("/debug-users")
+    public java.util.List<java.util.Map<String, Object>> debugUsers(@org.springframework.beans.factory.annotation.Autowired com.codearena.codearena_backend.repository.UserRepository userRepository) {
+        return userRepository.findAll().stream().map(u -> java.util.Map.of(
+            "id", (Object) u.getId(),
+            "username", (Object) u.getUsername(),
+            "email", (Object) u.getEmail(),
+            "role", (Object) u.getRole()
+        )).toList();
+    }
+
     @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
     public org.springframework.http.ResponseEntity<java.util.Map<String, String>> handleResponseStatusException(org.springframework.web.server.ResponseStatusException e) {
         String message = e.getReason() != null ? e.getReason() : e.getMessage();

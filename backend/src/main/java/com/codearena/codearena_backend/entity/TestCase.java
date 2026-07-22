@@ -23,6 +23,9 @@ public class TestCase {
     @Column(name = "is_hidden", nullable = false)
     private Boolean hidden = false;
 
+    @Column(name = "time_limit_override_ms")
+    private Long timeLimitOverrideMs;
+
     public TestCase() {
     }
 
@@ -60,5 +63,13 @@ public class TestCase {
 
     public void setHidden(Boolean hidden) {
         this.hidden = hidden;
+    }
+
+    public Long getTimeLimitOverrideMs() {
+        return timeLimitOverrideMs;
+    }
+
+    public void setTimeLimitOverrideMs(Long timeLimitOverrideMs) {
+        this.timeLimitOverrideMs = timeLimitOverrideMs;
     }
 }
