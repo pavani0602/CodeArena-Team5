@@ -15,18 +15,33 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ExecutionService {
 
-    private static final String GPP_PATH = "C:\\mingw64\\bin\\g++.exe";
-    private static final String GPP_BIN_PATH = "C:\\mingw64\\bin";
+    
 
     public ExecutionResult execute(String language, String sourceCode) {
-        String normalized = language == null ? "" : language.toUpperCase(Locale.ROOT);
-        return switch (normalized) {
-            case "PYTHON" -> executePython(sourceCode);
-            case "JAVA" -> executeJava(sourceCode);
-            case "CPP", "C++" -> executeCpp(sourceCode);
-            default -> new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", "Unsupported language: " + language, 0L);
-        };
+
+    if (containsDangerousCode(sourceCode)) {
+        return new ExecutionResult(
+                JudgeVerdict.RUNTIME_ERROR,
+                "",
+                "Restricted API usage detected.",
+                0L
+        );
     }
+
+    String normalized = language == null ? "" : language.toUpperCase(Locale.ROOT);
+
+    return switch (normalized) {
+        case "PYTHON" -> executePython(sourceCode);
+        case "JAVA" -> executeJava(sourceCode);
+        case "CPP", "C++" -> executeCpp(sourceCode);
+        default -> new ExecutionResult(
+                JudgeVerdict.RUNTIME_ERROR,
+                "",
+                "Unsupported language: " + language,
+                0L
+        );
+    };
+}
 
     private Path createJudgeTempDirectory(String prefix) throws IOException {
         Path baseDir = Path.of(System.getProperty("user.dir"), "target", "temp-judge");
@@ -43,8 +58,22 @@ public class ExecutionService {
             Path sourceFile = tempDir.resolve("main.py");
             Files.writeString(sourceFile, sourceCode);
 
-            ProcessBuilder runBuilder = new ProcessBuilder("py", "main.py");
-            runBuilder.directory(tempDir.toFile());
+            ProcessBuilder runBuilder = new ProcessBuilder(
+    "docker",
+    "run",
+    "--rm",
+    "--memory=512m",
+    "--cpus=1",
+    "-v",
+    tempDir.toAbsolutePath() + ":/app",
+    "-w",
+    "/app",
+    "python:3.11",
+    "python",
+    "main.py"
+);
+
+runBuilder.directory(tempDir.toFile());
             return runProcess(runBuilder, 5);
         } catch (Exception e) {
             return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", e.getMessage(), 0L);
@@ -59,9 +88,23 @@ public class ExecutionService {
             tempDir = createJudgeTempDirectory("codearena-judge-java-");
             Path sourceFile = tempDir.resolve("Main.java");
             Files.writeString(sourceFile, sourceCode);
-
-            ProcessBuilder compileBuilder = new ProcessBuilder("javac", "Main.java");
-            compileBuilder.directory(tempDir.toFile());
+ProcessBuilder compileBuilder = new ProcessBuilder(
+    "docker",
+    "run",
+    "--rm",
+    "--memory=512m",
+    "--cpus=1",
+    "-v",
+    tempDir.toAbsolutePath() + ":/app",
+    "-w",
+    "/app",
+    "eclipse-temurin:17",
+    "javac",
+    "Main.java"
+);
+compileBuilder.directory(tempDir.toFile());
+            
+            
             ExecutionResult compileResult = runProcess(compileBuilder, 10);
             if (compileResult.verdict() == JudgeVerdict.TIME_LIMIT_EXCEEDED) {
                 return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", "Compilation timeout", compileResult.executionTimeMs());
@@ -70,8 +113,22 @@ public class ExecutionService {
                 return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", compileResult.error(), compileResult.executionTimeMs());
             }
 
-            ProcessBuilder runBuilder = new ProcessBuilder("java", "Main");
-            runBuilder.directory(tempDir.toFile());
+            ProcessBuilder runBuilder = new ProcessBuilder(
+    "docker",
+    "run",
+    "--rm",
+    "--memory=512m",
+    "--cpus=1",
+    "-i",
+    "-v",
+    tempDir.toAbsolutePath() + ":/app",
+    "-w",
+    "/app",
+    "eclipse-temurin:17",
+    "java",
+    "Main"
+);
+runBuilder.directory(tempDir.toFile());
             return runProcess(runBuilder, 5);
         } catch (Exception e) {
             return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", e.getMessage(), 0L);
@@ -184,9 +241,31 @@ public class ExecutionService {
 
         String output = readStream(process.getInputStream()).trim();
         String error = readStream(process.getErrorStream()).trim();
-        if (process.exitValue() != 0) {
-            return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, output, error, elapsedMs);
-        }
+        int exitCode = process.exitValue();
+
+if (exitCode != 0) {
+
+    if (exitCode == 137
+            || error.contains("OutOfMemoryError")
+            || error.contains("Java heap space")
+            || error.contains("Cannot allocate memory")
+            || error.contains("Killed")) {
+
+        return new ExecutionResult(
+                JudgeVerdict.MEMORY_LIMIT_EXCEEDED,
+                "",
+                "Memory limit exceeded",
+                elapsedMs
+        );
+    }
+
+    return new ExecutionResult(
+            JudgeVerdict.RUNTIME_ERROR,
+            output,
+            error,
+            elapsedMs
+    );
+}
         return new ExecutionResult(JudgeVerdict.ACCEPTED, output, "", elapsedMs);
     }
 
@@ -219,4 +298,16 @@ public class ExecutionService {
         }
         file.delete();
     }
+    private boolean containsDangerousCode(String code) {
+
+    String lower = code.toLowerCase();
+
+    return lower.contains("runtime.getruntime().exec")
+        || lower.contains("processbuilder")
+        || lower.contains("system.exit")
+        || lower.contains("java.io")
+        || lower.contains("java.net")
+        || lower.contains("socket")
+        || lower.contains("file");
+}
 }
