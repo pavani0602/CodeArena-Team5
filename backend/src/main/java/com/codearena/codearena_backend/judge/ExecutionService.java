@@ -208,26 +208,7 @@ runBuilder.directory(tempDir.toFile());
         return extracted.replace("\\n", "\n").replace("\\r", "\r").replace("\\\"", "\"").replace("\\\\", "\\");
     }
 
-    private String resolveCppCompiler() {
-        if (Files.exists(Path.of(GPP_PATH))) {
-            return GPP_PATH;
-        }
-        return isCommandAvailable("g++") ? "g++" : null;
-    }
 
-    private boolean isCommandAvailable(String command) {
-        try {
-            Process process = new ProcessBuilder(command, "--version").start();
-            boolean finished = process.waitFor(3, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                return false;
-            }
-            return process.exitValue() == 0;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     private ExecutionResult runProcess(ProcessBuilder builder, int timeoutSeconds) throws IOException, InterruptedException {
         Process process = builder.start();
