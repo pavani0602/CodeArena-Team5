@@ -684,6 +684,13 @@ function ProblemDetails() {
     const [loadingSubmissions, setLoadingSubmissions] = useState(false);
     const [selectedHistorySub, setSelectedHistorySub] = useState(null);
 
+    // Hints & Editorial state
+    const [hints, setHints] = useState([]);
+    const [hintsRequested, setHintsRequested] = useState(0);
+    const [loadingHints, setLoadingHints] = useState(false);
+    const [editorial, setEditorial] = useState(null);
+    const [loadingEditorial, setLoadingEditorial] = useState(false);
+
     const fetchProblem = useCallback(async () => {
         setLoading(true);
         setError("");
@@ -728,6 +735,41 @@ function ProblemDetails() {
         setSelectedHistorySub(null);
         if (tab === "submissions") {
             fetchSubmissions();
+        }
+        if (tab === "editorial" && !editorial) {
+            fetchEditorial();
+        }
+    };
+
+    const fetchHints = async () => {
+        const nextCount = hintsRequested + 1;
+        setLoadingHints(true);
+        try {
+            const res = await fetch(`/api/problems/${problemId}/hints?count=${nextCount}`);
+            if (res.ok) {
+                const data = await res.json();
+                setHints(data);
+                setHintsRequested(nextCount);
+            }
+        } catch (err) {
+            console.error("Error fetching hints:", err);
+        } finally {
+            setLoadingHints(false);
+        }
+    };
+
+    const fetchEditorial = async () => {
+        setLoadingEditorial(true);
+        try {
+            const res = await fetch(`/api/problems/${problemId}/editorial`);
+            if (res.ok) {
+                const data = await res.json();
+                setEditorial(data);
+            }
+        } catch (err) {
+            console.error("Error fetching editorial:", err);
+        } finally {
+            setLoadingEditorial(false);
         }
     };
 
@@ -966,6 +1008,20 @@ function ProblemDetails() {
                             </button>
                             <button
                                 type="button"
+                                className={`pane-tab ${activeTab === "hints" ? "active" : ""}`}
+                                onClick={() => handleTabChange("hints")}
+                            >
+                                💡 Hints
+                            </button>
+                            <button
+                                type="button"
+                                className={`pane-tab ${activeTab === "editorial" ? "active" : ""}`}
+                                onClick={() => handleTabChange("editorial")}
+                            >
+                                📖 Editorial
+                            </button>
+                            <button
+                                type="button"
                                 className={`pane-tab ${activeTab === "submissions" ? "active" : ""}`}
                                 onClick={() => handleTabChange("submissions")}
                             >
@@ -989,6 +1045,56 @@ function ProblemDetails() {
                                 </div>
 
                                 {renderFormattedDescription(problem.descriptionMd || problem.description)}
+                            </div>
+                        ) : activeTab === "hints" ? (
+                            <div className="hints-tab-content">
+                                <h3 style={{ marginBottom: "16px", fontSize: "1.1rem", color: "#fff" }}>💡 Progressive Hints</h3>
+                                <p style={{ fontSize: "0.85rem", color: "#94A3B8", marginBottom: "16px" }}>
+                                    Reveal hints one at a time to guide you toward the solution without giving it away.
+                                </p>
+                                {hints.length > 0 && (
+                                    <div className="hints-list">
+                                        {hints.map((hint, idx) => (
+                                            <div key={hint.id || idx} className="hint-card">
+                                                <div className="hint-header">Hint #{hint.hintNumber || idx + 1}</div>
+                                                <div className="hint-body">{hint.hintText}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                <button
+                                    type="button"
+                                    className="reveal-hint-btn"
+                                    onClick={fetchHints}
+                                    disabled={loadingHints}
+                                    style={{ marginTop: "16px" }}
+                                >
+                                    {loadingHints ? "Loading..." : hints.length === 0 ? "🔓 Reveal First Hint" : "🔓 Reveal Next Hint"}
+                                </button>
+                                {hints.length === 0 && !loadingHints && (
+                                    <p style={{ color: "#64748B", fontSize: "0.85rem", marginTop: "12px", fontStyle: "italic" }}>
+                                        No hints have been revealed yet. Click the button above to get started.
+                                    </p>
+                                )}
+                            </div>
+                        ) : activeTab === "editorial" ? (
+                            <div className="editorial-tab-content">
+                                <h3 style={{ marginBottom: "16px", fontSize: "1.1rem", color: "#fff" }}>📖 Editorial Solution</h3>
+                                {loadingEditorial ? (
+                                    <p style={{ color: "#94A3B8" }}>Loading editorial...</p>
+                                ) : editorial && editorial.available ? (
+                                    <div className="editorial-content">
+                                        <div className="editorial-text">{editorial.editorial}</div>
+                                    </div>
+                                ) : (
+                                    <div className="editorial-locked">
+                                        <div style={{ fontSize: "3rem", marginBottom: "16px" }}>🔒</div>
+                                        <h4 style={{ color: "#fff", marginBottom: "8px" }}>Editorial Not Available</h4>
+                                        <p style={{ color: "#94A3B8", fontSize: "0.9rem" }}>
+                                            The editorial for this problem has not been published yet. Try solving it on your own or use the hints!
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div>

@@ -28,10 +28,18 @@ public class ExecutionService {
         };
     }
 
+    private Path createJudgeTempDirectory(String prefix) throws IOException {
+        Path baseDir = Path.of(System.getProperty("user.dir"), "target", "temp-judge");
+        if (!Files.exists(baseDir)) {
+            Files.createDirectories(baseDir);
+        }
+        return Files.createTempDirectory(baseDir, prefix);
+    }
+
     private ExecutionResult executePython(String sourceCode) {
         Path tempDir = null;
         try {
-            tempDir = Files.createTempDirectory("codearena-judge-python-");
+            tempDir = createJudgeTempDirectory("codearena-judge-python-");
             Path sourceFile = tempDir.resolve("main.py");
             Files.writeString(sourceFile, sourceCode);
 
@@ -48,7 +56,7 @@ public class ExecutionService {
     private ExecutionResult executeJava(String sourceCode) {
         Path tempDir = null;
         try {
-            tempDir = Files.createTempDirectory("codearena-judge-java-");
+            tempDir = createJudgeTempDirectory("codearena-judge-java-");
             Path sourceFile = tempDir.resolve("Main.java");
             Files.writeString(sourceFile, sourceCode);
 
@@ -73,45 +81,74 @@ public class ExecutionService {
     }
 
     private ExecutionResult executeCpp(String sourceCode) {
-        Path tempDir = null;
         try {
-            tempDir = Files.createTempDirectory("codearena-judge-cpp-");
-            Path sourceFile = tempDir.resolve("main.cpp");
-            Files.writeString(sourceFile, sourceCode);
-
-            String compiler = resolveCppCompiler();
-            if (compiler == null) {
-                return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", "C++ compiler not found. Install g++ or add it to PATH.", 0L);
-            }
-
-            ProcessBuilder compileBuilder = new ProcessBuilder(
-                    compiler,
-                    "main.cpp",
-                    "-o",
-                    "main.exe",
-                    "-static",
-                    "-static-libgcc",
-                    "-static-libstdc++"
+            long startedAt = System.nanoTime();
+            String jsonPayload = String.format(
+                "{\"compiler\": \"gcc-head\", \"code\": \"%s\", \"save\": false}",
+                sourceCode.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
             );
-            compileBuilder.directory(tempDir.toFile());
-            ExecutionResult compileResult = runProcess(compileBuilder, 15);
-            if (compileResult.verdict() == JudgeVerdict.TIME_LIMIT_EXCEEDED) {
-                return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", "Compilation timeout", compileResult.executionTimeMs());
-            }
-            if (!compileResult.succeeded()) {
-                return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", compileResult.error(), compileResult.executionTimeMs());
+
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create("https://wandbox.org/api/compile.json"))
+                    .header("Content-Type", "application/json")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .build();
+
+            java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt);
+
+            if (response.statusCode() != 200) {
+                return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", "Wandbox API failed with status: " + response.statusCode(), elapsedMs);
             }
 
-            ProcessBuilder runBuilder = new ProcessBuilder(tempDir.resolve("main.exe").toString());
-            runBuilder.directory(tempDir.toFile());
-            String currentPath = runBuilder.environment().get("PATH");
-            runBuilder.environment().put("PATH", GPP_BIN_PATH + ";" + currentPath);
-            return runProcess(runBuilder, 5);
+            String body = response.body();
+            // Basic JSON parsing to extract fields without adding Jackson dependencies
+            String status = extractJsonString(body, "status");
+            String programOutput = extractJsonString(body, "program_output");
+            String programError = extractJsonString(body, "program_error");
+            String compilerError = extractJsonString(body, "compiler_error");
+
+            if (compilerError != null && !compilerError.isBlank()) {
+                return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", compilerError.trim(), elapsedMs);
+            }
+
+            if (!"0".equals(status)) {
+                return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, programOutput != null ? programOutput.trim() : "", programError != null ? programError.trim() : "", elapsedMs);
+            }
+
+            return new ExecutionResult(JudgeVerdict.ACCEPTED, programOutput != null ? programOutput.trim() : "", "", elapsedMs);
         } catch (Exception e) {
             return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", e.getMessage(), 0L);
-        } finally {
-            deleteDirectory(tempDir);
         }
+    }
+
+    private String extractJsonString(String json, String key) {
+        String searchKey = "\"" + key + "\":";
+        int index = json.indexOf(searchKey);
+        if (index == -1) return null;
+        int startIndex = json.indexOf("\"", index + searchKey.length());
+        if (startIndex == -1) return null;
+        
+        // Handle values that might not be strings (e.g. "status": "0" is usually a string in Wandbox, but just in case)
+        int endIndex = startIndex + 1;
+        boolean escape = false;
+        while (endIndex < json.length()) {
+            char c = json.charAt(endIndex);
+            if (escape) {
+                escape = false;
+            } else if (c == '\\') {
+                escape = true;
+            } else if (c == '"') {
+                break;
+            }
+            endIndex++;
+        }
+        
+        if (endIndex >= json.length()) return null;
+        
+        String extracted = json.substring(startIndex + 1, endIndex);
+        return extracted.replace("\\n", "\n").replace("\\r", "\r").replace("\\\"", "\"").replace("\\\\", "\\");
     }
 
     private String resolveCppCompiler() {
