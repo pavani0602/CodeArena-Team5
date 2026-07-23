@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaUser, FaUserShield } from 'react-icons/fa';
-import { GoogleLogin } from '@react-oauth/google'; // Added GoogleLogin import
+import { GoogleLogin } from '@react-oauth/google';
 import '../../pages/Admin/AuthStyles.css';
 import './Login.css';
 
@@ -20,7 +20,6 @@ function Login() {
         setError('');
 
         if (role === 'admin') {
-            // --- ADMIN LOGIN LOGIC ---
             if (credentials.email === 'admin@codearena.com' && credentials.password === 'admin123') {
                 localStorage.setItem('userRole', 'admin');
                 localStorage.setItem('token', 'mock-admin-token');
@@ -30,15 +29,12 @@ function Login() {
                 setError('Invalid Admin credentials.');
             }
         } else {
-            // --- USER LOGIN LOGIC ---
-            // 💡 Hardcoded placeholder check for local testing
             if (credentials.email === 'user@codearena.com' && credentials.password === 'user123') {
                 localStorage.setItem('userRole', 'user');
                 localStorage.setItem('token', 'mock-user-token');
                 alert('Login successful! Welcome back.');
                 navigate('/problems');
             } else if (credentials.email && credentials.password) {
-                // Fallback: Still allow any random input to pass for easy development
                 localStorage.setItem('userRole', 'user');
                 localStorage.setItem('token', 'mock-user-token');
                 alert('Login successful with custom testing account!');
@@ -49,12 +45,9 @@ function Login() {
         }
     };
 
-    // --- GOOGLE OAUTH SUCCESS HANDLER (Frontend Only for Now) ---
     const handleGoogleSuccess = async (credentialResponse) => {
-        const token = credentialResponse.credential; // Secure JWT token from Google
-        
+        const token = credentialResponse.credential;
         try {
-            // 1. Decode the JWT payload locally (Backend-safe step)
             const base64Url = token.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
             const jsonPayload = decodeURIComponent(
@@ -66,40 +59,16 @@ function Login() {
             
             const googleUser = JSON.parse(jsonPayload);
             
-            // 2. Save session details locally
             localStorage.setItem('userRole', 'user');
-            localStorage.setItem('token', token); // Temporarily store the Google token
+            localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify({
                 username: googleUser.name,
                 email: googleUser.email,
                 picture: googleUser.picture
             }));
 
-            /* 
-              ============================================================
-              FUTURE BACKEND INTEGRATION (When your teammate connects Spring Boot):
-              ============================================================
-              Instead of manually routing, you will send the Google Token directly 
-              to their authentication endpoint. They will verify it on the backend:
-
-              const response = await fetch('http://localhost:8080/api/auth/google', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ idToken: token })
-              });
-
-              if (response.ok) {
-                  const data = await response.json();
-                  localStorage.setItem('token', data.jwtToken);
-                  localStorage.setItem('user', JSON.stringify(data.user));
-                  navigate('/problems');
-              }
-              ============================================================
-            */
-
             alert(`Welcome back, ${googleUser.name}!`);
             navigate('/problems');
-
         } catch (error) {
             console.error("Error parsing Google credentials:", error);
             setError("Google Authentication succeeded, but profile parsing failed.");
@@ -117,7 +86,7 @@ function Login() {
                     <span className="auth-logo">CodeArena</span>
                 </div>
 
-                {/* 🎛️ Dynamic Role Selection Tabs */}
+                {/* Role Selector Tabs */}
                 <div className="role-selector-tabs">
                     <button 
                         type="button"
@@ -162,7 +131,6 @@ function Login() {
                     <div className="input-group">
                         <div className="label-row">
                             <label>Password</label>
-                            {/* 💡 Routes instantly to matching dynamic recovery layout */}
                             <Link to="/forgotpassword" id="forgot-link">
                                 Forgot Password?
                             </Link>
@@ -182,7 +150,6 @@ function Login() {
                     </button>
                 </form>
 
-                {/* --- GOOGLE OAUTH SECTION (Only rendered when User is active) --- */}
                 {role === 'user' && (
                     <>
                         <div className="divider-line">

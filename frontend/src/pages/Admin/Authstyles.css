@@ -2,7 +2,6 @@
    Central Auth Layout Utilities
    ========================================== */
 
-/* Full screen wrapper centering the card */
 .auth-page-container {
     display: flex;
     justify-content: center;
@@ -14,7 +13,6 @@
     box-sizing: border-box;
 }
 
-/* Central card styling */
 .auth-card {
     background: #111827;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -26,12 +24,12 @@
     box-sizing: border-box;
 }
 
-/* Header branding and logos */
+/* Header branding and tightly spaced title */
 .auth-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
+    justify-content: center;
+    margin-bottom: 0px;
 }
 
 .auth-logo {
@@ -40,18 +38,11 @@
     color: #10b981;
 }
 
-/* Lottie Animation Wrapper */
-.lottie-container {
-    width: 90px;
-    height: 90px;
-    margin: 0 auto 8px auto;
-}
-
 .auth-title {
     font-size: 1.7rem;
     font-weight: 700;
     color: #ffffff;
-    margin: 0 0 6px 0;
+    margin: 8px 0 4px 0; /* Snug top spacing right below the logo */
     text-align: center;
 }
 
@@ -84,24 +75,6 @@
     font-size: 0.88rem;
     font-weight: 500;
     color: #d1d5db;
-}
-
-.label-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-#forgot-link {
-    font-size: 0.82rem;
-    color: #10b981;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-#forgot-link:hover {
-    text-decoration: underline;
 }
 
 .auth-form input {
@@ -174,48 +147,25 @@
 .google-auth-box {
     display: flex;
     justify-content: center;
+    align-items: center;
     width: 100%;
+    margin-top: 12px;
+}
+
+.google-auth-box > div {
+    margin: 0 auto !important;
+}
+
+.google-auth-box iframe {
+    display: block !important;
+    position: relative !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
 }
 
 /* ==========================================
-   Role Selector Tabs & Feedback Banners
+   Feedback Banners & Footers
    ========================================== */
-
-.role-selector-tabs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: #090d16;
-    padding: 4px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    margin-bottom: 20px;
-}
-
-.role-tab {
-    background: transparent;
-    border: none;
-    color: #6b7280;
-    padding: 8px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border-radius: 6px;
-    transition: all 0.2s;
-}
-
-.role-tab:hover {
-    color: #e5e7eb;
-}
-
-.role-tab.active {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.15);
-}
 
 .auth-error-banner {
     background: rgba(239, 68, 68, 0.1);
@@ -243,39 +193,4 @@
 
 .auth-footer-prompt a:hover {
     text-decoration: underline;
-}
-
-.google-auth-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  min-height: 50px; /* Gives room for the expanded pill */
-  margin-top: 12px;
-}
-
-/* Ensure Google's internal wrapper doesn't overflow or crop */
-.google-auth-box > div {
-  width: 100% !important;
-  display: flex !important;
-  justify-content: center !important;
-}
-
-/* Force Google OAuth button wrapper to span cleanly and stay centered */
-.google-auth-box {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  width: 100% !important;
-  overflow: hidden;
-}
-
-.google-auth-box > div {
-  display: flex !important;
-  justify-content: center !important;
-  width: 100% !important;
-}
-
-.google-auth-box iframe {
-  margin: 0 auto !important;
 }

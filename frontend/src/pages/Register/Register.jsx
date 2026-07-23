@@ -1,28 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useLottie } from 'lottie-react';
 import { GoogleLogin } from '@react-oauth/google'; 
 import { registerUser } from "/src/services/authService.js";
 import '../../pages/Admin/AuthStyles.css';
 
-function RocketAnimation({ animationData }) {
-    const options = {
-        animationData: animationData,
-        loop: true,
-        autoplay: true,
-    };
-    const { View } = useLottie(options);
-    
-    return (
-        <div style={{ width: '70px', height: '70px', margin: '0 auto 10px auto' }}>
-            {View}
-        </div>
-    );
-}
-
 function Register() {
     const navigate = useNavigate();
-    const [animationData, setAnimationData] = useState(null);
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -31,16 +14,6 @@ function Register() {
     });
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    useEffect(() => {
-        fetch('/rocket.json')
-            .then((res) => {
-                if (!res.ok) throw new Error('Failed to load rocket.json');
-                return res.json();
-            })
-            .then((data) => setAnimationData(data))
-            .catch((err) => console.error('Error loading Lottie animation:', err));
-    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -58,7 +31,6 @@ function Register() {
         setIsSubmitting(true);
 
         try {
-            // Call the service layer
             await registerUser({
                 fullName: formData.fullName,
                 email: formData.email,
@@ -113,11 +85,9 @@ function Register() {
     return (
         <div className="auth-page-container">
             <div className="auth-card">
-                <div className="auth-header" style={{ marginBottom: '12px', textAlign: 'center' }}>
+                <div className="auth-header">
                     <span className="auth-logo">CodeArena</span>
                 </div>
-
-                {animationData && <RocketAnimation animationData={animationData} />}
 
                 <h2 className="auth-title">Create Your Account</h2>
                 <p className="auth-subtitle">Join CodeArena and start solving coding challenges today.</p>
@@ -190,13 +160,13 @@ function Register() {
                         shape="pill"
                         type="standard"
                         size="large"
-                        width="350"
+                        width="280"
                         useOneTap={false}
                     />
                 </div>
 
-                <div className="auth-footer-prompt" style={{ marginTop: '16px', textAlign: 'center' }}>
-                    Already have an account? <Link to="/login" style={{ color: '#10b981' }}>Login</Link>
+                <div className="auth-footer-prompt">
+                    Already have an account? <Link to="/login">Login</Link>
                 </div>
             </div>
         </div>
