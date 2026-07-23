@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { FaChevronLeft, FaChevronRight, FaRandom } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaRandom, FaExclamationTriangle } from 'react-icons/fa';
 import ProblemDescription from '../../components/ProblemDetails/ProblemDescription';
 import CodeEditor from '../../components/ProblemDetails/CodeEditor';
 import ActionButtons from '../../components/ProblemDetails/ActionButtons';
@@ -54,6 +54,10 @@ function ProblemDetails() {
     const [selectedLang, setSelectedLang] = useState('python');
     const [userCode, setUserCode] = useState(''); 
     const [isConsoleOpen, setIsConsoleOpen] = useState(false); 
+    
+    // Rate limit tracking state & modal visibility
+    const [submissionTimestamps, setSubmissionTimestamps] = useState([]);
+    const [showRateLimitModal, setShowRateLimitModal] = useState(false);
     
     // Dynamic array tracker to manage solution submission history profiles
     const [submissionHistory, setSubmissionHistory] = useState([]);
@@ -120,11 +124,28 @@ function ProblemDetails() {
         simulateExecution(userCode); 
     };
 
-    const handleSubmitCode = () => {
+    const handleSubmitCode = async () => {
         if (!checkAuth('submit')) return;
-        setIsSubmitTriggered(true); // Flag this execution run as a true profile submission
-        setIsConsoleOpen(true);
-        simulateExecution(userCode);
+
+        // Client-side rate-limit calculation (Max 5 submissions per 60 seconds)
+        const now = Date.now();
+        const recentSubmissions = submissionTimestamps.filter(time => now - time < 60000);
+
+        if (recentSubmissions.length >= 5) {
+            setShowRateLimitModal(true); // 🛑 Trigger aesthetic popup modal
+            return;
+        }
+
+        // Record this valid submission timestamp
+        setSubmissionTimestamps([...recentSubmissions, now]);
+
+        try {
+            setIsSubmitTriggered(true); 
+            setIsConsoleOpen(true);
+            simulateExecution(userCode);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     // Navigation Handlers
@@ -173,9 +194,77 @@ function ProblemDetails() {
                 </div>
             )}
 
+            {/* 🛑 Aesthetic Rate Limit Modal Popup */}
+            {showRateLimitModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                    backdropFilter: 'blur(4px)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999,
+                    animation: 'fadeIn 0.2s ease-out'
+                }}>
+                    <div style={{
+                        backgroundColor: '#1e293b',
+                        border: '1px solid rgba(234, 179, 8, 0.3)',
+                        borderRadius: '12px',
+                        padding: '30px',
+                        width: '90%',
+                        maxWidth: '420px',
+                        textAlign: 'center',
+                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
+                        color: '#f8fafc'
+                    }}>
+                        <div style={{
+                            width: '50px',
+                            height: '50px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(234, 179, 8, 0.15)',
+                            color: '#eab308',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            margin: '0 auto 20px auto',
+                            fontSize: '22px'
+                        }}>
+                            <FaExclamationTriangle />
+                        </div>
+                        <h3 style={{ margin: '0 0 10px 0', fontSize: '1.25rem', fontWeight: '600', color: '#facc15' }}>
+                            Submission Limit Reached
+                        </h3>
+                        <p style={{ margin: '0 0 20px 0', fontSize: '0.9rem', color: '#94a3b8', lineHeight: '1.5' }}>
+                            You have hit the maximum limit of <strong style={{ color: '#fff' }}>5 submissions per minute</strong>. Please take a moment to review your logic before submitting again.
+                        </p>
+                        <button 
+                            onClick={() => setShowRateLimitModal(false)}
+                            style={{
+                                backgroundColor: '#eab308',
+                                color: '#0f172a',
+                                border: 'none',
+                                borderRadius: '6px',
+                                padding: '10px 20px',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                width: '100%',
+                                transition: 'background-color 0.2s'
+                            }}
+                            onMouseOver={(e) => e.target.style.backgroundColor = '#ca8a04'}
+                            onMouseOut={(e) => e.target.style.backgroundColor = '#eab308'}
+                        >
+                            Got it, I'll wait
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div className="workspace-panels" style={{ position: 'relative', flex: 1, display: 'flex', overflow: 'hidden' }}>
-                
-                {/* Pass our newly created submissionHistory array down as a prop */}
                 <ProblemDescription 
                     problem={problem} 
                     submissionHistory={submissionHistory} 
