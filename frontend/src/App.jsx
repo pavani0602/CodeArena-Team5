@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from "./layouts/MainLayout";
 import PublicLayout from "./layouts/PublicLayout";
 import Standalone from "./layouts/Standalone";
+import ProtectedRoute from "./routes/ProtectedRoute"; // 🛡️ Import your new protection layout
 
 // Pages
 import Home from "./pages/Home/Home";
@@ -14,11 +15,11 @@ import ProblemDetails from "./pages/ProblemDetails/ProblemDetails";
 import Leaderboard from "./pages/Leaderboard/Leaderboard";
 import Discussion from "./pages/Discussion/Discussion";
 
-// Auth Pages (Unified Login handles both Admin & User)
+// Auth Pages
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
-import ResetPassword from "./pages/Auth/ResetPassword"; // Added ResetPassword import
+import ResetPassword from "./pages/Auth/ResetPassword";
 
 // Admin Workspace Dashboard
 import Admin from "./pages/Admin/Admin";
@@ -27,12 +28,21 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* --- Main Protected Layout --- */}
-        <Route element={<MainLayout />} >
+        {/* --- Main Protected Layout (Guarded for logged-in users) --- */}
+        <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>} >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/problems" element={<Problems />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/admin" element={<Admin />} />
+          
+          {/* 🛡️ Strictly Guard Admin Route for Admins Only */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <Admin />
+              </ProtectedRoute>
+            } 
+          />
         </Route>
 
         {/* --- Public Brand Layout --- */}
@@ -43,14 +53,12 @@ function App() {
 
         {/* --- Standalone Layout (Auth & Focused Views) --- */}
         <Route element={<Standalone />} >
-          {/* Unified Login & Auth Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/login/forgotpassword" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           
-          {/* Problem Workspace details */}
           <Route path="/problems/:id" element={<ProblemDetails />} />
         </Route>
       </Routes>
