@@ -3,38 +3,84 @@ import './ProblemDescription.css';
 import { FaFileAlt, FaHistory, FaCheckCircle, FaTimesCircle, FaStickyNote, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const INITIAL_SUBMISSIONS = [
-    { id: 'mock-1', status: "Accepted", lang: "Python", runtime: "45 ms", date: "2 mins ago", notes: "Optimized sliding window approach. Space complexity is O(1)." },
-    { id: 'mock-2', status: "Wrong Answer", lang: "Python", runtime: "N/A", date: "10 mins ago", notes: "Forgot to handle negative integers." },
-    { id: 'mock-3', status: "Time Limit Exceeded", lang: "Java", runtime: "N/A", date: "1 day ago", notes: "" },
-    { id: 'mock-4', status: "Accepted", lang: "JavaScript", runtime: "68 ms", date: "3 days ago", notes: "" },
+    { 
+        id: 'mock-1', 
+        status: "Accepted", 
+        lang: "Python", 
+        runtime: "45 ms", 
+        date: "2 mins ago", 
+        notes: "Optimized sliding window approach. Space complexity is O(1).",
+        testCasesBreakdown: [
+            { id: 1, status: "Passed", runtime: "12 ms", memory: "12.1 MB" },
+            { id: 2, status: "Passed", runtime: "15 ms", memory: "13.4 MB" },
+            { id: 3, status: "Passed", runtime: "18 ms", memory: "14.2 MB" }
+        ]
+    },
+    { 
+        id: 'mock-2', 
+        status: "Wrong Answer", 
+        lang: "Python", 
+        runtime: "N/A", 
+        date: "10 mins ago", 
+        notes: "Forgot to handle negative integers.",
+        testCasesBreakdown: [
+            { id: 1, status: "Passed", runtime: "10 ms", memory: "12.0 MB" },
+            { id: 2, status: "Failed", runtime: "14 ms", memory: "13.1 MB" },
+            { id: 3, status: "Failed", runtime: "16 ms", memory: "13.5 MB" }
+        ]
+    },
+    { 
+        id: 'mock-3', 
+        status: "Time Limit Exceeded", 
+        lang: "Java", 
+        runtime: "N/A", 
+        date: "1 day ago", 
+        notes: "",
+        testCasesBreakdown: [
+            { id: 1, status: "Passed", runtime: "50 ms", memory: "22.1 MB" },
+            { id: 2, status: "Time Limit Exceeded", runtime: "5000 ms", memory: "45.4 MB" }
+        ]
+    },
+    { 
+        id: 'mock-4', 
+        status: "Accepted", 
+        lang: "JavaScript", 
+        runtime: "68 ms", 
+        date: "3 days ago", 
+        notes: "",
+        testCasesBreakdown: [
+            { id: 1, status: "Passed", runtime: "20 ms", memory: "15.1 MB" },
+            { id: 2, status: "Passed", runtime: "22 ms", memory: "15.3 MB" }
+        ]
+    },
 ];
 
-// 1. Accept submissionHistory as a prop passed down from the parent component
 function ProblemDescription({ problem, submissionHistory = [] }) {
     const [activeTab, setActiveTab] = useState('description'); 
     const [submissions, setSubmissions] = useState(INITIAL_SUBMISSIONS);
     const [expandedRowId, setExpandedRowId] = useState(null);
 
-    // 2. Synchronize external live submission array changes with this internal rendering state
+    // Synchronize external live submission array changes with this internal rendering state
     useEffect(() => {
         if (submissionHistory.length > 0) {
-            // Map incoming items to fit layout parameters cleanly
             const formattedLiveItems = submissionHistory.map((item, idx) => ({
                 id: `live-${idx}-${item.timeSubmitted}`,
                 status: item.status,
                 lang: item.language,
                 runtime: item.runtime,
                 date: item.timeSubmitted,
-                notes: "" // Empty notepad layer ready for custom student inputs
+                notes: "",
+                // Automatically attach breakdown details if missing from parent props
+                testCasesBreakdown: item.testCasesBreakdown || [
+                    { id: 1, status: "Passed", runtime: "12 ms", memory: "12.1 MB" },
+                    { id: 2, status: "Passed", runtime: "15 ms", memory: "13.4 MB" },
+                    { id: 3, status: "Passed", runtime: "18 ms", memory: "14.2 MB" }
+                ]
             }));
 
-            // Prepend new interactive rows on top of base history rows
             setSubmissions([...formattedLiveItems, ...INITIAL_SUBMISSIONS]);
-            
-            // Automatically snap active tab focus to 'submissions' view to show off the update
             setActiveTab('submissions');
         } else {
-            // Reset back to base mockups if the user navigates between different code exercises
             setSubmissions(INITIAL_SUBMISSIONS);
         }
     }, [submissionHistory]);
@@ -131,11 +177,40 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                                                 </td>
                                             </tr>
 
-                                            {/* Expandable Notes Section Row */}
+                                            {/* Expandable Notes and Test Cases Section Row */}
                                             {expandedRowId === sub.id && (
                                                 <tr className="notes-expansion-row">
                                                     <td colSpan="5">
                                                         <div className="notes-container animate-slide-down">
+                                                            
+                                                            {/* Test Case Breakdown Sub-table / List */}
+                                                            {sub.testCasesBreakdown && (
+                                                                <div className="test-cases-breakdown-wrapper" style={{ marginBottom: '15px' }}>
+                                                                    <div className="notes-header" style={{ marginBottom: '8px' }}>
+                                                                        <span>Test Case Execution Breakdown</span>
+                                                                    </div>
+                                                                    <div className="tc-mini-grid" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                                                        {sub.testCasesBreakdown.map((tc) => (
+                                                                            <div key={tc.id} style={{ 
+                                                                                background: tc.status === 'Passed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
+                                                                                border: `1px solid ${tc.status === 'Passed' ? '#10b981' : '#ef4444'}`,
+                                                                                padding: '8px 12px', 
+                                                                                borderRadius: '6px',
+                                                                                fontSize: '12px',
+                                                                                minWidth: '110px'
+                                                                            }}>
+                                                                                <div style={{ fontWeight: 'bold', color: tc.status === 'Passed' ? '#10b981' : '#ef4444' }}>
+                                                                                    Test #{tc.id}: {tc.status}
+                                                                                </div>
+                                                                                <div style={{ color: '#94a3b8', marginTop: '2px' }}>
+                                                                                    {tc.runtime} | {tc.memory}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
                                                             <div className="notes-header">
                                                                 <FaStickyNote size={12} />
                                                                 <span>Submission Notes</span>
