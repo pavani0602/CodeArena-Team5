@@ -9,7 +9,10 @@ function Problems() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDifficulty, setSelectedDifficulty] = useState("All");
-    const [sortBy, setSortBy] = useState("latest"); // 1. Add sorting state
+    const [sortBy, setSortBy] = useState("latest");
+    
+    // Check if the current user is an admin
+    const userRole = localStorage.getItem('userRole');
 
     const handleProblemSelect = (id) => {
         navigate(`/problems/${id}`);
@@ -18,17 +21,40 @@ function Problems() {
     return (
         <section className="problems-page">
             <div className="container">
-                <div className="problems-header">
-                    <h1>Problems</h1>
-                    <p>
-                        Practice coding challenges, improve your problem-solving skills,
-                        and prepare for technical interviews.
-                    </p>
+                <div className="problems-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h1>Problems</h1>
+                        <p>
+                            Practice coding challenges, improve your problem-solving skills,
+                            and prepare for technical interviews.
+                        </p>
+                    </div>
+
+                    {/* 🚀 Admin Quick Add Button */}
+                    {userRole === 'admin' && (
+                        <button 
+                            className="admin-quick-add-btn"
+                            onClick={() => navigate('/admin')}
+                            style={{
+                                backgroundColor: '#10b981',
+                                color: 'white',
+                                border: 'none',
+                                padding: '10px 16px',
+                                borderRadius: '8px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                            }}
+                        >
+                            + Add Problem
+                        </button>
+                    )}
                 </div>
                 
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
                 
-                {/* 2. Pass sortBy and setSortBy here */}
                 <FilterBar 
                     selected={selectedDifficulty} 
                     onSelect={setSelectedDifficulty} 
@@ -36,7 +62,6 @@ function Problems() {
                     onSortChange={setSortBy}
                 />
                 
-                {/* 3. Pass sortBy down to the table so it can rearrange rows */}
                 <ProblemTable 
                     searchQuery={searchQuery} 
                     difficulty={selectedDifficulty} 
