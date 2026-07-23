@@ -11,6 +11,34 @@ function Leaderboard() {
     const [error, setError] = useState(null);
 
     // --- Dynamic API Fetch (Fully Production Ready) ---
+    // const fetchLeaderboard = async () => {
+    //     setIsLoading(true);
+    //     setError(null);
+    //     try {
+    //         const params = new URLSearchParams({ 
+    //             timeframe, 
+    //             language: languageFilter 
+    //         });
+            
+    //         // Adjust port/endpoint path as defined by your teammate
+    //         const response = await fetch(`http://localhost:8080/api/leaderboard?${params.toString()}`);
+            
+    //         if (response.ok) {
+    //             const data = await response.json();
+    //             setLeaderboardData(data);
+    //         } else {
+    //             throw new Error(`Server returned status: ${response.status}`);
+    //         }
+    //     } catch (err) {
+    //         console.error("Leaderboard retrieval failed:", err);
+    //         setError("Could not retrieve active rankings. Please try again later.");
+    //         setLeaderboardData([]); // Clear any old data on error
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
+
+    // --- Dynamic API Fetch with Mock Fallback for Demo ---
     const fetchLeaderboard = async () => {
         setIsLoading(true);
         setError(null);
@@ -20,7 +48,6 @@ function Leaderboard() {
                 language: languageFilter 
             });
             
-            // Adjust port/endpoint path as defined by your teammate
             const response = await fetch(`http://localhost:8080/api/leaderboard?${params.toString()}`);
             
             if (response.ok) {
@@ -30,9 +57,23 @@ function Leaderboard() {
                 throw new Error(`Server returned status: ${response.status}`);
             }
         } catch (err) {
-            console.error("Leaderboard retrieval failed:", err);
-            setError("Could not retrieve active rankings. Please try again later.");
-            setLeaderboardData([]); // Clear any old data on error
+            console.warn("Backend API not reachable, loading mock leaderboard data for preview:", err);
+            
+            // 🚀 Fallback Mock Data so your UI shines instantly during development/demo
+            const mockData = [
+                { id: 1, username: "AlexCoder", solved: 142, accuracy: 96.5, avgSpeedMs: 42, lang: "Java" },
+                { id: 2, username: "ByteNinja", solved: 135, accuracy: 94.2, avgSpeedMs: 38, lang: "Python" },
+                { id: 3, username: "CodeWizard", solved: 128, accuracy: 91.0, avgSpeedMs: 55, lang: "C++" },
+                { id: 4, username: "DevQueen", solved: 115, accuracy: 89.5, avgSpeedMs: 61, lang: "Java" },
+                { id: 5, username: "SyntaxError", solved: 98, accuracy: 85.0, avgSpeedMs: 74, lang: "Python" }
+            ];
+
+            // Filter mock data locally based on selected language filter if desired
+            const filteredMock = languageFilter === 'All' 
+                ? mockData 
+                : mockData.filter(item => item.lang === languageFilter);
+
+            setLeaderboardData(filteredMock);
         } finally {
             setIsLoading(false);
         }
