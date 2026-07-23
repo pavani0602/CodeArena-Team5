@@ -3,6 +3,7 @@ import './ProblemDescription.css';
 import { 
     FaFileAlt, 
     FaHistory, 
+    FaLightbulb, 
     FaCheckCircle, 
     FaTimesCircle, 
     FaStickyNote, 
@@ -13,6 +14,9 @@ import {
     FaMemory, 
     FaBug 
 } from 'react-icons/fa';
+
+// Import your custom component from the correct relative path
+import HintsAndEditorial from './HintsAndEditorial'; 
 
 // Helper function to handle verdict states
 const getVerdictDetails = (status) => {
@@ -34,7 +38,6 @@ const getVerdictDetails = (status) => {
             return { icon: <FaExclamationTriangle />, className: 'unknown', label: status || 'Pending' };
     }
 };
-
 
 const INITIAL_SUBMISSIONS = [
     { 
@@ -60,28 +63,6 @@ const INITIAL_SUBMISSIONS = [
             { id: 2, status: "Time Limit Exceeded", runtime: "5000 ms", memory: "14.1 MB" }
         ]
     },
-    { 
-        id: 'mock-3', 
-        status: "Memory Limit Exceeded", 
-        lang: "Java", 
-        runtime: "N/A", 
-        date: "1 day ago", 
-        notes: "Using too much extra memory.",
-        testCasesBreakdown: [
-            { id: 1, status: "Memory Limit Exceeded", runtime: "150 ms", memory: "256.4 MB" }
-        ]
-    },
-    { 
-        id: 'mock-4', 
-        status: "Runtime Error", 
-        lang: "JavaScript", 
-        runtime: "N/A", 
-        date: "3 days ago", 
-        notes: "Index out of bounds exception.",
-        testCasesBreakdown: [
-            { id: 1, status: "Runtime Error", runtime: "20 ms", memory: "15.1 MB" }
-        ]
-    },
 ];
 
 function ProblemDescription({ problem, submissionHistory = [] }) {
@@ -99,16 +80,13 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                 runtime: item.runtime,
                 date: item.timeSubmitted,
                 notes: "",
-                // Automatically attach breakdown details if missing from parent props
                 testCasesBreakdown: item.testCasesBreakdown || [
                     { id: 1, status: "Passed", runtime: "12 ms", memory: "12.1 MB" },
-                    { id: 2, status: "Passed", runtime: "15 ms", memory: "13.4 MB" },
-                    { id: 3, status: "Passed", runtime: "18 ms", memory: "14.2 MB" }
+                    { id: 2, status: "Passed", runtime: "15 ms", memory: "13.4 MB" }
                 ]
             }));
 
             setSubmissions([...formattedLiveItems, ...INITIAL_SUBMISSIONS]);
-            setActiveTab('submissions');
         } else {
             setSubmissions(INITIAL_SUBMISSIONS);
         }
@@ -126,6 +104,11 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
         ));
     };
 
+    // Calculate failed attempts dynamically from the submissions state to feed the gated editorial lock
+    const failedAttemptsCount = submissions.filter(
+        sub => sub.status?.toLowerCase() !== 'accepted'
+    ).length;
+
     return (
         <section className="panel description-panel">
             <div className="panel-tabs">
@@ -136,6 +119,12 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                     <FaFileAlt size={13} /> Description
                 </button>
                 <button 
+                    className={`tab-item ${activeTab === 'hints' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('hints')}
+                >
+                    <FaLightbulb size={13} /> Hints & Editorial
+                </button>
+                <button 
                     className={`tab-item ${activeTab === 'submissions' ? 'active' : ''}`}
                     onClick={() => setActiveTab('submissions')}
                 >
@@ -144,7 +133,7 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
             </div>
             
             <div className="panel-content">
-                {activeTab === 'description' ? (
+                {activeTab === 'description' && (
                     <div className="tab-view-container animate-fade-in">
                         <h2>{problem.title}</h2>
                         <div className="meta-tags">
@@ -169,7 +158,19 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                             </pre>
                         </div>
                     </div>
-                ) : (
+                )}
+
+                {/* Integrated Hints and Gated Editorial Component View */}
+                {activeTab === 'hints' && (
+                    <div className="tab-view-container animate-fade-in">
+                        <HintsAndEditorial 
+                            failedAttempts={failedAttemptsCount} 
+                            requiredAttempts={3} 
+                        />
+                    </div>
+                )}
+
+                {activeTab === 'submissions' && (
                     <div className="tab-view-container animate-fade-in">
                         <h3 className="submissions-heading">Past Submissions</h3>
                         <p className="submissions-subtitle">Click on a row to view or add notes</p>
@@ -188,16 +189,10 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                                 <tbody>
                                     {submissions.map((sub) => (
                                         <Fragment key={sub.id}> 
-                                            {/* Main Row */}
                                             <tr 
                                                 className={`submission-row ${expandedRowId === sub.id ? 'is-expanded' : ''}`}
                                                 onClick={() => toggleRow(sub.id)}
                                             >
-                                                {/* <td className={`status-cell ${sub.status.toLowerCase().replace(/ /g, '-')}`}>
-                                                    {sub.status === "Accepted" ? <FaCheckCircle /> : <FaTimesCircle />}
-                                                    {sub.status}
-                                                    {sub.notes && <FaStickyNote className="has-note-icon" title="Has notes" />}
-                                                </td> */}
                                                 {(() => {
                                                     const verdict = getVerdictDetails(sub.status);
                                                     return (
@@ -216,13 +211,10 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                                                 </td>
                                             </tr>
 
-                                            {/* Expandable Notes and Test Cases Section Row */}
                                             {expandedRowId === sub.id && (
                                                 <tr className="notes-expansion-row">
                                                     <td colSpan="5">
                                                         <div className="notes-container animate-slide-down">
-                                                            
-                                                            {/* Test Case Breakdown Sub-table / List */}
                                                             {sub.testCasesBreakdown && (
                                                                 <div className="test-cases-breakdown-wrapper" style={{ marginBottom: '15px' }}>
                                                                     <div className="notes-header" style={{ marginBottom: '8px' }}>
