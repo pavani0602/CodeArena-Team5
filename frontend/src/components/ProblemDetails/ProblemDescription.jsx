@@ -1,6 +1,40 @@
 import { useState, useEffect, Fragment } from 'react'; 
 import './ProblemDescription.css';
-import { FaFileAlt, FaHistory, FaCheckCircle, FaTimesCircle, FaStickyNote, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { 
+    FaFileAlt, 
+    FaHistory, 
+    FaCheckCircle, 
+    FaTimesCircle, 
+    FaStickyNote, 
+    FaChevronDown, 
+    FaChevronUp, 
+    FaExclamationTriangle, 
+    FaClock, 
+    FaMemory, 
+    FaBug 
+} from 'react-icons/fa';
+
+// Helper function to handle verdict states
+const getVerdictDetails = (status) => {
+    switch (status?.toLowerCase()) {
+        case 'accepted':
+            return { icon: <FaCheckCircle />, className: 'accepted', label: 'Accepted' };
+        case 'wrong answer':
+            return { icon: <FaTimesCircle />, className: 'wrong-answer', label: 'Wrong Answer' };
+        case 'time limit exceeded':
+        case 'tle':
+            return { icon: <FaClock />, className: 'time-limit-exceeded', label: 'Time Limit Exceeded' };
+        case 'memory limit exceeded':
+        case 'mle':
+            return { icon: <FaMemory />, className: 'memory-limit-exceeded', label: 'Memory Limit Exceeded' };
+        case 'runtime error':
+        case 're':
+            return { icon: <FaBug />, className: 'runtime-error', label: 'Runtime Error' };
+        default:
+            return { icon: <FaExclamationTriangle />, className: 'unknown', label: status || 'Pending' };
+    }
+};
+
 
 const INITIAL_SUBMISSIONS = [
     { 
@@ -9,48 +43,43 @@ const INITIAL_SUBMISSIONS = [
         lang: "Python", 
         runtime: "45 ms", 
         date: "2 mins ago", 
-        notes: "Optimized sliding window approach. Space complexity is O(1).",
+        notes: "Optimized sliding window approach.",
         testCasesBreakdown: [
-            { id: 1, status: "Passed", runtime: "12 ms", memory: "12.1 MB" },
-            { id: 2, status: "Passed", runtime: "15 ms", memory: "13.4 MB" },
-            { id: 3, status: "Passed", runtime: "18 ms", memory: "14.2 MB" }
+            { id: 1, status: "Passed", runtime: "12 ms", memory: "12.1 MB" }
         ]
     },
     { 
         id: 'mock-2', 
-        status: "Wrong Answer", 
+        status: "Time Limit Exceeded", 
         lang: "Python", 
         runtime: "N/A", 
         date: "10 mins ago", 
-        notes: "Forgot to handle negative integers.",
+        notes: "Loop is too slow, need O(n).",
         testCasesBreakdown: [
             { id: 1, status: "Passed", runtime: "10 ms", memory: "12.0 MB" },
-            { id: 2, status: "Failed", runtime: "14 ms", memory: "13.1 MB" },
-            { id: 3, status: "Failed", runtime: "16 ms", memory: "13.5 MB" }
+            { id: 2, status: "Time Limit Exceeded", runtime: "5000 ms", memory: "14.1 MB" }
         ]
     },
     { 
         id: 'mock-3', 
-        status: "Time Limit Exceeded", 
+        status: "Memory Limit Exceeded", 
         lang: "Java", 
         runtime: "N/A", 
         date: "1 day ago", 
-        notes: "",
+        notes: "Using too much extra memory.",
         testCasesBreakdown: [
-            { id: 1, status: "Passed", runtime: "50 ms", memory: "22.1 MB" },
-            { id: 2, status: "Time Limit Exceeded", runtime: "5000 ms", memory: "45.4 MB" }
+            { id: 1, status: "Memory Limit Exceeded", runtime: "150 ms", memory: "256.4 MB" }
         ]
     },
     { 
         id: 'mock-4', 
-        status: "Accepted", 
+        status: "Runtime Error", 
         lang: "JavaScript", 
-        runtime: "68 ms", 
+        runtime: "N/A", 
         date: "3 days ago", 
-        notes: "",
+        notes: "Index out of bounds exception.",
         testCasesBreakdown: [
-            { id: 1, status: "Passed", runtime: "20 ms", memory: "15.1 MB" },
-            { id: 2, status: "Passed", runtime: "22 ms", memory: "15.3 MB" }
+            { id: 1, status: "Runtime Error", runtime: "20 ms", memory: "15.1 MB" }
         ]
     },
 ];
@@ -164,11 +193,21 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                                                 className={`submission-row ${expandedRowId === sub.id ? 'is-expanded' : ''}`}
                                                 onClick={() => toggleRow(sub.id)}
                                             >
-                                                <td className={`status-cell ${sub.status.toLowerCase().replace(/ /g, '-')}`}>
+                                                {/* <td className={`status-cell ${sub.status.toLowerCase().replace(/ /g, '-')}`}>
                                                     {sub.status === "Accepted" ? <FaCheckCircle /> : <FaTimesCircle />}
                                                     {sub.status}
                                                     {sub.notes && <FaStickyNote className="has-note-icon" title="Has notes" />}
-                                                </td>
+                                                </td> */}
+                                                {(() => {
+                                                    const verdict = getVerdictDetails(sub.status);
+                                                    return (
+                                                        <td className={`status-cell ${verdict.className}`}>
+                                                            {verdict.icon}
+                                                            <span>{verdict.label}</span>
+                                                            {sub.notes && <FaStickyNote className="has-note-icon" title="Has notes" />}
+                                                        </td>
+                                                    );
+                                                })()}
                                                 <td><span className="lang-cell-badge">{sub.lang}</span></td>
                                                 <td>{sub.runtime}</td>
                                                 <td className="date-cell">{sub.date}</td>
