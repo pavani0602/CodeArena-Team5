@@ -15,7 +15,37 @@ function Login() {
         setCredentials({ ...credentials, [e.target.name]: e.target.value });
     };
 
-    const handleLogin = (e) => {
+    // const handleLogin = (e) => {
+    //     e.preventDefault();
+    //     setError('');
+
+    //     if (role === 'admin') {
+    //         if (credentials.email === 'admin@codearena.com' && credentials.password === 'admin123') {
+    //             localStorage.setItem('userRole', 'admin');
+    //             localStorage.setItem('token', 'mock-admin-token');
+    //             alert('Welcome to the Admin Workspace!');
+    //             navigate('/admin');
+    //         } else {
+    //             setError('Invalid Admin credentials.');
+    //         }
+    //     } else {
+    //         if (credentials.email === 'user@codearena.com' && credentials.password === 'user123') {
+    //             localStorage.setItem('userRole', 'user');
+    //             localStorage.setItem('token', 'mock-user-token');
+    //             alert('Login successful! Welcome back.');
+    //             navigate('/problems');
+    //         } else if (credentials.email && credentials.password) {
+    //             localStorage.setItem('userRole', 'user');
+    //             localStorage.setItem('token', 'mock-user-token');
+    //             alert('Login successful with custom testing account!');
+    //             navigate('/problems');
+    //         } else {
+    //             setError('Please fill in all fields.');
+    //         }
+    //     }
+    // };
+
+const handleLogin = (e) => {
         e.preventDefault();
         setError('');
 
@@ -23,6 +53,7 @@ function Login() {
             if (credentials.email === 'admin@codearena.com' && credentials.password === 'admin123') {
                 localStorage.setItem('userRole', 'admin');
                 localStorage.setItem('token', 'mock-admin-token');
+                localStorage.setItem('userEmail', credentials.email); // 👈 Add this here
                 alert('Welcome to the Admin Workspace!');
                 navigate('/admin');
             } else {
@@ -32,11 +63,13 @@ function Login() {
             if (credentials.email === 'user@codearena.com' && credentials.password === 'user123') {
                 localStorage.setItem('userRole', 'user');
                 localStorage.setItem('token', 'mock-user-token');
+                localStorage.setItem('userEmail', credentials.email); // 👈 Add this here
                 alert('Login successful! Welcome back.');
                 navigate('/problems');
             } else if (credentials.email && credentials.password) {
                 localStorage.setItem('userRole', 'user');
                 localStorage.setItem('token', 'mock-user-token');
+                localStorage.setItem('userEmail', credentials.email); // 👈 Add this here
                 alert('Login successful with custom testing account!');
                 navigate('/problems');
             } else {
@@ -44,6 +77,36 @@ function Login() {
             }
         }
     };
+
+    // const handleGoogleSuccess = async (credentialResponse) => {
+    //     const token = credentialResponse.credential;
+    //     try {
+    //         const base64Url = token.split('.')[1];
+    //         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    //         const jsonPayload = decodeURIComponent(
+    //             window.atob(base64)
+    //                 .split('')
+    //                 .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+    //                 .join('')
+    //         );
+            
+    //         const googleUser = JSON.parse(jsonPayload);
+            
+    //         localStorage.setItem('userRole', 'user');
+    //         localStorage.setItem('token', token);
+    //         localStorage.setItem('user', JSON.stringify({
+    //             username: googleUser.name,
+    //             email: googleUser.email,
+    //             picture: googleUser.picture
+    //         }));
+
+    //         alert(`Welcome back, ${googleUser.name}!`);
+    //         navigate('/problems');
+    //     } catch (error) {
+    //         console.error("Error parsing Google credentials:", error);
+    //         setError("Google Authentication succeeded, but profile parsing failed.");
+    //     }
+    // };
 
     const handleGoogleSuccess = async (credentialResponse) => {
         const token = credentialResponse.credential;
@@ -61,6 +124,7 @@ function Login() {
             
             localStorage.setItem('userRole', 'user');
             localStorage.setItem('token', token);
+            localStorage.setItem('userEmail', googleUser.email); // 👈 Add this line here!
             localStorage.setItem('user', JSON.stringify({
                 username: googleUser.name,
                 email: googleUser.email,

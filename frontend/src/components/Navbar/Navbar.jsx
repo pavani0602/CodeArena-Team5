@@ -7,6 +7,7 @@ function Navbar() {
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userRole, setUserRole] = useState('user');
+    const [userEmail, setUserEmail] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
     
     const [userStats] = useState({
@@ -16,19 +17,25 @@ function Navbar() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         const role = localStorage.getItem('userRole');
+        const email = localStorage.getItem('userEmail');
         
         if (token) {
             setIsLoggedIn(true);
             setUserRole(role || 'user');
+            setUserEmail(email || 'user@codearena.com');
         } else {
             setIsLoggedIn(false);
+            setUserEmail('');
         }
     }, []);
 
     const handleSignOut = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('userRole');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('user');
         setIsLoggedIn(false);
+        setUserEmail('');
         setShowDropdown(false);
         alert('Signed out successfully.');
         navigate('/');
@@ -94,7 +101,7 @@ function Navbar() {
                                 <div className="navbar-dropdown-menu">
                                     <div className="dropdown-user-header">
                                         <span>Signed in as</span>
-                                        <strong>{userRole === 'admin' ? 'admin@codearena.com' : 'user@codearena.com'}</strong>
+                                        <strong>{userEmail}</strong>
                                     </div>
                                     <hr className="dropdown-divider" />
                                     
