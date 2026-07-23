@@ -18,6 +18,7 @@ import Discussion from "./pages/Discussion/Discussion";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import ResetPassword from "./pages/Auth/ResetPassword"; // Added ResetPassword import
 
 // Admin Workspace Dashboard
 import Admin from "./pages/Admin/Admin";
@@ -47,6 +48,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/login/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           
           {/* Problem Workspace details */}
           <Route path="/problems/:id" element={<ProblemDetails />} />

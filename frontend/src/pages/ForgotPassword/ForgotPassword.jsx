@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaUserShield, FaArrowLeft } from 'react-icons/fa';
+import emailjs from '@emailjs/browser';
 import '../../pages/Admin/AuthStyles.css';
 
 function ForgotPassword() {
@@ -8,22 +9,45 @@ function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const navigate = useNavigate();
 
     const handleRecover = (e) => {
         e.preventDefault();
         setLoading(true);
+        setErrorMessage('');
 
-        // Simulate backend recovery API call
-        setTimeout(() => {
-            setLoading(false);
-            setSubmitted(true);
-        }, 1200);
+        // Generate a random mock reset link token
+        const resetLinkUrl = `http://localhost:5173/reset-password?token=${Math.random().toString(36).substring(2)}`;
+
+        // Parameters matching your updated EmailJS template variables
+        const templateParams = {
+            to_email: email,
+            link: resetLinkUrl, // Matches {{link}} in your template
+        };
+
+        const SERVICE_ID = 'service_jmtuzus';
+        const TEMPLATE_ID = 'template_feei7gi';
+        const PUBLIC_KEY = 'aroQ7qSy3luWdBGGN';
+
+        emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
+            .then((response) => {
+                console.log('SUCCESS!', response.status, response.text);
+                setLoading(false);
+                setSubmitted(true);
+            })
+            .catch((err) => {
+                console.error('FAILED...', err);
+                setLoading(false);
+                setErrorMessage('Failed to send reset instructions. Please check your configuration.');
+            });
     };
 
     const handleTabChange = (selectedRole) => {
         setRole(selectedRole);
         setSubmitted(false);
         setEmail('');
+        setErrorMessage('');
     };
 
     return (
@@ -51,13 +75,19 @@ function ForgotPassword() {
                     </button>
                 </div>
 
+                {errorMessage && (
+                    <div style={{ background: '#fee2e2', color: '#dc2626', padding: '10px', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '15px', textAlign: 'center' }}>
+                        {errorMessage}
+                    </div>
+                )}
+
                 {!submitted ? (
                     <>
                         <h2 className="auth-title">Reset Password</h2>
                         <p className="auth-subtitle">
                             {role === 'admin' 
-                                ? 'Enter your admin credentials to reset your workspace access token.' 
-                                : 'Enter your registered email to receive a secure account recovery link.'}
+                                ? 'Enter your admin email to receive secure workspace recovery instructions.' 
+                                : 'Enter your registered email to receive a password reset link.'}
                         </p>
 
                         <form onSubmit={handleRecover} className="auth-form">
@@ -74,17 +104,24 @@ function ForgotPassword() {
                             </div>
 
                             <button type="submit" className="auth-submit-btn" disabled={loading}>
-                                {loading ? 'Processing...' : 'Send Recovery Link'}
+                                {loading ? 'Sending Instructions...' : 'Send Reset Link'}
                             </button>
                         </form>
                     </>
                 ) : (
-                    <div className="auth-success-view">
-                        <div style={{ color: '#10b981', fontSize: '2rem', textAlign: 'center', marginBottom: '12px' }}>📩</div>
+                    <div className="auth-success-view" style={{ textAlign: 'center', padding: '10px 0' }}>
+                        <div style={{ color: '#10b981', fontSize: '2.5rem', marginBottom: '12px' }}>📩</div>
                         <h2 className="auth-title">Check Your Inbox</h2>
-                        <p className="auth-subtitle">
-                            We have sent a secure confirmation recovery path to <strong>{email}</strong>.
+                        <p className="auth-subtitle" style={{ marginBottom: '20px' }}>
+                            We have successfully sent password reset instructions to <strong>{email}</strong>.
                         </p>
+                        <button 
+                            onClick={() => navigate('/login')} 
+                            className="auth-submit-btn" 
+                            style={{ width: '100%', border: 'none', cursor: 'pointer' }}
+                        >
+                            Back to Sign In
+                        </button>
                     </div>
                 )}
 
