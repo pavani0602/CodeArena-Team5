@@ -21,7 +21,7 @@ function Leaderboard() {
     //         });
             
     //         // Adjust port/endpoint path as defined by your teammate
-    //         const response = await fetch(`http://localhost:8080/api/leaderboard?${params.toString()}`);
+    //         const response = await fetch(`/api/leaderboard?${params.toString()}`);
             
     //         if (response.ok) {
     //             const data = await response.json();
@@ -48,7 +48,7 @@ function Leaderboard() {
                 language: languageFilter 
             });
             
-            const response = await fetch(`http://localhost:8080/api/leaderboard?${params.toString()}`);
+            const response = await fetch(`/api/leaderboard?${params.toString()}`);
             
             if (response.ok) {
                 const data = await response.json();
