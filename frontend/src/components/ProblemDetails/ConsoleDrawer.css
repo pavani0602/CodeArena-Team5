@@ -1,0 +1,257 @@
+/* Core Overlay Floating Drawer Layout Container */
+.console-drawer-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 320px;
+    background: #111827; /* Dark charcoal slate */
+    border-top: 2px solid #374151; /* Muted divider row border */
+    display: flex;
+    flex-direction: column;
+    z-index: 999;
+    box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* Header Action Toolbar Strip */
+.console-header {
+    background: #1f2937;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #374151;
+}
+
+.console-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #e5e7eb;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.console-icon {
+    color: #10b981; /* Brand green theme spark color */
+}
+
+.console-close-btn {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.console-close-btn:hover {
+    color: #f3f4f6;
+}
+
+/* Base Body Pane Window Content Configuration */
+.console-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    color: #d1d5db;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Generic Status States Container Defaults */
+.status-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.status-context-msg {
+    font-size: 0.88rem;
+    color: #9ca3af;
+    margin-bottom: 16px;
+    margin-top: 4px;
+}
+
+/* Compilation Loader Styles */
+.status-loading {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 80%;
+}
+
+.status-loading h3 {
+    font-size: 1.15rem;
+    margin: 12px 0 6px 0;
+    color: #f3f4f6;
+}
+
+.status-loading p {
+    font-size: 0.88rem;
+    color: #9ca3af;
+}
+
+.spinner-icon {
+    font-size: 2.2rem;
+    color: #3b82f6;
+    animation: spin 1s linear infinite;
+}
+
+/* Progress Pipeline Trackers */
+.progress-bar-wrapper {
+    width: 320px;
+    margin-top: 20px;
+}
+
+.progress-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.progress-bar-track {
+    width: 100%;
+    height: 6px;
+    background: #374151;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: #3b82f6; /* Evaluation loading line index color */
+    border-radius: 4px;
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dynamic State Status Verdict Badges */
+.verdict-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    width: fit-content;
+    margin-bottom: 8px;
+}
+
+.success-banner { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.failed-banner { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+.error-banner { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+/* Stack Trace Terminal Simulation Display */
+.terminal-stack-trace {
+    background: #030712;
+    border: 1px solid #1f2937;
+    border-radius: 6px;
+    padding: 14px;
+    color: #f87171;
+    font-family: 'Fira Code', 'Courier New', Courier, monospace;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    margin-top: 10px;
+}
+
+/* Split Compare Windows for Failed Diagnostic States */
+.diff-analysis-grid {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+}
+
+.diff-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.diff-card h4 {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.diff-box {
+    background: #030712;
+    border: 1px solid #1f2937;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+}
+
+.expected-box { border-left: 3px solid #10b981; color: #10b981; }
+.actual-box { border-left: 3px solid #ef4444; color: #ef4444; }
+
+/* Metrics Panels for Successful Executions */
+.metrics-row-display {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.metric-score-card {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    padding: 12px 24px;
+    display: flex;
+    flex-direction: column;
+    min-width: 140px;
+}
+
+.metric-label {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    margin-bottom: 4px;
+}
+
+.metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.value-green {
+    color: #10b981;
+}
+
+/* Layout Keyframe System Animations */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.console-drawer-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%; /* Spans 100% of the editor column container now, not the whole screen! */
+    height: 320px;
+    background: #111827; 
+    border-top: 2px solid #374151; 
+    display: flex;
+    flex-direction: column;
+    z-index: 999;
+    box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.5);
+}

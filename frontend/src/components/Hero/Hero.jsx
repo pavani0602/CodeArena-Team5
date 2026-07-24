@@ -1,22 +1,7 @@
 import "./Hero.css";
-import { Link, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function Hero() {
-    const location = useLocation();
-    const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
-
-    useEffect(() => {
-        const syncAuth = () => setIsLoggedIn(!!localStorage.getItem("token"));
-        syncAuth();
-        window.addEventListener("codearena:auth-updated", syncAuth);
-        window.addEventListener("storage", syncAuth);
-        return () => {
-            window.removeEventListener("codearena:auth-updated", syncAuth);
-            window.removeEventListener("storage", syncAuth);
-        };
-    }, [location.pathname]);
-
     return (
         <section className="hero">
         <div className="container">
@@ -29,15 +14,12 @@ function Hero() {
                     Practice data structures and algorithms, solve coding challenges, track your progress, and climb the leaderboard—all in one place.
                 </p>
                 <div className="hero-buttons">
-                    {!isLoggedIn ? (
-                        <Link to="/login">
-                            <button className="primary-butt">Login or Signup</button>
-                        </Link>
-                    ) : (
-                        <Link to="/problems">
-                            <button className="primary-butt">Explore Problems →</button>
-                        </Link>
-                    )}
+                    <Link to="/problems">
+                        <button className="primary-butt">Start Solving</button>
+                    </Link>
+                    {/* <Link to="/leaderboard">
+                        <button className="secondary-butt">View Leaderboard</button>
+                    </Link> */}
                 </div>
             </div>
             <div className="hero-right">

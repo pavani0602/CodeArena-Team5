@@ -1,0 +1,196 @@
+/* ==========================================
+   Central Auth Layout Utilities
+   ========================================== */
+
+.auth-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #0b0f19;
+    padding: 20px;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
+
+.auth-card {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 32px 40px;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+}
+
+/* Header branding and tightly spaced title */
+.auth-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0px;
+}
+
+.auth-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.auth-title {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 8px 0 4px 0; /* Snug top spacing right below the logo */
+    text-align: center;
+}
+
+.auth-subtitle {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    line-height: 1.4;
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+/* ==========================================
+   Form Controls and Input Styling
+   ========================================== */
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.input-group label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #d1d5db;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 10px 14px;
+    background: #090d16;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.auth-form input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+
+.auth-submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: #10b981;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 4px;
+}
+
+.auth-submit-btn:hover {
+    background: #059669;
+}
+
+.auth-submit-btn:disabled {
+    background: #374151;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   Divider Line & Google OAuth Styling
+   ========================================== */
+
+.divider-line {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0 16px 0;
+    color: #6b7280;
+    font-size: 0.82rem;
+}
+
+.divider-line::before,
+.divider-line::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.divider-line span {
+    padding: 0 10px;
+    text-transform: lowercase;
+}
+
+.google-auth-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.google-auth-box > div {
+    margin: 0 auto !important;
+}
+
+.google-auth-box iframe {
+    display: block !important;
+    position: relative !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+/* ==========================================
+   Feedback Banners & Footers
+   ========================================== */
+
+.auth-error-banner {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.auth-footer-prompt {
+    font-size: 0.88rem;
+    color: #9ca3af;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.auth-footer-prompt a {
+    color: #10b981;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer-prompt a:hover {
+    text-decoration: underline;
+}

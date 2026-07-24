@@ -90,8 +90,8 @@
     gap: 16px;
 }
 
-.admin-panel-card input,
-.admin-panel-card select,
+.admin-panel-card input, 
+.admin-panel-card select, 
 .admin-panel-card textarea {
     background: #090d16;
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -104,8 +104,8 @@
     transition: border-color 0.15s;
 }
 
-.admin-panel-card input:focus,
-.admin-panel-card textarea:focus,
+.admin-panel-card input:focus, 
+.admin-panel-card textarea:focus, 
 .admin-panel-card select:focus {
     border-color: #10b981;
 }
@@ -331,3 +331,4 @@
 .edit-action-btn:hover {
     background: rgba(16, 185, 129, 0.2);
 }
+

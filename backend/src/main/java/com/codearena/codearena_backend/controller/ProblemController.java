@@ -31,21 +31,4 @@ public class ProblemController {
     public Problem getProblemById(@PathVariable Long id) {
         return problemService.getProblemById(id);
     }
-    @GetMapping("/{id}/hints")
-    public java.util.List<com.codearena.codearena_backend.entity.ProblemHint> getHints(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "1") int count
-    ) {
-        return problemService.getHints(id, count);
-    }
-
-    @GetMapping("/{id}/editorial")
-    public java.util.Map<String, Object> getEditorial(@PathVariable Long id) {
-        return problemService.getEditorial(id);
-    }
-
-    @GetMapping("/{id}/starter-codes")
-    public java.util.List<com.codearena.codearena_backend.entity.ProblemStarterCode> getStarterCodes(@PathVariable Long id) {
-        return problemService.getStarterCodes(id);
-    }
 }

@@ -27,37 +27,23 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
 
-        String username = request.getUsername() != null ? request.getUsername().trim() : "";
-        String email = request.getEmail() != null ? request.getEmail().trim() : "";
-
-        if (userRepository.existsByUsernameIgnoreCase(username)) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Username already exists");
         }
 
-        if (userRepository.existsByEmailIgnoreCase(email)) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
         User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        
-        UserRole requestedRole = UserRole.USER;
-        if (request.getRole() != null) {
-            try {
-                requestedRole = UserRole.valueOf(request.getRole().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                // Ignore, defaults to USER
-            }
+        if (request.getRole() != null && (request.getRole().equalsIgnoreCase("ADMIN") || request.getRole().equalsIgnoreCase("HOST"))) {
+            user.setRole(UserRole.ADMIN);
+        } else {
+            user.setRole(UserRole.USER);
         }
-        
-        if (requestedRole == UserRole.ADMIN && userRepository.existsByRole(UserRole.ADMIN)) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.BAD_REQUEST, "An admin account already exists. Only one admin is allowed.");
-        }
-        
-        user.setRole(requestedRole);
 
         userRepository.save(user);
 
@@ -68,11 +54,9 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
 
-        String input = request.getUsername() != null ? request.getUsername().trim() : "";
-
-        java.util.Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(input);
+        java.util.Optional<User> userOpt = userRepository.findByUsername(request.getUsername());
         if (userOpt.isEmpty()) {
-            userOpt = userRepository.findByEmailIgnoreCase(input);
+            userOpt = userRepository.findByEmail(request.getUsername());
         }
         User user = userOpt.orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
                 org.springframework.http.HttpStatus.UNAUTHORIZED, "Invalid username or password"));
@@ -89,10 +73,10 @@ public class AuthService {
 
     public java.util.Map<String, String> forgotPassword(String email, String role) {
         if (email == null || email.trim().isEmpty()) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Email is required");
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Email address is required");
         }
-        
-        userRepository.findByEmailIgnoreCase(email.trim());
+        // Check if email exists in database (optional for security, return success regardless)
+        userRepository.findByEmail(email.trim());
         return java.util.Map.of("message", "If an account matching " + email + " exists, a recovery link has been sent.");
     }
 }

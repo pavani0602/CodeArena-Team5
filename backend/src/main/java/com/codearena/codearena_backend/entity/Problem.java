@@ -26,15 +26,6 @@ public class Problem {
     @Column(length = 500)
     private String tags;
 
-    @Column(name = "editorial_md", columnDefinition = "TEXT")
-    private String editorial;
-
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<ProblemStarterCode> starterCodes = new java.util.ArrayList<>();
-
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<ProblemHint> hints = new java.util.ArrayList<>();
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -82,30 +73,6 @@ public class Problem {
 
     public void setTags(String tags) {
         this.tags = tags;
-    }
-
-    public String getEditorial() {
-        return editorial;
-    }
-
-    public void setEditorial(String editorial) {
-        this.editorial = editorial;
-    }
-
-    public java.util.List<ProblemStarterCode> getStarterCodes() {
-        return starterCodes;
-    }
-
-    public void setStarterCodes(java.util.List<ProblemStarterCode> starterCodes) {
-        this.starterCodes = starterCodes;
-    }
-
-    public java.util.List<ProblemHint> getHints() {
-        return hints;
-    }
-
-    public void setHints(java.util.List<ProblemHint> hints) {
-        this.hints = hints;
     }
 
     public LocalDateTime getCreatedAt() {

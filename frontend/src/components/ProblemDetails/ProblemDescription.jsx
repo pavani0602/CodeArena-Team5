@@ -1,18 +1,96 @@
-import { useState, Fragment } from 'react'; // 💡 Explicitly import Fragment here
+import { useState, useEffect, Fragment } from 'react'; 
 import './ProblemDescription.css';
-import { FaFileAlt, FaHistory, FaCheckCircle, FaTimesCircle, FaStickyNote, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { 
+    FaFileAlt, 
+    FaHistory, 
+    FaLightbulb, 
+    FaCheckCircle, 
+    FaTimesCircle, 
+    FaStickyNote, 
+    FaChevronDown, 
+    FaChevronUp, 
+    FaExclamationTriangle, 
+    FaClock, 
+    FaMemory, 
+    FaBug 
+} from 'react-icons/fa';
+
+// Import your custom component from the correct relative path
+import HintsAndEditorial from './HintsAndEditorial'; 
+
+// Helper function to handle verdict states
+const getVerdictDetails = (status) => {
+    switch (status?.toLowerCase()) {
+        case 'accepted':
+            return { icon: <FaCheckCircle />, className: 'accepted', label: 'Accepted' };
+        case 'wrong answer':
+            return { icon: <FaTimesCircle />, className: 'wrong-answer', label: 'Wrong Answer' };
+        case 'time limit exceeded':
+        case 'tle':
+            return { icon: <FaClock />, className: 'time-limit-exceeded', label: 'Time Limit Exceeded' };
+        case 'memory limit exceeded':
+        case 'mle':
+            return { icon: <FaMemory />, className: 'memory-limit-exceeded', label: 'Memory Limit Exceeded' };
+        case 'runtime error':
+        case 're':
+            return { icon: <FaBug />, className: 'runtime-error', label: 'Runtime Error' };
+        default:
+            return { icon: <FaExclamationTriangle />, className: 'unknown', label: status || 'Pending' };
+    }
+};
 
 const INITIAL_SUBMISSIONS = [
-    { id: 1, status: "Accepted", lang: "Python", runtime: "45 ms", date: "Just now", notes: "Optimized sliding window approach. Space complexity is O(1)." },
-    { id: 2, status: "Wrong Answer", lang: "Python", runtime: "N/A", date: "2 mins ago", notes: "Forgot to handle negative integers." },
-    { id: 3, status: "Time Limit Exceeded", lang: "Java", runtime: "N/A", date: "1 day ago", notes: "" },
-    { id: 4, status: "Accepted", lang: "JavaScript", runtime: "68 ms", date: "3 days ago", notes: "" },
+    { 
+        id: 'mock-1', 
+        status: "Accepted", 
+        lang: "Python", 
+        runtime: "45 ms", 
+        date: "2 mins ago", 
+        notes: "Optimized sliding window approach.",
+        testCasesBreakdown: [
+            { id: 1, status: "Passed", runtime: "12 ms", memory: "12.1 MB" }
+        ]
+    },
+    { 
+        id: 'mock-2', 
+        status: "Time Limit Exceeded", 
+        lang: "Python", 
+        runtime: "N/A", 
+        date: "10 mins ago", 
+        notes: "Loop is too slow, need O(n).",
+        testCasesBreakdown: [
+            { id: 1, status: "Passed", runtime: "10 ms", memory: "12.0 MB" },
+            { id: 2, status: "Time Limit Exceeded", runtime: "5000 ms", memory: "14.1 MB" }
+        ]
+    },
 ];
 
-function ProblemDescription({ problem }) {
-    const [activeTab, setActiveTab] = useState('submissions');
+function ProblemDescription({ problem, submissionHistory = [] }) {
+    const [activeTab, setActiveTab] = useState('description'); 
     const [submissions, setSubmissions] = useState(INITIAL_SUBMISSIONS);
     const [expandedRowId, setExpandedRowId] = useState(null);
+
+    // Synchronize external live submission array changes with this internal rendering state
+    useEffect(() => {
+        if (submissionHistory.length > 0) {
+            const formattedLiveItems = submissionHistory.map((item, idx) => ({
+                id: `live-${idx}-${item.timeSubmitted}`,
+                status: item.status,
+                lang: item.language,
+                runtime: item.runtime,
+                date: item.timeSubmitted,
+                notes: "",
+                testCasesBreakdown: item.testCasesBreakdown || [
+                    { id: 1, status: "Passed", runtime: "12 ms", memory: "12.1 MB" },
+                    { id: 2, status: "Passed", runtime: "15 ms", memory: "13.4 MB" }
+                ]
+            }));
+
+            setSubmissions([...formattedLiveItems, ...INITIAL_SUBMISSIONS]);
+        } else {
+            setSubmissions(INITIAL_SUBMISSIONS);
+        }
+    }, [submissionHistory]);
 
     // Toggle expand/collapse when clicking a row
     const toggleRow = (id) => {
@@ -21,31 +99,41 @@ function ProblemDescription({ problem }) {
 
     // Update the note field inside state
     const handleNoteChange = (id, text) => {
-        setSubmissions(prev => prev.map(sub =>
+        setSubmissions(prev => prev.map(sub => 
             sub.id === id ? { ...sub, notes: text } : sub
         ));
     };
 
+    // Calculate failed attempts dynamically from the submissions state to feed the gated editorial lock
+    const failedAttemptsCount = submissions.filter(
+        sub => sub.status?.toLowerCase() !== 'accepted'
+    ).length;
+
     return (
         <section className="panel description-panel">
             <div className="panel-tabs">
-                <button
+                <button 
                     className={`tab-item ${activeTab === 'description' ? 'active' : ''}`}
                     onClick={() => setActiveTab('description')}
                 >
                     <FaFileAlt size={13} /> Description
                 </button>
-                <button
+                <button 
+                    className={`tab-item ${activeTab === 'hints' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('hints')}
+                >
+                    <FaLightbulb size={13} /> Hints & Editorial
+                </button>
+                <button 
                     className={`tab-item ${activeTab === 'submissions' ? 'active' : ''}`}
                     onClick={() => setActiveTab('submissions')}
                 >
                     <FaHistory size={13} /> Submissions
                 </button>
             </div>
-
+            
             <div className="panel-content">
-                {activeTab === 'description' ? (
-                    /* --- FULL DESCRIPTION VIEW REINSTATED --- */
+                {activeTab === 'description' && (
                     <div className="tab-view-container animate-fade-in">
                         <h2>{problem.title}</h2>
                         <div className="meta-tags">
@@ -56,7 +144,7 @@ function ProblemDescription({ problem }) {
                                 <span key={tag} className="tag">{tag}</span>
                             ))}
                         </div>
-
+                        
                         <div className="description-text">
                             <p>{problem.description}</p>
                         </div>
@@ -70,12 +158,23 @@ function ProblemDescription({ problem }) {
                             </pre>
                         </div>
                     </div>
-                ) : (
-                    /* --- SUBMISSIONS VIEW WITH ACCORDION NOTES --- */
+                )}
+
+                {/* Integrated Hints and Gated Editorial Component View */}
+                {activeTab === 'hints' && (
+                    <div className="tab-view-container animate-fade-in">
+                        <HintsAndEditorial 
+                            failedAttempts={failedAttemptsCount} 
+                            requiredAttempts={3} 
+                        />
+                    </div>
+                )}
+
+                {activeTab === 'submissions' && (
                     <div className="tab-view-container animate-fade-in">
                         <h3 className="submissions-heading">Past Submissions</h3>
                         <p className="submissions-subtitle">Click on a row to view or add notes</p>
-
+                        
                         <div className="submissions-table-wrapper">
                             <table className="submissions-table">
                                 <thead>
@@ -89,17 +188,21 @@ function ProblemDescription({ problem }) {
                                 </thead>
                                 <tbody>
                                     {submissions.map((sub) => (
-                                        <Fragment key={sub.id}>
-                                            {/* Main Row */}
-                                            <tr
+                                        <Fragment key={sub.id}> 
+                                            <tr 
                                                 className={`submission-row ${expandedRowId === sub.id ? 'is-expanded' : ''}`}
                                                 onClick={() => toggleRow(sub.id)}
                                             >
-                                                <td className={`status-cell ${sub.status.toLowerCase().replace(/ /g, '-')}`}>
-                                                    {sub.status === "Accepted" ? <FaCheckCircle /> : <FaTimesCircle />}
-                                                    {sub.status}
-                                                    {sub.notes && <FaStickyNote className="has-note-icon" title="Has notes" />}
-                                                </td>
+                                                {(() => {
+                                                    const verdict = getVerdictDetails(sub.status);
+                                                    return (
+                                                        <td className={`status-cell ${verdict.className}`}>
+                                                            {verdict.icon}
+                                                            <span>{verdict.label}</span>
+                                                            {sub.notes && <FaStickyNote className="has-note-icon" title="Has notes" />}
+                                                        </td>
+                                                    );
+                                                })()}
                                                 <td><span className="lang-cell-badge">{sub.lang}</span></td>
                                                 <td>{sub.runtime}</td>
                                                 <td className="date-cell">{sub.date}</td>
@@ -108,11 +211,37 @@ function ProblemDescription({ problem }) {
                                                 </td>
                                             </tr>
 
-                                            {/* Expandable Notes Section Row */}
                                             {expandedRowId === sub.id && (
                                                 <tr className="notes-expansion-row">
                                                     <td colSpan="5">
                                                         <div className="notes-container animate-slide-down">
+                                                            {sub.testCasesBreakdown && (
+                                                                <div className="test-cases-breakdown-wrapper" style={{ marginBottom: '15px' }}>
+                                                                    <div className="notes-header" style={{ marginBottom: '8px' }}>
+                                                                        <span>Test Case Execution Breakdown</span>
+                                                                    </div>
+                                                                    <div className="tc-mini-grid" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                                                        {sub.testCasesBreakdown.map((tc) => (
+                                                                            <div key={tc.id} style={{ 
+                                                                                background: tc.status === 'Passed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
+                                                                                border: `1px solid ${tc.status === 'Passed' ? '#10b981' : '#ef4444'}`,
+                                                                                padding: '8px 12px', 
+                                                                                borderRadius: '6px',
+                                                                                fontSize: '12px',
+                                                                                minWidth: '110px'
+                                                                            }}>
+                                                                                <div style={{ fontWeight: 'bold', color: tc.status === 'Passed' ? '#10b981' : '#ef4444' }}>
+                                                                                    Test #{tc.id}: {tc.status}
+                                                                                </div>
+                                                                                <div style={{ color: '#94a3b8', marginTop: '2px' }}>
+                                                                                    {tc.runtime} | {tc.memory}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
                                                             <div className="notes-header">
                                                                 <FaStickyNote size={12} />
                                                                 <span>Submission Notes</span>
@@ -121,7 +250,7 @@ function ProblemDescription({ problem }) {
                                                                 className="notes-textarea"
                                                                 placeholder="Type your notes here (e.g., edge cases, approach details, complexity updates)..."
                                                                 value={sub.notes}
-                                                                onClick={(e) => e.stopPropagation()}
+                                                                onClick={(e) => e.stopPropagation()} 
                                                                 onChange={(e) => handleNoteChange(sub.id, e.target.value)}
                                                             />
                                                         </div>

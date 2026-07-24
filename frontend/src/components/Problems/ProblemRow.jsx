@@ -2,54 +2,36 @@ import "./ProblemRow.css";
 import { FaCheckCircle, FaRegCircle, FaClock } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-function ProblemRow({ problem }) {
-
-    const getStatusIcon = () => {
-        switch (problem.status) {
-            case "Completed":
+function ProblemRow({ problem, onRowClick }) {
+    // Helper function to render the correct icon with specific styling classes
+    const renderStatus = (status) => {
+        switch (status) {
             case "Solved":
-                return <FaCheckCircle className="status solved" title="Completed" />;
-
-            case "In Progress":
+                return <FaCheckCircle className="status-icon solved" title="Solved" />;
             case "Attempted":
-                return <FaClock className="status attempted" title="In Progress" />;
-
-            default:
-                return <FaRegCircle className="status unsolved" title="Not started" />;
+                return <FaClock className="status-icon attempted" title="Attempted" />;
+            default: // "Unsolved"
+                return <FaRegCircle className="status-icon unsolved" title="Unsolved" />;
         }
     };
 
     return (
-        <tr className="table-row-item">
-
+        <tr className="table-row-item" onClick={() => onRowClick && onRowClick(problem.id)}>
             <td className="row-id">{problem.id}</td>
-
-            <td className="problem-title">
-                <Link to={`/problems/${problem.id}`} style={{ color: 'inherit', textDecoration: 'none', fontWeight: '600' }}>
-                    {problem.title}
-                </Link>
-            </td>
-
+            <td className="problem-title">{problem.title}</td>
             <td>
-                <span
-                    className={`difficulty-badge ${problem.difficulty.toLowerCase()}`}
-                >
+                <span className={`difficulty-badge ${problem.difficulty.toLowerCase()}`}>
                     {problem.difficulty}
                 </span>
             </td>
-
+            <td className="status-cell">{renderStatus(problem.status)}</td>
             <td>
-                {getStatusIcon()}
-            </td>
-
-            <td>
-                <Link to={`/problems/${problem.id}`} style={{ textDecoration: 'none' }}>
-                    <button className="solve-btn" style={{ cursor: 'pointer' }}>
+                <Link to={`/problems/${problem.id}`} onClick={(e) => e.stopPropagation()}>
+                    <button className="solve-btn">
                         Solve →
                     </button>
                 </Link>
             </td>
-
         </tr>
     );
 }
