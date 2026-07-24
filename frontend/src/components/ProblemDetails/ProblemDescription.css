@@ -293,3 +293,24 @@
 .submissions-subtitle {
     color : #10B981;
 }
+
+/* Status badge styling for different verdicts */
+.status-cell.accepted, .badge-accepted {
+    color: #10b981;
+}
+
+.status-cell.wrong-answer, .badge-wrong-answer {
+    color: #ef4444;
+}
+
+.status-cell.time-limit-exceeded, .badge-tle {
+    color: #f59e0b;
+}
+
+.status-cell.memory-limit-exceeded, .badge-mle {
+    color: #8b5cf6;
+}
+
+.status-cell.runtime-error, .badge-re {
+    color: #ec4899;
+}

@@ -35,9 +35,9 @@ function AdminForgotPassword() {
                         <form onSubmit={handleRecover} className="auth-form">
                             <div className="input-group">
                                 <label>Account Email</label>
-                                <input
-                                    type="email"
-                                    required
+                                <input 
+                                    type="email" 
+                                    required 
                                     placeholder="admin@codearena.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}

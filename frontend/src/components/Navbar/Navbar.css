@@ -64,24 +64,6 @@
     transform: translateY(-2px);
 }
 
-.public-nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.navbar .right .host-admin-btn {
-    background: transparent;
-    border: 1px solid #ff5555;
-    color: #ff8888;
-}
-
-.navbar .right .solver-portal-btn {
-    background: var(--primary, #6366f1);
-    border: 1px solid var(--primary, #6366f1);
-    color: #ffffff;
-}
-
 .middle .active {
     color: var(--primary);
     font-weight: 600;

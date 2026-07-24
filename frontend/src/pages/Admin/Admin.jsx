@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import './Admin.css';
 import { FaPlus, FaTrash, FaSave, FaCode, FaCheckCircle, FaEdit, FaList } from 'react-icons/fa';
 
@@ -58,7 +58,7 @@ function Admin() {
 
     // --- Dynamic Test Case Management Engine ---
     const handleTestCaseChange = (id, field, value) => {
-        setTestCases(prev => prev.map(tc =>
+        setTestCases(prev => prev.map(tc => 
             tc.id === id ? { ...tc, [field]: value } : tc
         ));
     };
@@ -96,7 +96,7 @@ function Admin() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
+        
         const structuredPayload = {
             id: editingProblemId || Date.now(),
             ...problemData,
@@ -111,7 +111,7 @@ function Admin() {
             console.log("Saving new problem structure:", structuredPayload);
             alert(`Problem "${structuredPayload.title}" created successfully!`);
         }
-
+        
         handleCancelEdit();
     };
 
@@ -120,16 +120,16 @@ function Admin() {
             <div className="admin-page-header">
                 <h2>Admin Workspace</h2>
                 <p>Manage algorithmic challenges, append test matrices, or build brand new problems.</p>
-
+                
                 {/* Admin Sub-navigation Tabs */}
                 <div className="admin-tabs">
-                    <button
+                    <button 
                         className={`admin-tab-btn ${activeTab === 'create' ? 'active' : ''}`}
                         onClick={() => setActiveTab('create')}
                     >
                         <FaPlus size={12} /> {editingProblemId ? 'Editing Problem' : 'Create Problem'}
                     </button>
-                    <button
+                    <button 
                         className={`admin-tab-btn ${activeTab === 'manage' ? 'active' : ''}`}
                         onClick={() => { setActiveTab('manage'); handleCancelEdit(); }}
                     >
@@ -146,14 +146,14 @@ function Admin() {
                             <button type="button" className="cancel-edit-btn" onClick={handleCancelEdit}>Cancel & Clear</button>
                         </div>
                     )}
-
+                    
                     <div className="admin-grid-layout">
                         {/* Left Column: Specifications */}
                         <div className="admin-panel-card">
                             <div className="card-header-accent">
                                 <FaCode /> <span>Problem Specifications</span>
                             </div>
-
+                            
                             <div className="form-group">
                                 <label>Problem Title</label>
                                 <input type="text" name="title" required value={problemData.title} onChange={handleFormChange} placeholder="e.g., Two Sum" />
@@ -206,14 +206,14 @@ function Admin() {
                                     <FaPlus size={10} /> Add Case
                                 </button>
                             </div>
-
+                            
                             <p className="panel-helper-text">Add multiple dynamic cases. Checked items remain hidden from users to prevent hardcoding submissions.</p>
 
                             <div className="testcase-scroller-box">
                                 {testCases.map((tc, index) => (
                                     <div key={tc.id} className="testcase-row-card">
                                         <div className="testcase-badge-index">Case #{index + 1}</div>
-
+                                        
                                         <div className="testcase-inputs-grid">
                                             <div className="form-group">
                                                 <input type="text" required placeholder="Raw Input string" value={tc.input} onChange={(e) => handleTestCaseChange(tc.id, 'input', e.target.value)} />
@@ -228,7 +228,7 @@ function Admin() {
                                                 <input type="checkbox" checked={tc.isHidden} onChange={(e) => handleTestCaseChange(tc.id, 'isHidden', e.target.checked)} />
                                                 <span className="checkbox-label">Hidden Test Case</span>
                                             </label>
-
+                                            
                                             <button type="button" className="delete-testcase-btn" disabled={testCases.length === 1} onClick={() => removeTestCase(tc.id)}>
                                                 <FaTrash size={11} />
                                             </button>

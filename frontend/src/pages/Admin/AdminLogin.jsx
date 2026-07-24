@@ -20,8 +20,7 @@ function AdminLogin() {
             // Set an admin flag in localStorage so MainLayout can verify role later
             localStorage.setItem('userRole', 'admin');
             localStorage.setItem('token', 'mock-admin-jwt-token');
-            window.dispatchEvent(new Event("codearena:auth-updated"));
-
+            
             alert('Welcome back, Admin!');
             navigate('/admin'); // 🚀 Redirects to your clean workspace grid table
         } else {
@@ -36,7 +35,7 @@ function AdminLogin() {
                     <span className="auth-logo">CodeArena</span>
                     <span className="auth-badge admin">Admin Portal</span>
                 </div>
-
+                
                 <h2 className="auth-title">Welcome Back</h2>
                 <p className="auth-subtitle">Sign in to manage problems and test engines</p>
 
@@ -45,10 +44,10 @@ function AdminLogin() {
                 <form onSubmit={handleLogin} className="auth-form">
                     <div className="input-group">
                         <label>Admin Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            required
+                        <input 
+                            type="email" 
+                            name="email" 
+                            required 
                             placeholder="admin@codearena.com"
                             value={credentials.email}
                             onChange={handleChange}
@@ -61,10 +60,10 @@ function AdminLogin() {
                             {/* 💡 Points exactly to your defined standalone path */}
                             <Link to="/admin/forgot-password" id="forgot-link">Forgot Password?</Link>
                         </div>
-                        <input
-                            type="password"
-                            name="password"
-                            required
+                        <input 
+                            type="password" 
+                            name="password" 
+                            required 
                             placeholder="••••••••"
                             value={credentials.password}
                             onChange={handleChange}

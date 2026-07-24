@@ -25,19 +25,16 @@
     vertical-align: middle;
 }
 
-.status.solved,
 .status-icon.solved {
     color: #10b981; /* Premium Emerald Green */
     filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.2));
 }
 
-.status.attempted,
 .status-icon.attempted {
     color: #f59e0b; /* Vibrant Amber/Yellow */
     filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.2));
 }
 
-.status.unsolved,
 .status-icon.unsolved {
     color: #475569; /* Balanced slate outline */
     opacity: 0.6;

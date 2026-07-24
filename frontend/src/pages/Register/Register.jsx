@@ -1,269 +1,175 @@
-import "../Login/Login.css";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useState } from "react";
-
-import {
-    FaLaptopCode,
-    FaCheckCircle,
-    FaUser,
-    FaEnvelope,
-    FaLock,
-    FaSpinner,
-    FaShieldAlt,
-    FaCode
-} from "react-icons/fa";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google'; 
+import { registerUser } from "/src/services/authService.js";
+import '../../pages/Admin/AuthStyles.css';
 
 function Register() {
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const urlRole = searchParams.get("role");
-    const initialRole = urlRole && (urlRole.toUpperCase() === "ADMIN" || urlRole.toUpperCase() === "HOST")
-        ? "ADMIN"
-        : "USER";
-    const [form, setForm] = useState({ username: "", email: "", password: "", confirmPassword: "" });
-    const [role, setRole] = useState(initialRole);
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        fullName: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.id]: e.target.value });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
-        setError("");
+        setError('');
 
-        if (form.password !== form.confirmPassword) {
-            setError("Passwords do not match");
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match.');
             return;
         }
 
-        setLoading(true);
+        setIsSubmitting(true);
+
         try {
-            const res = await fetch("/api/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    username: form.username,
-                    email: form.email,
-                    password: form.password,
-                    role: role
-                }),
+            await registerUser({
+                fullName: formData.fullName,
+                email: formData.email,
+                password: formData.password
             });
-            const data = await res.json();
-            if (!res.ok) {
-                setError(data.message || "Registration failed. Try a different username or email.");
-            } else {
-                localStorage.setItem("token", data.token);
-                localStorage.setItem("username", form.username);
-                localStorage.setItem("userRole", data.role || role);
-                window.dispatchEvent(new Event("codearena:auth-updated"));
-                navigate("/problems");
-            }
-        } catch {
-            setError("Network error. Is the backend running?");
+
+            alert('Account created successfully! Check your inbox for a welcome email.');
+            navigate('/login');
+        } catch (err) {
+            setError(err.message || 'Failed to create account.');
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
+    const handleGoogleSuccess = async (credentialResponse) => {
+        const token = credentialResponse.credential;
+        
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(
+                window.atob(base64)
+                    .split('')
+                    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+            );
+            
+            const googleUser = JSON.parse(jsonPayload);
+            
+            localStorage.setItem('userRole', 'user');
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify({
+                username: googleUser.name,
+                email: googleUser.email,
+                picture: googleUser.picture
+            }));
+
+            alert(`Welcome to CodeArena, ${googleUser.name}! 🚀`);
+            navigate('/problems');
+
+        } catch (error) {
+            console.error("Error parsing Google credentials:", error);
+            setError("Google registration succeeded, but profile parsing failed.");
+        }
+    };
+
+    const handleGoogleFailure = () => {
+        setError("Google Sign-Up failed. Please try again.");
+    };
+
     return (
-        <section className="login-page">
-            <div className="auth-container">
-
-                {/* Left Section */}
-                <div className="auth-left">
-
-                    <div className="brand-logo">
-                        <FaLaptopCode />
-                    </div>
-
-                    <h1>CodeArena</h1>
-
-                    <h2>Master Coding.<br />One Problem at a Time.</h2>
-
-                    <p>
-                        Practice coding challenges, improve your problem-solving
-                        skills, and compete with developers around the world.
-                    </p>
-
-                    <div className="auth-features">
-
-                        <div className="feature">
-                            <FaCheckCircle />
-                            <span>500+ Coding Problems</span>
-                        </div>
-
-                        <div className="feature">
-                            <FaCheckCircle />
-                            <span>Track Your Progress</span>
-                        </div>
-
-                        <div className="feature">
-                            <FaCheckCircle />
-                            <span>Community Discussions</span>
-                        </div>
-
-                        <div className="feature">
-                            <FaCheckCircle />
-                            <span>Global Leaderboard</span>
-                        </div>
-
-                    </div>
-
+        <div className="auth-page-container">
+            <div className="auth-card">
+                <div className="auth-header">
+                    <span className="auth-logo">CodeArena</span>
                 </div>
 
-                {/* Right Section */}
-                <div className="auth-right">
+                <h2 className="auth-title">Create Your Account</h2>
+                <p className="auth-subtitle">Join CodeArena and start solving coding challenges today.</p>
 
-                    <div className="auth-card">
+                {error && <div className="auth-error-banner">{error}</div>}
 
-                        <h2>Create Your Account 🚀</h2>
-
-                        <p>
-                            Join CodeArena and select your account type below.
-                        </p>
-
-                        <div className="role-selector" style={{ display: 'flex', gap: '10px', margin: '16px 0 20px 0' }}>
-                            <button
-                                type="button"
-                                onClick={() => setRole('USER')}
-                                style={{
-                                    flex: 1,
-                                    padding: '10px 14px',
-                                    borderRadius: '8px',
-                                    border: role === 'USER' ? '2px solid var(--primary, #6366f1)' : '1px solid rgba(255,255,255,0.15)',
-                                    background: role === 'USER' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(0,0,0,0.2)',
-                                    color: '#fff',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '8px',
-                                    fontWeight: role === 'USER' ? '600' : '400',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                <FaCode /> Solver Portal
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setRole('ADMIN')}
-                                style={{
-                                    flex: 1,
-                                    padding: '10px 14px',
-                                    borderRadius: '8px',
-                                    border: role === 'ADMIN' ? '2px solid #ff5555' : '1px solid rgba(255,255,255,0.15)',
-                                    background: role === 'ADMIN' ? 'rgba(255, 85, 85, 0.2)' : 'rgba(0,0,0,0.2)',
-                                    color: '#fff',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '8px',
-                                    fontWeight: role === 'ADMIN' ? '600' : '400',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                <FaShieldAlt /> Host Admin Portal
-                            </button>
-                        </div>
-
-                        {error && <div className="auth-error">{error}</div>}
-
-                        <form onSubmit={handleSubmit}>
-
-                            <div className="form-group">
-                                <label htmlFor="username">
-                                    Username
-                                </label>
-                                <div className="input-box">
-                                    <FaUser className="input-icon" />
-                                    <input
-                                        type="text"
-                                        id="username"
-                                        placeholder="Choose a username"
-                                        value={form.username}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="email">
-                                    Email
-                                </label>
-                                <div className="input-box">
-                                    <FaEnvelope className="input-icon" />
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        placeholder="Enter your email"
-                                        value={form.email}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="password">
-                                    Password
-                                </label>
-                                <div className="input-box">
-                                    <FaLock className="input-icon" />
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        placeholder="Create a password"
-                                        value={form.password}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="confirmPassword">
-                                    Confirm Password
-                                </label>
-                                <div className="input-box">
-                                    <FaLock className="input-icon" />
-                                    <input
-                                        type="password"
-                                        id="confirmPassword"
-                                        placeholder="Confirm your password"
-                                        value={form.confirmPassword}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="login-button"
-                                disabled={loading}
-                            >
-                                {loading ? <FaSpinner className="spin" /> : "Create Account"}
-                            </button>
-
-                        </form>
-
-                        <p className="auth-switch">
-                            Already have an account?{" "}
-                            <Link to="/login">
-                                Login
-                            </Link>
-                        </p>
-
+                <form onSubmit={handleRegister} className="auth-form">
+                    <div className="input-group">
+                        <label>Full Name</label>
+                        <input 
+                            type="text" 
+                            name="fullName" 
+                            required 
+                            placeholder="Enter your full name"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                        />
                     </div>
 
+                    <div className="input-group">
+                        <label>Email Address</label>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            required 
+                            placeholder="you@example.com"
+                            value={formData.email}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label>Password</label>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            required 
+                            placeholder="••••••••"
+                            value={formData.password}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className="input-group">
+                        <label>Confirm Password</label>
+                        <input 
+                            type="password" 
+                            name="confirmPassword" 
+                            required 
+                            placeholder="Confirm your password"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <button type="submit" className="auth-submit-btn" disabled={isSubmitting}>
+                        {isSubmitting ? 'Creating Account...' : 'Create Account'}
+                    </button>
+                </form>
+
+                <div className="divider-line">
+                    <span>or continue with</span>
                 </div>
 
+                <div className="google-auth-box">
+                    <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleFailure}
+                        theme="outline"
+                        shape="pill"
+                        type="standard"
+                        size="large"
+                        width="280"
+                        useOneTap={false}
+                    />
+                </div>
+
+                <div className="auth-footer-prompt">
+                    Already have an account? <Link to="/login">Login</Link>
+                </div>
             </div>
-        </section>
+        </div>
     );
 }
 

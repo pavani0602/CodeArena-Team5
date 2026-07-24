@@ -1,99 +1,65 @@
 import "./Navbar.css";
-import { useEffect, useState } from "react";
-import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-import {
-    FaChevronDown,
-    FaFire,
-    FaSignOutAlt,
-    FaThLarge,
-    FaUserCircle
-} from "react-icons/fa";
-
-const normalizeRole = (role) => (role || "USER").toUpperCase();
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { FaFire, FaUserCircle, FaSignOutAlt, FaThLarge, FaChevronDown } from 'react-icons/fa';
 
 function Navbar() {
     const navigate = useNavigate();
-    const location = useLocation();
-    const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("token"));
-    const [userRole, setUserRole] = useState(() => normalizeRole(localStorage.getItem("userRole")));
-    const [username, setUsername] = useState(() => localStorage.getItem("username") || "");
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userRole, setUserRole] = useState('user');
+    const [userEmail, setUserEmail] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
-    const isAdmin = userRole === "ADMIN";
-
-    const [userStats, setUserStats] = useState({ streak: 0 });
-
-    useEffect(() => {
-        const syncAuth = () => {
-            setIsLoggedIn(!!localStorage.getItem("token"));
-            setUserRole(normalizeRole(localStorage.getItem("userRole")));
-            setUsername(localStorage.getItem("username") || "");
-        };
-        syncAuth();
-        window.addEventListener("codearena:auth-updated", syncAuth);
-        window.addEventListener("storage", syncAuth);
-        return () => {
-            window.removeEventListener("codearena:auth-updated", syncAuth);
-            window.removeEventListener("storage", syncAuth);
-        };
-    }, [location.pathname]);
+    
+    const [userStats] = useState({
+        streak: 6
+    });
 
     useEffect(() => {
-        if (!isLoggedIn || isAdmin) return undefined;
-
-        let mounted = true;
-        const loadStats = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                const headers = token ? { Authorization: `Bearer ${token}` } : {};
-                const res = await fetch("/api/submissions/summary", { headers, cache: "no-store" });
-                if (!res.ok) throw new Error("Failed to load stats");
-                const data = await res.json();
-                if (mounted) setUserStats({ streak: data.streak || 0 });
-            } catch {
-                if (mounted) setUserStats({ streak: 0 });
-            }
-        };
-
-        loadStats();
-        const intervalId = window.setInterval(loadStats, 5000);
-        const refreshHandler = () => loadStats();
-        window.addEventListener("codearena:leaderboard-updated", refreshHandler);
-        window.addEventListener("codearena:submission-updated", refreshHandler);
-
-        return () => {
-            mounted = false;
-            window.clearInterval(intervalId);
-            window.removeEventListener("codearena:leaderboard-updated", refreshHandler);
-            window.removeEventListener("codearena:submission-updated", refreshHandler);
-        };
-    }, [isAdmin, isLoggedIn]);
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('userRole');
+        const email = localStorage.getItem('userEmail');
+        
+        if (token) {
+            setIsLoggedIn(true);
+            setUserRole(role || 'user');
+            setUserEmail(email || 'user@codearena.com');
+        } else {
+            setIsLoggedIn(false);
+            setUserEmail('');
+        }
+    }, []);
 
     const handleSignOut = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        localStorage.removeItem("userRole");
+        localStorage.removeItem('token');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('user');
         setIsLoggedIn(false);
+        setUserEmail('');
         setShowDropdown(false);
-        window.dispatchEvent(new Event("codearena:auth-updated"));
-        navigate("/");
+        alert('Signed out successfully.');
+        navigate('/');
     };
 
     return (
         <nav className="navbar">
             <div className="left">
-                <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+                {/* 💡 Keeps your exact branding structure */}
+                <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <h2>Code<span className="arena">Arena</span></h2>
                 </Link>
             </div>
-
+            
             <div className="middle">
-                {!isLoggedIn ? null : isAdmin ? (
+                {isLoggedIn && userRole === 'admin' ? (
+                    /* 🛠️ ADMIN NAVIGATION LINKS */
                     <>
                         <NavLink to="/admin">Problem Workspace</NavLink>
-                        <NavLink to="/problems">Problems</NavLink>
-                        <NavLink to="/leaderboard">Leaderboard</NavLink>
+                        <NavLink to="/admin/analytics">Engine Status</NavLink>
+                        <NavLink to="/admin/users">Manage Users</NavLink>
                     </>
                 ) : (
+                    /* 💻 STANDARD USER / PUBLIC NAVIGATION LINKS */
                     <>
                         <NavLink to="/problems">Problems</NavLink>
                         <NavLink to="/leaderboard">Leaderboard</NavLink>
@@ -101,65 +67,63 @@ function Navbar() {
                     </>
                 )}
             </div>
-
+            
             <div className="right">
                 {!isLoggedIn ? (
-                    <div className="public-nav-actions">
-                        <Link to="/login">
-                            <button>Login or Signup</button>
-                        </Link>
-                    </div>
+                    /* 🚪 PUBLIC STATE: Your exact Login Button wrapper */
+                    <Link to="/login">
+                        <button>Login or Signup</button>
+                    </Link>
                 ) : (
+                    /* ⚡ AUTHENTICATED STATE: Dynamic Streak + Profile Hub */
                     <div className="authenticated-actions-wrapper">
-                        {!isAdmin && (
-                            <div className="streak-badge" title="Your daily coding streak">
+                        
+                        {userRole === 'user' && (
+                            <div className="streak-badge" title="Your Daily Coding Streak!">
                                 <FaFire className="streak-icon" />
                                 <span>{userStats.streak}</span>
                             </div>
                         )}
 
+                    
                         <div className="profile-dropdown-container">
-                            <button
-                                className="profile-menu-trigger profile-trigger-btn"
+                            {/* 👤 Added the unique 'profile-trigger-btn' class here */}
+                            <button 
+                                className="profile-menu-trigger profile-trigger-btn" 
                                 onClick={() => setShowDropdown(!showDropdown)}
-                                type="button"
                             >
                                 <FaUserCircle size={18} className="avatar-placeholder" />
-                                <span className="user-role-label">
-                                    {isAdmin ? "Admin" : "Coder"}
-                                </span>
-                                <FaChevronDown
-                                    size={10}
-                                    className={`chevron-icon ${showDropdown ? "rotate" : ""}`}
-                                />
+                                <span className="user-role-label">{userRole === 'admin' ? 'Admin' : 'Coder'}</span>
+                                <FaChevronDown size={10} className={`chevron-icon ${showDropdown ? 'rotate' : ''}`} />
                             </button>
 
                             {showDropdown && (
                                 <div className="navbar-dropdown-menu">
                                     <div className="dropdown-user-header">
                                         <span>Signed in as</span>
-                                        <strong>{username || (isAdmin ? "Admin" : "Coder")}</strong>
+                                        <strong>{userEmail}</strong>
                                     </div>
                                     <hr className="dropdown-divider" />
-
-                                    <Link
-                                        to={isAdmin ? "/admin" : "/dashboard"}
+                                    
+                                    <Link 
+                                        to={userRole === 'admin' ? "/admin" : "/dashboard"} 
                                         className="dropdown-item"
                                         onClick={() => setShowDropdown(false)}
                                     >
                                         <FaThLarge size={14} /> Dashboard
                                     </Link>
-
-                                    <button
-                                        onClick={handleSignOut}
+                                    
+                                    {/* 🚪 Added a unique 'dropdown-logout-action' class here */}
+                                    <button 
+                                        onClick={handleSignOut} 
                                         className="dropdown-item logout-btn dropdown-logout-action"
-                                        type="button"
                                     >
                                         <FaSignOutAlt size={14} /> Sign Out
                                     </button>
                                 </div>
                             )}
                         </div>
+
                     </div>
                 )}
             </div>

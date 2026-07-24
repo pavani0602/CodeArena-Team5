@@ -63,7 +63,7 @@ public class SubmissionService {
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new RuntimeException("Problem not found"));
 
-        User user = userRepository.findByUsernameIgnoreCase(username)
+        User user = userRepository.findByUsername(username)
                 .orElseGet(() -> {
                     User u = new User();
                     u.setUsername(username);
