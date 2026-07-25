@@ -17,6 +17,12 @@ public class LeaderboardEntry {
     @Column(name = "problems_solved", nullable = false)
     private Integer problemsSolved = 0;
 
+    @Column(name = "total_submissions", nullable = false)
+    private Integer totalSubmissions = 0;
+
+    @Column(name = "accepted_submissions", nullable = false)
+    private Integer acceptedSubmissions = 0;
+
     @Column(name = "accuracy")
     private Double accuracy = 0.0;
 
@@ -60,5 +66,21 @@ public class LeaderboardEntry {
 
     public void setRank(Integer rank) {
         this.rank = rank;
+    }
+
+    public Integer getTotalSubmissions() {
+        return totalSubmissions;
+    }
+
+    public void setTotalSubmissions(Integer totalSubmissions) {
+        this.totalSubmissions = totalSubmissions;
+    }
+
+    public Integer getAcceptedSubmissions() {
+        return acceptedSubmissions;
+    }
+
+    public void setAcceptedSubmissions(Integer acceptedSubmissions) {
+        this.acceptedSubmissions = acceptedSubmissions;
     }
 }

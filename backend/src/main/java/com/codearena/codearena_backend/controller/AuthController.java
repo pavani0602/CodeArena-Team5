@@ -31,6 +31,12 @@ public class AuthController {
         return authService.forgotPassword(request.get("email"), request.get("role"));
     }
 
+    @PostMapping("/reset-password")
+    public java.util.Map<String, String> resetPassword(@RequestBody java.util.Map<String, String> request) {
+        authService.resetPassword(request.get("token"), request.get("newPassword"));
+        return java.util.Map.of("message", "Password reset successfully");
+    }
+
     @GetMapping("/me")
     public AuthResponse getMe() {
         org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
@@ -40,18 +46,4 @@ public class AuthController {
         throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Not authenticated");
     }
 
-    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
-    public org.springframework.http.ResponseEntity<java.util.Map<String, String>> handleResponseStatusException(org.springframework.web.server.ResponseStatusException e) {
-        String message = e.getReason() != null ? e.getReason() : e.getMessage();
-        return org.springframework.http.ResponseEntity.status(e.getStatusCode()).body(java.util.Map.of("message", message));
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public org.springframework.http.ResponseEntity<java.util.Map<String, String>> handleRuntimeException(RuntimeException e) {
-        org.springframework.http.HttpStatus status = org.springframework.http.HttpStatus.BAD_REQUEST;
-        if ("Invalid username or password".equals(e.getMessage()) || "Not authenticated".equals(e.getMessage())) {
-            status = org.springframework.http.HttpStatus.UNAUTHORIZED;
-        }
-        return org.springframework.http.ResponseEntity.status(status).body(java.util.Map.of("message", e.getMessage()));
-    }
 }

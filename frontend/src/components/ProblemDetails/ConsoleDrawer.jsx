@@ -79,31 +79,36 @@ export default function ConsoleDrawer({
                     </div>
                 )}
 
-                {/* 4. STATE: WRONG ANSWER (FAILED TEST CASE) */}
+                {/* 4. STATE: WRONG ANSWER / RUNTIME ERROR (FAILED TEST CASE) */}
                 {currentState === 'FAILED_TEST' && (
                     <div className="status-container status-failed">
                         <div className="verdict-banner failed-banner">
                             <FaExclamationTriangle />
-                            <span>Wrong Answer (Verdict Failed)</span>
+                            <span>{feedback?.status === 'RUNTIME_ERROR' ? 'Runtime Error' : 'Wrong Answer (Verdict Failed)'}</span>
                         </div>
                         
-                        <p className="status-context-msg">Your code logic broke on an evaluation test edge case window.</p>
+                        <p className="status-context-msg">{feedback?.status === 'RUNTIME_ERROR' ? "Your code crashed during execution." : "Your code logic broke on an evaluation test edge case window."}</p>
                         
-                        {/* Comparative Testing Grid Window */}
-                        <div className="diff-analysis-grid">
-                            <div className="diff-card">
-                                <h4>Expected System Output</h4>
-                                <div className="diff-box expected-box">
-                                    <code>{feedback?.expectedOutput || "N/A"}</code>
+                        {feedback?.status === 'RUNTIME_ERROR' ? (
+                            <pre className="terminal-stack-trace" style={{marginTop: '15px', color: '#f87171'}}>
+                                {feedback?.errorTrace || feedback?.message || "Unknown error occurred"}
+                            </pre>
+                        ) : (
+                            <div className="diff-analysis-grid">
+                                <div className="diff-card">
+                                    <h4>Expected System Output</h4>
+                                    <div className="diff-box expected-box">
+                                        <code>{feedback?.expectedOutput || "N/A"}</code>
+                                    </div>
+                                </div>
+                                <div className="diff-card">
+                                    <h4>Your Code Output Result</h4>
+                                    <div className="diff-box actual-box">
+                                        <code>{feedback?.userOutput || "None"}</code>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="diff-card">
-                                <h4>Your Code Output Result</h4>
-                                <div className="diff-box actual-box">
-                                    <code>{feedback?.userOutput || "None"}</code>
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 )}
 

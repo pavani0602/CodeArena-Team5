@@ -26,4 +26,10 @@ public class TestCaseController {
     public List<TestCase> getTestCasesByProblem(@PathVariable Long problemId) {
         return testCaseService.getTestCasesByProblemId(problemId);
     }
+
+    @DeleteMapping("/problem/{problemId}")
+    public org.springframework.http.ResponseEntity<?> deleteTestCases(@PathVariable Long problemId) {
+        testCaseService.deleteTestCasesByProblemId(problemId);
+        return org.springframework.http.ResponseEntity.ok().build();
+    }
 }

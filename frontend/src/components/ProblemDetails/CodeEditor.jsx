@@ -1,29 +1,78 @@
 import { useEffect, useState, useRef } from 'react';
 import './CodeEditor.css';
 import { FaCode, FaUndo, FaExclamationTriangle } from 'react-icons/fa';
+import { fetchApi } from '../../services/api';
+import Editor from '@monaco-editor/react';
 
-const BOILERPLATE_DATA = {
+const FALLBACK_BOILERPLATE = {
     python: `def twoSum(nums, target):\n    # Write your Python code here\n    pass`,
-    java: `class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your Java code here\n        return new int[0];\n    }\n}`,
-    cpp: `#include <vector>\n\nclass Solution {\npublic:\n    std::vector<int> twoSum(std::vector<int>& nums, int target) {\n        // Write your C++ code here\n        return {};\n    }\n};`,
+    java: `public int[] twoSum(int[] nums, int target) {\n    // Write your Java code here\n    return new int[0];\n}`,
+    cpp: `std::vector<int> twoSum(std::vector<int>& nums, int target) {\n    // Write your C++ code here\n    return {};\n}`,
     javascript: `function twoSum(nums, target) {\n    // Write your JavaScript code here\n    \n}`
 };
 
-function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
-    const [codeText, setCodeText] = useState(BOILERPLATE_DATA.python);
-    const [isConfirming, setIsConfirming] = useState(false); // Track inline reset confirmation state
-    const editorRef = useRef(null);
+function CodeEditor({ selectedLang, setSelectedLang, onChange, problemTitle }) {
+    const [codeText, setCodeText] = useState(FALLBACK_BOILERPLATE.python);
+    const [boilerplateMap, setBoilerplateMap] = useState(FALLBACK_BOILERPLATE);
+    const [isConfirming, setIsConfirming] = useState(false);
     const timerRef = useRef(null);
 
-    // Swap boilerplate text cleanly whenever language changes
     useEffect(() => {
-        const defaultCode = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
+        if (!problemTitle) return;
+
+        const loadMetadata = async () => {
+            try {
+                const response = await fetchApi(`/api/problems/metadata/${encodeURIComponent(problemTitle)}`);
+                if (response.ok) {
+                    const metadata = await response.json();
+                    const { functionName, parameterNames, parameterTypes, returnType } = metadata;
+                    
+                    const pythonParams = parameterNames.join(', ');
+                    const pythonBoilerplate = `def ${functionName}(${pythonParams}):\n    # Write your Python code here\n    pass`;
+
+                    const javaParams = parameterNames.map((n, i) => `${parameterTypes[i]} ${n}`).join(', ');
+                    const javaDefaultReturn = returnType === 'int' ? '0' : returnType === 'double' ? '0.0' : returnType === 'boolean' ? 'false' : returnType.includes('[]') ? `new ${returnType}{}` : 'null';
+                    const javaBoilerplate = `public ${returnType} ${functionName}(${javaParams}) {\n    // Write your Java code here\n    return ${javaDefaultReturn};\n}`;
+
+                    const mapCppType = (t) => {
+                        if (t === 'int') return 'int';
+                        if (t === 'double') return 'double';
+                        if (t === 'string') return 'std::string';
+                        if (t === 'int[]') return 'std::vector<int>';
+                        if (t === 'int[][]') return 'std::vector<std::vector<int>>';
+                        if (t === 'char[]') return 'std::vector<char>';
+                        if (t === 'TreeNode') return 'TreeNode*';
+                        if (t === 'boolean') return 'bool';
+                        if (t === 'string[][]') return 'std::vector<std::vector<std::string>>';
+                        return t;
+                    };
+                    const cppParams = parameterNames.map((n, i) => {
+                        const t = mapCppType(parameterTypes[i]);
+                        return (t.includes('vector') || t.includes('string')) ? `${t}& ${n}` : `${t} ${n}`;
+                    }).join(', ');
+                    const cppReturnType = mapCppType(returnType);
+                    const cppDefaultReturn = cppReturnType === 'int' || cppReturnType === 'double' ? '0' : cppReturnType === 'bool' ? 'false' : '{}';
+                    const cppBoilerplate = `${cppReturnType} ${functionName}(${cppParams}) {\n    // Write your C++ code here\n    return ${cppDefaultReturn};\n}`;
+
+                    setBoilerplateMap({
+                        python: pythonBoilerplate,
+                        java: javaBoilerplate,
+                        cpp: cppBoilerplate,
+                        javascript: `var ${functionName} = function(${pythonParams}) {\n    // Write your JS code here\n};`
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to load boilerplate metadata", err);
+            }
+        };
+        loadMetadata();
+    }, [problemTitle]);
+
+    // Swap boilerplate text cleanly whenever language or boilerplateMap changes
+    useEffect(() => {
+        const defaultCode = boilerplateMap[selectedLang] || boilerplateMap.python;
         setCodeText(defaultCode);
         if (onChange) onChange(defaultCode); 
-        
-        if (editorRef.current) {
-            editorRef.current.innerText = defaultCode;
-        }
         setIsConfirming(false); // Reset confirmation state if they switch languages
     }, [selectedLang]);
 
@@ -32,8 +81,8 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
         return () => { if (timerRef.current) clearTimeout(timerRef.current); };
     }, []);
 
-    const handleInput = (e) => {
-        const currentText = e.target.innerText;
+    const handleEditorChange = (value) => {
+        const currentText = value || '';
         setCodeText(currentText);
         if (onChange) onChange(currentText); 
     };
@@ -56,13 +105,9 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
         if (timerRef.current) clearTimeout(timerRef.current);
         setIsConfirming(false);
 
-        const originalTemplate = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
+        const originalTemplate = boilerplateMap[selectedLang] || boilerplateMap.python;
         setCodeText(originalTemplate);
         if (onChange) onChange(originalTemplate);
-
-        if (editorRef.current) {
-            editorRef.current.innerText = originalTemplate;
-        }
     };
 
     // Dynamic line numbers based on code text row splits
@@ -113,28 +158,21 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
                 </div>
             </div>
             
-            <div className="editor-workspace">
-                <div className="line-numbers-sidebar">
-                    {Array.from({ length: linesCount }).map((_, index) => (
-                        <div key={index} className="line-number">{index + 1}</div>
-                    ))}
-                </div>
-
-                <div className="code-area-wrapper">
-                    <pre 
-                        ref={editorRef}
-                        className="code-editor-view"
-                        contentEditable="true"
-                        onInput={handleInput}
-                        suppressContentEditableWarning={true}
-                        style={{
-                            outline: 'none',
-                            whiteSpace: 'pre',
-                            margin: 0,
-                            fontFamily: 'monospace'
-                        }}
-                    />
-                </div>
+            <div className="editor-workspace" style={{ height: '500px', width: '100%' }}>
+                <Editor
+                    height="100%"
+                    language={selectedLang}
+                    theme="vs-dark"
+                    value={codeText}
+                    onChange={handleEditorChange}
+                    options={{
+                        minimap: { enabled: false },
+                        fontSize: 14,
+                        wordWrap: 'on',
+                        scrollBeyondLastLine: false,
+                        automaticLayout: true,
+                    }}
+                />
             </div>
         </section>
     );

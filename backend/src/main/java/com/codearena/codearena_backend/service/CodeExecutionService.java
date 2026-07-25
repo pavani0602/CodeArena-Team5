@@ -65,13 +65,14 @@ public class CodeExecutionService {
 
         JudgeResult result = judgeService.judge(problem, sample, request.getLanguage(), request.getCode());
 
-return new CodeExecutionResponse(
-        result.getActualOutput(),
-        result.getErrorMessage(),
-        toApiStatus(result.getVerdict()),
-        result.getExecutionTimeMs()
-);
-}
+        return new CodeExecutionResponse(
+                result.getActualOutput(),
+                result.getErrorMessage(),
+                toApiStatus(result.getVerdict()),
+                result.getExecutionTimeMs(),
+                result.getExpectedOutput()
+        );
+    }
 
 private String toApiStatus(JudgeVerdict verdict) {
     if (verdict == JudgeVerdict.ACCEPTED) {

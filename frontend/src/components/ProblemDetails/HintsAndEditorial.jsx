@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { FaLightbulb, FaLock, FaUnlock, FaCheckCircle, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import ReactMarkdown from 'react-markdown';
 import './HintsAndEditorial.css';
 
-function HintsAndEditorial({ failedAttempts = 0, requiredAttempts = 3 }) {
+function HintsAndEditorial({ problem, failedAttempts = 0, requiredAttempts = 3 }) {
     // Track which hints have been revealed (by index)
     const [revealedHints, setRevealedHints] = useState({});
     
@@ -10,23 +11,7 @@ function HintsAndEditorial({ failedAttempts = 0, requiredAttempts = 3 }) {
     const [forceUnlocked, setForceUnlocked] = useState(false);
 
     // Progressive hints dataset
-    const hints = [
-        {
-            id: 1,
-            title: "Hint 1: Understanding the data structure",
-            content: "Think about what information you need to look up quickly. Can you store previously visited elements to avoid a nested loop?"
-        },
-        {
-            id: 2,
-            title: "Hint 2: Algorithmic approach",
-            content: "As you iterate through the array, check if the complement of the current element (target - current element) already exists in your data structure."
-        },
-        {
-            id: 3,
-            title: "Hint 3: Optimization strategy",
-            content: "A Hash Map (or dictionary) allows you to achieve O(1) lookups. Can you build this map in a single pass through the array?"
-        }
-    ];
+    const hints = problem?.hints ? [...problem.hints].sort((a, b) => a.hintNumber - b.hintNumber) : [];
 
     const toggleHint = (index) => {
         setRevealedHints(prev => ({
@@ -52,29 +37,33 @@ function HintsAndEditorial({ failedAttempts = 0, requiredAttempts = 3 }) {
                 </p>
 
                 <div className="hints-accordion-list">
-                    {hints.map((hint, index) => {
-                        const isRevealed = revealedHints[index];
-                        return (
-                            <div key={hint.id} className={`hint-card ${isRevealed ? 'revealed' : ''}`}>
-                                <button 
-                                    className="hint-card-header" 
-                                    onClick={() => toggleHint(index)}
-                                >
-                                    <span className="hint-title-text">
-                                        <span className="hint-badge">Hint {index + 1}</span> 
-                                        {isRevealed ? hint.title : `Unlock Hint ${index + 1}...`}
-                                    </span>
-                                    {isRevealed ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
-                                </button>
-                                
-                                {isRevealed && (
-                                    <div className="hint-card-body animate-fadeIn">
-                                        <p>{hint.content}</p>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+                    {hints.length === 0 ? (
+                        <p style={{ color: '#94a3b8', padding: '10px 20px' }}>No hints available for this problem.</p>
+                    ) : (
+                        hints.map((hint, index) => {
+                            const isRevealed = revealedHints[index];
+                            return (
+                                <div key={hint.id || index} className={`hint-card ${isRevealed ? 'revealed' : ''}`}>
+                                    <button 
+                                        className="hint-card-header" 
+                                        onClick={() => toggleHint(index)}
+                                    >
+                                        <span className="hint-title-text">
+                                            <span className="hint-badge">Hint {index + 1}</span> 
+                                            {isRevealed ? `Hint ${index + 1}` : `Unlock Hint ${index + 1}...`}
+                                        </span>
+                                        {isRevealed ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+                                    </button>
+                                    
+                                    {isRevealed && (
+                                        <div className="hint-card-body animate-fadeIn">
+                                            <ReactMarkdown>{hint.hintText}</ReactMarkdown>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
             </div>
 
@@ -125,28 +114,13 @@ function HintsAndEditorial({ failedAttempts = 0, requiredAttempts = 3 }) {
                             <span>Editorial Unlocked! Great persistence in working through the problem.</span>
                         </div>
 
-                        <h4>Approach: Hash Map Single Pass</h4>
-                        <p>
-                            Instead of iterating through every element twice to find pairs, we can use a hash map to keep track of the numbers 
-                            we've seen so far along with their indices.
-                        </p>
-
-                        <div className="code-snippet-box">
-                            <pre><code>{`def twoSum(nums, target):
-    seen = {}
-    for i, num in enumerate(nums):
-        complement = target - num
-        if complement in seen:
-            return [seen[complement], i]
-        seen[num] = i
-    return []`}</code></pre>
-                        </div>
-
-                        <h5>Complexity Analysis</h5>
-                        <ul className="complexity-list">
-                            <li><strong>Time Complexity:</strong> $O(n)$ because we traverse the list containing $n$ elements only once. Each lookup in the hash map costs $O(1)$ time on average.</li>
-                            <li><strong>Space Complexity:</strong> $O(n)$ because the extra space required depends on the number of items stored in the hash table, which stores at most $n$ elements.</li>
-                        </ul>
+                        {problem?.editorialMd ? (
+                            <div className="markdown-editorial">
+                                <ReactMarkdown>{problem.editorialMd}</ReactMarkdown>
+                            </div>
+                        ) : (
+                            <p style={{ color: '#94a3b8', padding: '10px 0' }}>An editorial has not been written for this problem yet.</p>
+                        )}
                     </div>
                 )}
             </div>

@@ -12,35 +12,50 @@ function ForgotPassword() {
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
-    const handleRecover = (e) => {
+    const handleRecover = async (e) => {
         e.preventDefault();
         setLoading(true);
         setErrorMessage('');
 
-        // Generate a random mock reset link token
-        const resetLinkUrl = `http://localhost:5173/reset-password?token=${Math.random().toString(36).substring(2)}`;
+        try {
+            const res = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, role: role.toUpperCase() })
+            });
+            const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.message || 'Failed to generate reset link.');
+            }
 
-        // Parameters matching your updated EmailJS template variables
-        const templateParams = {
-            to_email: email,
-            link: resetLinkUrl, // Matches {{link}} in your template
-        };
-
-        const SERVICE_ID = 'service_jmtuzus';
-        const TEMPLATE_ID = 'template_feei7gi';
-        const PUBLIC_KEY = 'aroQ7qSy3luWdBGGN';
-
-        emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
-            .then((response) => {
-                console.log('SUCCESS!', response.status, response.text);
+            const resetToken = data.token;
+            if (!resetToken) {
+                // If the user doesn't exist, we don't leak it. Just show success.
                 setLoading(false);
                 setSubmitted(true);
-            })
-            .catch((err) => {
-                console.error('FAILED...', err);
-                setLoading(false);
-                setErrorMessage('Failed to send reset instructions. Please check your configuration.');
-            });
+                return;
+            }
+
+            const resetLinkUrl = `${window.location.origin}/reset-password?token=${resetToken}`;
+
+            const templateParams = {
+                to_email: email,
+                link: resetLinkUrl,
+            };
+
+            const SERVICE_ID = 'service_jmtuzus';
+            const TEMPLATE_ID = 'template_feei7gi';
+            const PUBLIC_KEY = 'aroQ7qSy3luWdBGGN';
+
+            await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+            setLoading(false);
+            setSubmitted(true);
+        } catch (err) {
+            console.error('FAILED...', err);
+            setLoading(false);
+            setErrorMessage('Failed to send reset instructions. Please try again.');
+        }
     };
 
     const handleTabChange = (selectedRole) => {

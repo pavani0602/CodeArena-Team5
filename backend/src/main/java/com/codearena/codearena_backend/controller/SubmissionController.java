@@ -41,7 +41,7 @@ public class SubmissionController {
 
     @GetMapping("/problem/{problemId}")
     public List<Submission> getSubmissionsByProblem(@PathVariable Long problemId) {
-        return submissionService.getSubmissionsByProblemId(problemId);
+        return submissionService.getSubmissionsByProblemIdAndUsername(problemId, currentUsername());
     }
 
     @GetMapping("/statuses")
@@ -57,7 +57,7 @@ public class SubmissionController {
     private String currentUsername() {
         org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return "testuser6";
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
         }
 
         Object principal = auth.getPrincipal();

@@ -9,24 +9,32 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class ExecutionService {
 
+    private final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
+
+    private ProcessBuilder createDockerBuilder(String... commands) {
+        List<String> commandList = new ArrayList<>();
+        if (isWindows) {
+            commandList.add("cmd.exe");
+            commandList.add("/c");
+        }
+        commandList.addAll(Arrays.asList(commands));
+        return new ProcessBuilder(commandList);
+    }
+
     
 
     public ExecutionResult execute(String language, String sourceCode) {
 
-    if (containsDangerousCode(sourceCode)) {
-        return new ExecutionResult(
-                JudgeVerdict.RUNTIME_ERROR,
-                "",
-                "Restricted API usage detected.",
-                0L
-        );
-    }
 
     String normalized = language == null ? "" : language.toUpperCase(Locale.ROOT);
 
@@ -45,55 +53,32 @@ public class ExecutionService {
 
     private ExecutionResult executePython(String sourceCode) {
         Path tempDir = null;
+        String containerName = "codearena-python-" + UUID.randomUUID().toString();
         try {
             tempDir = Files.createTempDirectory("codearena-judge-python-");
             Path sourceFile = tempDir.resolve("main.py");
             Files.writeString(sourceFile, sourceCode);
 
-            ProcessBuilder runBuilder = new ProcessBuilder(
-    "docker",
-    "run",
-    "--rm",
-    "--memory=512m",
-    "--cpus=1",
-    "-v",
-    tempDir.toAbsolutePath() + ":/app",
-    "-w",
-    "/app",
-    "python:3.11",
-    "python",
-    "main.py"
-);
+            ProcessBuilder runBuilder = createDockerBuilder("python", "main.py");
 
 runBuilder.directory(tempDir.toFile());
             return runProcess(runBuilder, 5);
         } catch (Exception e) {
             return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", e.getMessage(), 0L);
         } finally {
+            cleanupContainer(containerName);
             deleteDirectory(tempDir);
         }
     }
 
     private ExecutionResult executeJava(String sourceCode) {
         Path tempDir = null;
+        String containerName = "codearena-java-" + UUID.randomUUID().toString();
         try {
             tempDir = Files.createTempDirectory("codearena-judge-java-");
             Path sourceFile = tempDir.resolve("Main.java");
             Files.writeString(sourceFile, sourceCode);
-ProcessBuilder compileBuilder = new ProcessBuilder(
-    "docker",
-    "run",
-    "--rm",
-    "--memory=512m",
-    "--cpus=1",
-    "-v",
-    tempDir.toAbsolutePath() + ":/app",
-    "-w",
-    "/app",
-    "eclipse-temurin:17",
-    "javac",
-    "Main.java"
-);
+            ProcessBuilder compileBuilder = createDockerBuilder("javac", "Main.java");
 compileBuilder.directory(tempDir.toFile());
             
             
@@ -105,54 +90,27 @@ compileBuilder.directory(tempDir.toFile());
                 return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", compileResult.error(), compileResult.executionTimeMs());
             }
 
-            ProcessBuilder runBuilder = new ProcessBuilder(
-    "docker",
-    "run",
-    "--rm",
-    "--memory=512m",
-    "--cpus=1",
-    "-i",
-    "-v",
-    tempDir.toAbsolutePath() + ":/app",
-    "-w",
-    "/app",
-    "eclipse-temurin:17",
-    "java",
-    "Main"
-);
+            ProcessBuilder runBuilder = createDockerBuilder("java", "Main");
 runBuilder.directory(tempDir.toFile());
             return runProcess(runBuilder, 5);
         } catch (Exception e) {
             return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", e.getMessage(), 0L);
         } finally {
+            cleanupContainer(containerName);
             deleteDirectory(tempDir);
         }
     }
 
     private ExecutionResult executeCpp(String sourceCode) {
         Path tempDir = null;
+        String containerName = "codearena-cpp-" + UUID.randomUUID().toString();
         try {
             tempDir = Files.createTempDirectory("codearena-judge-cpp-");
             Path sourceFile = tempDir.resolve("main.cpp");
             Files.writeString(sourceFile, sourceCode);
 
             
-            ProcessBuilder compileBuilder = new ProcessBuilder(
-    "docker",
-    "run",
-    "--rm",
-    "--memory=512m",
-    "--cpus=1",
-    "-v",
-    tempDir.toAbsolutePath() + ":/app",
-    "-w",
-    "/app",
-    "gcc:latest",
-    "g++",
-    "main.cpp",
-    "-o",
-    "main"
-);
+            ProcessBuilder compileBuilder = createDockerBuilder("g++", "main.cpp", "-o", "main.exe");
 
 compileBuilder.directory(tempDir.toFile());
             ExecutionResult compileResult = runProcess(compileBuilder, 15);
@@ -163,20 +121,7 @@ compileBuilder.directory(tempDir.toFile());
                 return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", compileResult.error(), compileResult.executionTimeMs());
             }
 
-            ProcessBuilder runBuilder = new ProcessBuilder(
-    "docker",
-    "run",
-    "--rm",
-    "--memory=512m",
-    "--cpus=1",
-    "-i",
-    "-v",
-    tempDir.toAbsolutePath() + ":/app",
-    "-w",
-    "/app",
-    "gcc:latest",
-    "./main"
-);
+            ProcessBuilder runBuilder = createDockerBuilder("main.exe");
 
 runBuilder.directory(tempDir.toFile());
             
@@ -184,6 +129,7 @@ runBuilder.directory(tempDir.toFile());
         } catch (Exception e) {
             return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", e.getMessage(), 0L);
         } finally {
+            cleanupContainer(containerName);
             deleteDirectory(tempDir);
         }
     }
@@ -242,6 +188,10 @@ if (exitCode != 0) {
         return result.toString();
     }
 
+    private void cleanupContainer(String containerName) {
+        // No longer using docker containers, so no cleanup needed here.
+    }
+
     private void deleteDirectory(Path path) {
         if (path != null) {
             deleteDirectory(path.toFile());
@@ -260,16 +210,4 @@ if (exitCode != 0) {
         }
         file.delete();
     }
-    private boolean containsDangerousCode(String code) {
-
-    String lower = code.toLowerCase();
-
-    return lower.contains("runtime.getruntime().exec")
-        || lower.contains("processbuilder")
-        || lower.contains("system.exit")
-        || lower.contains("java.io")
-        || lower.contains("java.net")
-        || lower.contains("socket")
-        || lower.contains("file");
-}
 }

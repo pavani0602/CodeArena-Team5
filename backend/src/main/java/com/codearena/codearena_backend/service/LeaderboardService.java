@@ -26,46 +26,37 @@ public class LeaderboardService {
         this.submissionRepository = submissionRepository;
     }
 
-    public void updateLeaderboard(User user) {
-
+    public void updateLeaderboard(User user, boolean isAccepted, boolean isFirstTimeSolved) {
         LeaderboardEntry entry = leaderboardEntryRepository.findByUserId(user.getId())
                 .orElseGet(() -> {
                     LeaderboardEntry newEntry = new LeaderboardEntry();
                     newEntry.setUser(user);
                     newEntry.setProblemsSolved(0);
+                    newEntry.setTotalSubmissions(0);
+                    newEntry.setAcceptedSubmissions(0);
                     newEntry.setAccuracy(0.0);
                     return newEntry;
                 });
 
-        entry.setProblemsSolved(entry.getProblemsSolved() + 1);
+        entry.setTotalSubmissions(entry.getTotalSubmissions() + 1);
+
+        if (isAccepted) {
+            entry.setAcceptedSubmissions(entry.getAcceptedSubmissions() + 1);
+        }
+
+        if (isFirstTimeSolved) {
+            entry.setProblemsSolved(entry.getProblemsSolved() + 1);
+        }
+
+        entry.setAccuracy(entry.getTotalSubmissions() == 0 
+            ? 0.0 
+            : (entry.getAcceptedSubmissions() * 100.0) / entry.getTotalSubmissions());
 
         leaderboardEntryRepository.save(entry);
     }
 
     public List<LeaderboardEntry> getLeaderboard() {
-        Map<Long, UserStats> statsByUser = new HashMap<>();
-
-        for (Submission submission : submissionRepository.findAll()) {
-            User user = submission.getUser();
-            UserStats stats = statsByUser.computeIfAbsent(user.getId(), ignored -> new UserStats(user));
-            stats.totalSubmissions++;
-
-            if (submission.getStatus() == SubmissionStatus.ACCEPTED) {
-                stats.acceptedSubmissions++;
-                stats.solvedProblemIds.add(submission.getProblem().getId());
-            }
-        }
-
-        List<LeaderboardEntry> entries = new ArrayList<>();
-        for (UserStats stats : statsByUser.values()) {
-            LeaderboardEntry entry = new LeaderboardEntry();
-            entry.setUser(stats.user);
-            entry.setProblemsSolved(stats.solvedProblemIds.size());
-            entry.setAccuracy(stats.totalSubmissions == 0
-                    ? 0.0
-                    : (stats.acceptedSubmissions * 100.0) / stats.totalSubmissions);
-            entries.add(entry);
-        }
+        List<LeaderboardEntry> entries = leaderboardEntryRepository.findAll();
 
         entries.sort((left, right) -> {
             int bySolved = Integer.compare(right.getProblemsSolved(), left.getProblemsSolved());
@@ -78,16 +69,5 @@ public class LeaderboardService {
         }
 
         return entries;
-    }
-
-    private static class UserStats {
-        private final User user;
-        private final Set<Long> solvedProblemIds = new HashSet<>();
-        private int totalSubmissions;
-        private int acceptedSubmissions;
-
-        private UserStats(User user) {
-            this.user = user;
-        }
     }
 }

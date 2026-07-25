@@ -6,49 +6,59 @@ import CodeEditor from '../../components/ProblemDetails/CodeEditor';
 import ActionButtons from '../../components/ProblemDetails/ActionButtons';
 import ConsoleDrawer from '../../components/ProblemDetails/ConsoleDrawer'; 
 import { useSubmissionStateMachine } from '../../hooks/useSubmissionStateMachine'; 
+import { fetchApi } from '../../services/api';
 import './ProblemDetails.css';
-
-const MOCK_PROBLEMS = {
-    1: {
-        id: 1,
-        title: "Two Sum",
-        difficulty: "Easy",
-        tags: ["Array", "Hash Table"],
-        description: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution.",
-        exampleInput: "nums = [2,7,11,15], target = 9",
-        exampleOutput: "[0,1]",
-        explanation: "Because nums[0] + nums[1] == 9, we return [0, 1].",
-        testCases: [{ expectedOutput: "[0,1]" }, { expectedOutput: "[1,2]" }] 
-    },
-    2: {
-        id: 2,
-        title: "Valid Parentheses",
-        difficulty: "Easy",
-        tags: ["String", "Stack"],
-        description: "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid. An input string is valid if open brackets are closed by the same type of brackets.",
-        exampleInput: 's = "()[]{}"',
-        exampleOutput: "true",
-        explanation: "All brackets are closed sequentially in correct matching pairs.",
-        testCases: [{ expectedOutput: "true" }, { expectedOutput: "false" }]
-    },
-    3: {
-        id: 3,
-        title: "Longest Substring Without Repeating Characters",
-        difficulty: "Medium",
-        tags: ["Hash Table", "String", "Sliding Window"],
-        description: "Given a string s, find the length of the longest substring without repeating characters.",
-        exampleInput: 's = "abcabcbb"',
-        exampleOutput: "3",
-        explanation: "The answer is \"abc\", with the length of 3.",
-        testCases: [{ expectedOutput: "3" }, { expectedOutput: "1" }]
-    }
-};
 
 function ProblemDetails() {
     const navigate = useNavigate();
     const { id } = useParams();
     const currentId = parseInt(id) || 1;
-    const problem = MOCK_PROBLEMS[currentId] || MOCK_PROBLEMS[1];
+    
+    const [problem, setProblem] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadProblemData = async () => {
+            setLoading(true);
+            try {
+                // Fetch problem details
+                const probRes = await fetchApi(`/api/problems/${currentId}`);
+                if (!probRes.ok) throw new Error("Problem not found");
+                const probData = await probRes.json();
+
+                // Fetch test cases to attach to problem
+                const tcRes = await fetchApi(`/api/testcases/problem/${currentId}`);
+                const tcData = tcRes.ok ? await tcRes.json() : [];
+
+                setProblem({
+                    ...probData,
+                    testCases: tcData
+                });
+
+                // Fetch real past submissions for this problem
+                const subRes = await fetchApi(`/api/submissions/problem/${currentId}`);
+                if (subRes.ok) {
+                    const subData = await subRes.json();
+                    const mappedSubmissions = subData.map(s => ({
+                        status: s.status === 'ACCEPTED' ? 'Accepted' : (s.status === 'WRONG_ANSWER' ? 'Wrong Answer' : s.status),
+                        language: s.language.charAt(0).toUpperCase() + s.language.slice(1).toLowerCase(),
+                        runtime: s.results && s.results.length > 0 ? `${s.results[0].executionTimeMs} ms` : "N/A",
+                        timeSubmitted: new Date(s.submittedAt).toLocaleString()
+                    })).sort((a, b) => new Date(b.timeSubmitted) - new Date(a.timeSubmitted));
+                    
+                    setSubmissionHistory(mappedSubmissions);
+                }
+            } catch (err) {
+                console.error(err);
+                setError("Failed to load problem details.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        loadProblemData();
+    }, [currentId]);
 
     // Lifted States
     const [selectedLang, setSelectedLang] = useState('python');
@@ -117,24 +127,30 @@ function ProblemDetails() {
         if (!checkAuth('run')) return;
         setIsSubmitTriggered(false); // Make sure it doesn't log into submission tab
         setIsConsoleOpen(true); 
-        simulateExecution(userCode); 
+        simulateExecution(userCode, selectedLang, false); 
     };
 
     const handleSubmitCode = () => {
         if (!checkAuth('submit')) return;
         setIsSubmitTriggered(true); // Flag this execution run as a true profile submission
         setIsConsoleOpen(true);
-        simulateExecution(userCode);
+        simulateExecution(userCode, selectedLang, true);
     };
 
-    // Navigation Handlers
-    const handlePrev = () => { if (MOCK_PROBLEMS[currentId - 1]) navigate(`/problems/${currentId - 1}`); };
-    const handleNext = () => { if (MOCK_PROBLEMS[currentId + 1]) navigate(`/problems/${currentId + 1}`); };
+    // Navigation Handlers - Optimistically navigate to adjacent IDs
+    const handlePrev = () => { if (currentId > 1) navigate(`/problems/${currentId - 1}`); };
+    const handleNext = () => { navigate(`/problems/${currentId + 1}`); };
     const handlePickOne = () => {
-        const keys = Object.keys(MOCK_PROBLEMS);
-        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        // Pick a random ID between 1 and 10 for demo purposes since we don't have total count here
+        const randomKey = Math.floor(Math.random() * 10) + 1;
         navigate(`/problems/${randomKey}`);
     };
+
+    if (loading) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh',color:'white'}}>Loading Problem Data...</div>;
+    if (error || !problem) return <div style={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',height:'100vh',color:'red'}}>
+        <h2>{error || "Problem Not Found"}</h2>
+        <button onClick={() => navigate('/problems')} style={{marginTop: '20px', padding: '10px 20px'}}>Back to Problem List</button>
+    </div>;
 
     return (
         <div className="workspace-layout" style={{ position: 'relative', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -145,8 +161,8 @@ function ProblemDetails() {
                     <button className="back-nav-btn" onClick={() => navigate('/problems')}>Problem List</button>
                     
                     <div className="nav-controls">
-                        <button className="nav-arrow-btn" onClick={handlePrev} disabled={!MOCK_PROBLEMS[currentId - 1]}><FaChevronLeft size={11} /></button>
-                        <button className="nav-arrow-btn" onClick={handleNext} disabled={!MOCK_PROBLEMS[currentId + 1]}><FaChevronRight size={11} /></button>
+                        <button className="nav-arrow-btn" onClick={handlePrev} disabled={currentId <= 1}><FaChevronLeft size={11} /></button>
+                        <button className="nav-arrow-btn" onClick={handleNext}><FaChevronRight size={11} /></button>
                         <button className="nav-arrow-btn pick-one" onClick={handlePickOne} title="Pick Random Problem"><FaRandom size={12} /></button>
                     </div>
                 </div>
@@ -186,6 +202,7 @@ function ProblemDetails() {
                         selectedLang={selectedLang} 
                         setSelectedLang={setSelectedLang} 
                         onChange={(code) => setUserCode(code)} 
+                        problemTitle={problem.title}
                     />
 
                     <ConsoleDrawer 

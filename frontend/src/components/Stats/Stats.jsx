@@ -1,25 +1,40 @@
 import "./Stats.css";
-
-const stats = [
-    {
-        number : "500+" ,
-        title : "Coding Problems"
-    },
-    {
-        number : "1k+",
-        title : "Active Users"
-    },
-    {
-        number : "15+",
-        title : "Programming Languages"
-    },
-    {
-        number : "24/7",
-        title : "Practise Access"
-    }
-]
+import { useState, useEffect } from 'react';
+import { fetchApi } from "../../services/api";
 
 function Stats() {
+    const [stats, setStats] = useState([
+        { number: "—", title: "Coding Problems" },
+        { number: "—", title: "Active Users" },
+        { number: "15+", title: "Programming Languages" },
+        { number: "24/7", title: "Practise Access" }
+    ]);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                // Fetch real problem count
+                const probRes = await fetchApi('/api/problems');
+                const problems = probRes.ok ? await probRes.json() : [];
+                
+                // Fetch real user count
+                const userRes = await fetchApi('/api/admin/users');
+                const users = userRes.ok ? await userRes.json() : [];
+
+                setStats([
+                    { number: `${problems.length}+`, title: "Coding Problems" },
+                    { number: `${users.length}+`, title: "Active Users" },
+                    { number: "15+", title: "Programming Languages" },
+                    { number: "24/7", title: "Practise Access" }
+                ]);
+            } catch (err) {
+                console.error("Could not fetch platform stats:", err);
+            }
+        };
+
+        fetchStats();
+    }, []);
+
     return (
         <section className="stats">
             <div className="container">

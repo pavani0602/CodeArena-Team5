@@ -4,6 +4,8 @@ import com.codearena.codearena_backend.enumtype.DifficultyLevel;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "problems")
@@ -25,6 +27,12 @@ public class Problem {
 
     @Column(length = 500)
     private String tags;
+
+    @Column(name = "editorial_md", columnDefinition = "TEXT")
+    private String editorialMd;
+
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProblemHint> hints = new ArrayList<>();
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -77,5 +85,24 @@ public class Problem {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public String getEditorialMd() {
+        return editorialMd;
+    }
+
+    public void setEditorialMd(String editorialMd) {
+        this.editorialMd = editorialMd;
+    }
+
+    public List<ProblemHint> getHints() {
+        return hints;
+    }
+
+    public void setHints(List<ProblemHint> hints) {
+        this.hints.clear();
+        if (hints != null) {
+            this.hints.addAll(hints);
+        }
     }
 }

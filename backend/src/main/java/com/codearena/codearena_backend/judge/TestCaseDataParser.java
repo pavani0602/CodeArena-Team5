@@ -51,7 +51,10 @@ public class TestCaseDataParser {
                     List.of(parseInt(inputData)),
                     parseBoards(expectedOutput)
             );
-            default -> throw new IllegalArgumentException("No parser for problem: " + metadata.title());
+            default -> new StructuredTestCase(
+                    List.of(nullToBlank(inputData).trim()),
+                    nullToBlank(expectedOutput).trim()
+            );
         };
     }
 

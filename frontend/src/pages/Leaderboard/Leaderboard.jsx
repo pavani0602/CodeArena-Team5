@@ -1,79 +1,42 @@
 import { useState, useEffect } from 'react';
 import './Leaderboard.css';
 import { FaTrophy, FaMedal, FaSearch, FaGlobe, FaCalendarAlt, FaLaptopCode, FaCheckCircle, FaRunning } from 'react-icons/fa';
+import { fetchApi } from "../../services/api";
 
 function Leaderboard() {
     const [timeframe, setTimeframe] = useState('global'); // 'global' or 'weekly'
-    const [languageFilter, setLanguageFilter] = useState('All'); // 'All', 'Java', 'Python', 'C++'
+    const [languageFilter, setLanguageFilter] = useState('All'); // 'All', 'Java', 'Python', 'C++', 'JavaScript'
     const [searchQuery, setSearchQuery] = useState('');
     const [leaderboardData, setLeaderboardData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- Dynamic API Fetch (Fully Production Ready) ---
-    // const fetchLeaderboard = async () => {
-    //     setIsLoading(true);
-    //     setError(null);
-    //     try {
-    //         const params = new URLSearchParams({ 
-    //             timeframe, 
-    //             language: languageFilter 
-    //         });
-            
-    //         // Adjust port/endpoint path as defined by your teammate
-    //         const response = await fetch(`/api/leaderboard?${params.toString()}`);
-            
-    //         if (response.ok) {
-    //             const data = await response.json();
-    //             setLeaderboardData(data);
-    //         } else {
-    //             throw new Error(`Server returned status: ${response.status}`);
-    //         }
-    //     } catch (err) {
-    //         console.error("Leaderboard retrieval failed:", err);
-    //         setError("Could not retrieve active rankings. Please try again later.");
-    //         setLeaderboardData([]); // Clear any old data on error
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
-
-    // --- Dynamic API Fetch with Mock Fallback for Demo ---
+    // --- Fully Integrated Dynamic API Fetch ---
     const fetchLeaderboard = async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const params = new URLSearchParams({ 
-                timeframe, 
-                language: languageFilter 
-            });
-            
-            const response = await fetch(`/api/leaderboard?${params.toString()}`);
+            const response = await fetchApi('/api/leaderboard');
             
             if (response.ok) {
                 const data = await response.json();
-                setLeaderboardData(data);
+                // Map backend LeaderboardEntry structure to frontend display structure
+                const mappedData = data.map((item, index) => ({
+                    id: item.user?.id || index,
+                    username: item.user?.username || 'Unknown',
+                    solved: item.problemsSolved || 0,
+                    accuracy: item.accuracy != null ? Math.round(item.accuracy * 10) / 10 : 0,
+                    totalSubmissions: item.totalSubmissions || 0,
+                    acceptedSubmissions: item.acceptedSubmissions || 0,
+                }));
+                setLeaderboardData(mappedData);
             } else {
                 throw new Error(`Server returned status: ${response.status}`);
             }
         } catch (err) {
-            console.warn("Backend API not reachable, loading mock leaderboard data for preview:", err);
-            
-            // 🚀 Fallback Mock Data so your UI shines instantly during development/demo
-            const mockData = [
-                { id: 1, username: "AlexCoder", solved: 142, accuracy: 96.5, avgSpeedMs: 42, lang: "Java" },
-                { id: 2, username: "ByteNinja", solved: 135, accuracy: 94.2, avgSpeedMs: 38, lang: "Python" },
-                { id: 3, username: "CodeWizard", solved: 128, accuracy: 91.0, avgSpeedMs: 55, lang: "C++" },
-                { id: 4, username: "DevQueen", solved: 115, accuracy: 89.5, avgSpeedMs: 61, lang: "Java" },
-                { id: 5, username: "SyntaxError", solved: 98, accuracy: 85.0, avgSpeedMs: 74, lang: "Python" }
-            ];
-
-            // Filter mock data locally based on selected language filter if desired
-            const filteredMock = languageFilter === 'All' 
-                ? mockData 
-                : mockData.filter(item => item.lang === languageFilter);
-
-            setLeaderboardData(filteredMock);
+            console.error("Leaderboard retrieval failed:", err);
+            setError("Could not retrieve active rankings. Please try again later.");
+            setLeaderboardData([]);
         } finally {
             setIsLoading(false);
         }
@@ -188,9 +151,6 @@ function Leaderboard() {
 
                                     <div className="podium-user-info">
                                         <span className="podium-username">{user.username}</span>
-                                        <span className={`lang-pill ${(user.lang || 'Java').toLowerCase().replace('+', 'p')}`}>
-                                            {user.lang || 'Java'}
-                                        </span>
                                     </div>
 
                                     <div className="podium-stats">
@@ -225,8 +185,7 @@ function Leaderboard() {
                                         <th>Programmer</th>
                                         <th style={{ textAlign: 'center' }}>Problems Solved</th>
                                         <th style={{ textAlign: 'center' }}>Accuracy Rate</th>
-                                        <th style={{ textAlign: 'center' }}>Avg Speed (Execution)</th>
-                                        <th style={{ textAlign: 'center' }}>Favored Lang</th>
+                                        <th style={{ textAlign: 'center' }}>Total Submissions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -253,15 +212,7 @@ function Leaderboard() {
                                                 </div>
                                             </td>
                                             <td style={{ textAlign: 'center' }}>
-                                                <div className="speed-cell-data">
-                                                    <FaRunning className="speed-runner" />
-                                                    <span>{user.avgSpeedMs || 0} ms</span>
-                                                </div>
-                                            </td>
-                                            <td style={{ textAlign: 'center' }}>
-                                                <span className={`lang-pill ${(user.lang || 'Java').toLowerCase().replace('+', 'p')}`}>
-                                                    {user.lang || 'Java'}
-                                                </span>
+                                                {user.totalSubmissions || 0}
                                             </td>
                                         </tr>
                                     ))}

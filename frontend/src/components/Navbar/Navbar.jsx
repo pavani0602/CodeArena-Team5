@@ -2,6 +2,7 @@ import "./Navbar.css";
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { FaFire, FaUserCircle, FaSignOutAlt, FaThLarge, FaChevronDown } from 'react-icons/fa';
+import { fetchApi } from "../../services/api";
 
 function Navbar() {
     const navigate = useNavigate();
@@ -10,8 +11,8 @@ function Navbar() {
     const [userEmail, setUserEmail] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
     
-    const [userStats] = useState({
-        streak: 6
+    const [userStats, setUserStats] = useState({
+        streak: 0
     });
 
     useEffect(() => {
@@ -22,7 +23,18 @@ function Navbar() {
         if (token) {
             setIsLoggedIn(true);
             setUserRole(role || 'user');
-            setUserEmail(email || 'user@codearena.com');
+            setUserEmail(email || role || 'Coder');
+            
+            // Fetch dynamic streak from summary
+            fetchApi('/api/submissions/summary')
+                .then(res => {
+                    if (res.ok) return res.json();
+                })
+                .then(data => {
+                    if (data) setUserStats({ streak: data.streak || 0 });
+                })
+                .catch(err => console.error("Could not fetch user stats:", err));
+
         } else {
             setIsLoggedIn(false);
             setUserEmail('');
