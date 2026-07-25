@@ -49,16 +49,30 @@ public class DriverGenerator {
         driver.append(userCode).append("\n\n");
         driver.append("if __name__ == '__main__':\n");
         appendPythonArguments(driver, metadata, testCase);
-        driver.append("    obj = Solution()\n");
-        if ("Reverse String".equals(metadata.title())) {
-            driver.append("    obj.reverseString(s)\n");
-            driver.append("    result = s\n");
+        boolean hasClass = userCode.contains("class Solution:");
+        if (hasClass) {
+            driver.append("    obj = Solution()\n");
+            if ("Reverse String".equals(metadata.title())) {
+                driver.append("    obj.reverseString(s)\n");
+                driver.append("    result = s\n");
+            } else {
+                driver.append("    result = obj.")
+                        .append(metadata.functionName())
+                        .append("(")
+                        .append(String.join(", ", metadata.parameterNames()))
+                        .append(")\n");
+            }
         } else {
-            driver.append("    result = obj.")
-                    .append(metadata.functionName())
-                    .append("(")
-                    .append(String.join(", ", metadata.parameterNames()))
-                    .append(")\n");
+            if ("Reverse String".equals(metadata.title())) {
+                driver.append("    reverseString(s)\n");
+                driver.append("    result = s\n");
+            } else {
+                driver.append("    result = ")
+                        .append(metadata.functionName())
+                        .append("(")
+                        .append(String.join(", ", metadata.parameterNames()))
+                        .append(")\n");
+            }
         }
         driver.append("    print(json.dumps(result, separators=(',', ':')))\n");
         return driver.toString();
@@ -84,13 +98,23 @@ public class DriverGenerator {
                 .filter(line -> !line.trim().startsWith("import "))
                 .collect(Collectors.joining("\n"));
 
+        boolean hasClass = cleanUserCode.contains("class Solution");
+
         StringBuilder driver = new StringBuilder();
         driver.append("import java.util.*;\n");
         boolean usesTreeNode = metadata.parameterTypes().contains("TreeNode");
         if (usesTreeNode) {
             driver.append("class TreeNode { int val; TreeNode left; TreeNode right; TreeNode(int val) { this.val = val; } }\n");
         }
-        driver.append(cleanUserCode).append("\n\n");
+        if (!hasClass) {
+            driver.append("class Solution {\n");
+        }
+        driver.append(cleanUserCode);
+        if (!hasClass) {
+            driver.append("\n}\n\n");
+        } else {
+            driver.append("\n\n");
+        }
         driver.append("public class Main {\n");
         if (usesTreeNode) {
             driver.append("""
@@ -267,16 +291,30 @@ public class DriverGenerator {
                 int main() {
                 """);
         appendCppArguments(driver, metadata, testCase);
-        driver.append("    Solution obj;\n");
-        if ("Reverse String".equals(metadata.title())) {
-            driver.append("    obj.reverseString(s);\n");
-            driver.append("    auto result = s;\n");
+        boolean hasClass = userCode.contains("class Solution");
+        if (hasClass) {
+            driver.append("    Solution obj;\n");
+            if ("Reverse String".equals(metadata.title())) {
+                driver.append("    obj.reverseString(s);\n");
+                driver.append("    auto result = s;\n");
+            } else {
+                driver.append("    auto result = obj.")
+                        .append(metadata.functionName())
+                        .append("(")
+                        .append(String.join(", ", metadata.parameterNames()))
+                        .append(");\n");
+            }
         } else {
-            driver.append("    auto result = obj.")
-                    .append(metadata.functionName())
-                    .append("(")
-                    .append(String.join(", ", metadata.parameterNames()))
-                    .append(");\n");
+            if ("Reverse String".equals(metadata.title())) {
+                driver.append("    reverseString(s);\n");
+                driver.append("    auto result = s;\n");
+            } else {
+                driver.append("    auto result = ")
+                        .append(metadata.functionName())
+                        .append("(")
+                        .append(String.join(", ", metadata.parameterNames()))
+                        .append(");\n");
+            }
         }
         driver.append("""
                     cout << jsonValue(result) << endl;
@@ -309,7 +347,7 @@ public class DriverGenerator {
 
     private String toPythonLiteral(Object value) {
         if (value == null) return "None";
-        if (value instanceof String s) return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'";
+        if (value instanceof String s) return "'" + s.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n").replace("\r", "\\r") + "'";
         if (value instanceof List<?> list) {
             return "[" + list.stream().map(this::toPythonLiteral).collect(Collectors.joining(",")) + "]";
         }
@@ -355,11 +393,11 @@ public class DriverGenerator {
     }
 
     private String quoteJava(String value) {
-        return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+        return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r") + "\"";
     }
 
     private String quoteCpp(String value) {
-        return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+        return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r") + "\"";
     }
 
     private String escapeJavaChar(String value) {

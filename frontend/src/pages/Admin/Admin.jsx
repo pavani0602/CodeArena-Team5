@@ -1,39 +1,10 @@
-import { useState, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import './Admin.css';
 import { FaPlus, FaTrash, FaSave, FaCode, FaCheckCircle, FaEdit, FaList } from 'react-icons/fa';
-
-// Mock data representing problems already in your database
-const MOCK_EXISTING_PROBLEMS = [
-    {
-        id: 101,
-        title: 'Two Sum',
-        difficulty: 'Easy',
-        tags: 'Arrays, Hash Table',
-        description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.',
-        exampleInput: 'nums = [2,7,11,15], target = 9',
-        exampleOutput: '[0,1]',
-        explanation: 'Because nums[0] + nums[1] == 9, we return [0, 1].',
-        testCases: [
-            { id: 1, input: 'nums = [2,7,11,15], target = 9', output: '[0,1]', isHidden: false },
-            { id: 2, input: 'nums = [3,2,4], target = 6', output: '[1,2]', isHidden: true }
-        ]
-    },
-    {
-        id: 102,
-        title: 'Container With Most Water',
-        difficulty: 'Medium',
-        tags: 'Arrays, Two Pointers',
-        description: 'Find two lines that together with the x-axis forms a container, such that the container contains the most water.',
-        exampleInput: 'height = [1,8,6,2,5,4,8,3,7]',
-        exampleOutput: '49',
-        explanation: 'The max area of water the container can contain is 49.',
-        testCases: [
-            { id: 3, input: 'height = [1,8,6,2,5,4,8,3,7]', output: '49', isHidden: false }
-        ]
-    }
-];
+import { fetchApi } from '../../services/api';
 
 function Admin() {
+    const [existingProblems, setExistingProblems] = useState([]);
     const [activeTab, setActiveTab] = useState('create'); // 'create' or 'manage'
     const [editingProblemId, setEditingProblemId] = useState(null);
 
@@ -41,12 +12,14 @@ function Admin() {
     const [problemData, setProblemData] = useState({
         title: '',
         difficulty: 'Easy',
-        tags: '',
         description: '',
+        editorialMd: '',
         exampleInput: '',
         exampleOutput: '',
         explanation: '',
     });
+
+    const [hints, setHints] = useState(['']);
 
     const [testCases, setTestCases] = useState([
         { id: 1, input: '', output: '', isHidden: false }
@@ -72,48 +45,153 @@ function Admin() {
         setTestCases(testCases.filter(tc => tc.id !== id));
     };
 
+    // --- Dynamic Hints Management ---
+    const handleHintChange = (index, value) => {
+        const newHints = [...hints];
+        newHints[index] = value;
+        setHints(newHints);
+    };
+
+    const addHint = () => {
+        setHints([...hints, '']);
+    };
+
+    const removeHint = (index) => {
+        if (hints.length === 1) return;
+        setHints(hints.filter((_, i) => i !== index));
+    };
+
     // --- Load Problem into Form for Editing/Appending ---
     const handleEditClick = (prob) => {
         setEditingProblemId(prob.id);
         setProblemData({
             title: prob.title,
             difficulty: prob.difficulty,
-            tags: prob.tags,
+            tags: prob.tags || '',
             description: prob.description,
-            exampleInput: prob.exampleInput,
-            exampleOutput: prob.exampleOutput,
-            explanation: prob.explanation
+            editorialMd: prob.editorialMd || '',
+            exampleInput: '',
+            exampleOutput: '',
+            explanation: ''
         });
-        setTestCases(prob.testCases);
+        
+        if (prob.hints && prob.hints.length > 0) {
+            setHints(prob.hints.sort((a, b) => a.hintNumber - b.hintNumber).map(h => h.hintText));
+        } else {
+            setHints(['']);
+        }
+        
+        fetchApi(`/api/testcases/problem/${prob.id}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to load test cases");
+                return res.json();
+            })
+            .then(tcs => {
+                if (tcs && tcs.length > 0) {
+                    setTestCases(tcs.map(tc => ({ id: tc.id, input: tc.inputData, output: tc.expectedOutput, isHidden: tc.hidden })));
+                } else {
+                    setTestCases([{ id: Date.now(), input: '', output: '', isHidden: false }]);
+                }
+            })
+            .catch(err => {
+                console.error("Error loading test cases:", err);
+                setTestCases([{ id: Date.now(), input: '', output: '', isHidden: false }]);
+            });
+            
         setActiveTab('create'); // Switch to form view
     };
 
     const handleCancelEdit = () => {
         setEditingProblemId(null);
-        setProblemData({ title: '', difficulty: 'Easy', tags: '', description: '', exampleInput: '', exampleOutput: '', explanation: '' });
+        setProblemData({ title: '', difficulty: 'Easy', tags: '', description: '', editorialMd: '', exampleInput: '', exampleOutput: '', explanation: '' });
         setTestCases([{ id: Date.now(), input: '', output: '', isHidden: false }]);
+        setHints(['']);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
-        const structuredPayload = {
-            id: editingProblemId || Date.now(),
-            ...problemData,
-            tags: problemData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-            testCases: testCases
+        // Build Markdown description (only append if creating new)
+        let finalDesc = problemData.description;
+        if (!editingProblemId && problemData.exampleInput) {
+            finalDesc = `${problemData.description}
+
+### Example
+**Input:** ${problemData.exampleInput}
+**Output:** ${problemData.exampleOutput}
+
+**Explanation:** ${problemData.explanation}`;
+        }
+
+        const payload = {
+            title: problemData.title,
+            difficulty: problemData.difficulty.toUpperCase(),
+            tags: problemData.tags,
+            description: finalDesc,
+            editorialMd: problemData.editorialMd,
+            hints: hints.filter(h => h.trim() !== '')
         };
 
-        if (editingProblemId) {
-            console.log("Updating existing problem:", structuredPayload);
-            alert(`Problem "${structuredPayload.title}" updated successfully with ${testCases.length} total test cases!`);
-        } else {
-            console.log("Saving new problem structure:", structuredPayload);
-            alert(`Problem "${structuredPayload.title}" created successfully!`);
+        try {
+            let probId = editingProblemId;
+            let actionName = "created";
+            
+            if (editingProblemId) {
+                // Update existing Problem
+                const probRes = await fetchApi(`/api/problems/${editingProblemId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+                if (!probRes.ok) throw new Error("Failed to update problem");
+                
+                // Clear old test cases
+                await fetchApi(`/api/testcases/problem/${editingProblemId}`, {
+                    method: 'DELETE'
+                });
+                actionName = "updated";
+            } else {
+                // Create new Problem
+                const probRes = await fetchApi('/api/problems', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if (!probRes.ok) throw new Error("Failed to create problem");
+                const newProb = await probRes.json();
+                probId = newProb.id;
+            }
+
+            // Create TestCases
+            for (const tc of testCases) {
+                await fetchApi(`/api/testcases/problem/${probId}`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        inputData: tc.input,
+                        expectedOutput: tc.output,
+                        hidden: tc.isHidden
+                    })
+                });
+            }
+
+            alert(`Problem "${payload.title}" ${actionName} successfully with ${testCases.length} test cases!`);
+            handleCancelEdit();
+            fetchProblems();
+        } catch (err) {
+            console.error(err);
+            alert("Error creating problem!");
         }
-        
-        handleCancelEdit();
     };
+
+    const fetchProblems = async () => {
+        try {
+            const res = await fetchApi('/api/problems');
+            if (res.ok) {
+                const data = await res.json();
+                setExistingProblems(data);
+            }
+        } catch(e) { console.error(e); }
+    };
+
+    useEffect(() => { fetchProblems(); }, []);
 
     return (
         <div className="admin-dashboard-container animate-fade-in">
@@ -131,9 +209,9 @@ function Admin() {
                     </button>
                     <button 
                         className={`admin-tab-btn ${activeTab === 'manage' ? 'active' : ''}`}
-                        onClick={() => { setActiveTab('manage'); handleCancelEdit(); }}
+                        onClick={() => { setActiveTab('manage'); handleCancelEdit(); fetchProblems(); }}
                     >
-                        <FaList size={12} /> Manage Existing Problems ({MOCK_EXISTING_PROBLEMS.length})
+                        <FaList size={12} /> Manage Existing Problems ({existingProblems.length})
                     </button>
                 </div>
             </div>
@@ -193,6 +271,39 @@ function Admin() {
                             <div className="form-group">
                                 <label>Example Explanation</label>
                                 <textarea name="explanation" rows="2" value={problemData.explanation} onChange={handleFormChange} placeholder="Explanation..." />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Problem Editorial (Markdown)</label>
+                                <textarea name="editorialMd" rows="5" value={problemData.editorialMd} onChange={handleFormChange} placeholder="Write the editorial approach..." />
+                            </div>
+
+                            <div className="form-group">
+                                <div className="flex-align-center justify-between" style={{ marginBottom: '8px' }}>
+                                    <label style={{ margin: 0 }}>Hints</label>
+                                    <button type="button" className="add-testcase-btn" onClick={addHint}>
+                                        <FaPlus size={10} /> Add Hint
+                                    </button>
+                                </div>
+                                {hints.map((hint, index) => (
+                                    <div key={index} className="flex-align-center gap-8" style={{ marginBottom: '8px' }}>
+                                        <input 
+                                            type="text" 
+                                            value={hint} 
+                                            onChange={(e) => handleHintChange(index, e.target.value)} 
+                                            placeholder={`Hint ${index + 1}...`} 
+                                            style={{ flex: 1 }}
+                                        />
+                                        <button 
+                                            type="button" 
+                                            className="delete-testcase-btn" 
+                                            onClick={() => removeHint(index)}
+                                            disabled={hints.length === 1}
+                                        >
+                                            <FaTrash size={11} />
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
@@ -262,15 +373,15 @@ function Admin() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {MOCK_EXISTING_PROBLEMS.map((prob) => (
+                                {existingProblems.map((prob) => (
                                     <tr key={prob.id} className="admin-table-row">
                                         <td>#{prob.id}</td>
                                         <td className="prob-title-cell">{prob.title}</td>
                                         <td><span className={`badge ${prob.difficulty.toLowerCase()}`}>{prob.difficulty}</span></td>
-                                        <td><span className="tc-count-badge">{prob.testCases.length} Loaded</span></td>
+                                        <td><span className="tc-count-badge">Loaded</span></td>
                                         <td className="actions-cell">
                                             <button className="edit-action-btn" onClick={() => handleEditClick(prob)}>
-                                                <FaEdit size={12} /> Append Cases / Edit
+                                                <FaEdit size={12} /> Edit Problem
                                             </button>
                                         </td>
                                     </tr>

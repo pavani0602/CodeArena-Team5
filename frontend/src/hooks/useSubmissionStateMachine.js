@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { fetchApi } from '../services/api';
 
 export const SUBMISSION_STATES = {
   IDLE: 'IDLE',
@@ -16,92 +17,111 @@ export function useSubmissionStateMachine(currentProblem) {
 
   const totalTestCases = currentProblem?.testCases?.length || 2;
 
-  const simulateExecution = (code) => {
-    // Reset any previous state metrics
+  const simulateExecution = async (code, language, isSubmit = false) => {
+    if (!currentProblem) return;
+    
     setCurrentState(SUBMISSION_STATES.COMPILING);
     setFeedback(null);
     setCurrentTestIndex(0);
 
-    // 1. Simulate Compilation Stage (1.5 seconds)
-    setTimeout(() => {
-      // Basic check for empty inputs or severe syntax breaks
-      if (!code || code.trim() === "" || code.includes("syntax_error_simulation")) {
-        setCurrentState(SUBMISSION_STATES.COMPILE_ERROR);
-        setFeedback({
-          status: "Compile Error",
-          message: "IndentationError: expected an indented block after function definition on line 2\n    pass\n    ^"
+    try {
+      if (isSubmit) {
+        setCurrentState(SUBMISSION_STATES.RUNNING_TESTS);
+        // Hit real submit API
+        const response = await fetchApi(`/api/submissions/problem/${currentProblem.id}`, {
+          method: 'POST',
+          body: JSON.stringify({ language, code })
         });
-        return;
-      }
-
-      // 2. Transition to Running Test Cases Evaluation Stage
-      setCurrentState(SUBMISSION_STATES.RUNNING_TESTS);
-      
-      let currentCase = 0;
-      const interval = setInterval(() => {
-        currentCase++;
-        setCurrentTestIndex(currentCase);
-
-        if (currentCase >= totalTestCases) {
-          clearInterval(interval);
-
-          // 3. Robustly Extract the executed output return line
-          // Matches all instances of return statements globally
-          const returnRegex = /return\s+([^\n;]+)/g;
-          const matches = [...code.matchAll(returnRegex)];
-          
-          let userActualOutput = "None";
-          
-          if (matches.length > 0) {
-            // Smart Evaluation Strategy:
-            // If the user has a hardcoded array override matching the expected target, pick that match!
-            // Otherwise, select the most descriptive/inner non-empty return block found.
-            const expectedOutput = currentProblem?.exampleOutput || "[0,1]";
-            const cleanExpected = expectedOutput.replace(/\s+/g, '');
-            
-            const targetedMatch = matches.find(m => 
-              m[1].trim().replace(/\s+/g, '') === cleanExpected
-            );
-            
-            // Fallback to the primary solution path return block if no explicit array match
-            const finalMatch = targetedMatch || matches[0];
-            userActualOutput = finalMatch[1].trim();
-          }
-
-          // Handle JavaScript / C++ style bracket definitions cleanly: e.g., {} or new int[]
-          if (userActualOutput.includes("{}")) userActualOutput = "[]";
-          if (userActualOutput.includes("new int[]")) {
-            const bracketMatch = userActualOutput.match(/\{([^}]+)\}/);
-            userActualOutput = bracketMatch ? `[${bracketMatch[1]}]` : "[]";
-          }
-
-          const expectedOutput = currentProblem?.exampleOutput || "[0,1]";
-
-          // 4. Compare absolute output formatting keys
-          const isCorrect = userActualOutput.replace(/\s+/g, '') === expectedOutput.replace(/\s+/g, '');
-
-          if (isCorrect) {
-            setCurrentState(SUBMISSION_STATES.SUCCESS);
-            setFeedback({
-              status: "Accepted",
-              message: "Excellent! Your execution metrics hit code solution parameters cleanly.",
-              userOutput: userActualOutput,
-              expectedOutput: expectedOutput,
-              runtime: "45 ms",
-              memory: "16.4 MB"
-            });
-          } else {
-            setCurrentState(SUBMISSION_STATES.FAILED_TEST);
-            setFeedback({
-              status: "Wrong Answer",
-              message: "Your code output did not match the expected test case criteria.",
-              userOutput: userActualOutput,
-              expectedOutput: expectedOutput
-            });
-          }
+        
+        const data = await response.json();
+        if (!response.ok) {
+           setCurrentState(SUBMISSION_STATES.COMPILE_ERROR);
+           setFeedback({ status: "Error", message: data.message || "Execution failed" });
+           return;
         }
-      }, 600); // Progresses through test cases every 600ms
-    }, 1500);
+        
+        setCurrentTestIndex(totalTestCases);
+
+        if (data.status === 'ACCEPTED') {
+          setCurrentState(SUBMISSION_STATES.SUCCESS);
+          
+          let maxExecutionTime = 0;
+          let finalUserOutput = "";
+          let finalExpectedOutput = "";
+          
+          if (data.results && data.results.length > 0) {
+            maxExecutionTime = Math.max(...data.results.map(r => r.executionTimeMs || 0));
+            const lastResult = data.results[data.results.length - 1];
+            finalUserOutput = lastResult.actualOutput || "";
+            finalExpectedOutput = lastResult.expectedOutput || "";
+          }
+          
+          setFeedback({
+            status: "Accepted",
+            message: "Excellent! All test cases passed.",
+            runtime: `${maxExecutionTime} ms`,
+            userOutput: finalUserOutput,
+            expectedOutput: finalExpectedOutput
+          });
+        } else if (data.status === 'COMPILATION_ERROR') {
+          setCurrentState(SUBMISSION_STATES.COMPILE_ERROR);
+          setFeedback({ status: "Compile Error", message: data.errorMessage || "Failed to compile." });
+        } else {
+          setCurrentState(SUBMISSION_STATES.FAILED_TEST);
+          const failedResult = data.results?.find(r => r.status === data.status || !r.passed) || {};
+          setFeedback({
+            status: data.status, // e.g. WRONG_ANSWER or RUNTIME_ERROR
+            message: data.status === 'RUNTIME_ERROR' ? data.message || "Runtime Error" : "Your code failed on a test case.",
+            expectedOutput: failedResult.expectedOutput || "N/A",
+            userOutput: failedResult.actualOutput || "None",
+            errorTrace: failedResult.errorMessage || data.message
+          });
+        }
+      } else {
+        // Just Run Code against sample testcase
+        setCurrentState(SUBMISSION_STATES.RUNNING_TESTS);
+        const response = await fetchApi(`/api/execute`, {
+          method: 'POST',
+          body: JSON.stringify({ language, code, problemId: currentProblem.id })
+        });
+        
+        const data = await response.json();
+        if (!response.ok) {
+           setCurrentState(SUBMISSION_STATES.COMPILE_ERROR);
+           setFeedback({ status: "Error", message: data.message || "Execution failed" });
+           return;
+        }
+
+        setCurrentTestIndex(1); // Ran 1 sample
+
+        if (data.status === 'SUCCESS' || data.status === 'ACCEPTED') {
+          setCurrentState(SUBMISSION_STATES.SUCCESS);
+          setFeedback({
+            status: "Accepted",
+            message: "Your code ran successfully against the sample testcase.",
+            userOutput: data.output,
+            expectedOutput: data.expectedOutput,
+            runtime: `${data.executionTimeMs || 0} ms`
+          });
+        } else if (data.status === 'COMPILATION_ERROR') {
+          setCurrentState(SUBMISSION_STATES.COMPILE_ERROR);
+          setFeedback({ status: "Compile Error", message: data.error || data.message || "Failed to compile." });
+        } else {
+          setCurrentState(SUBMISSION_STATES.FAILED_TEST);
+          setFeedback({
+            status: data.status, 
+            message: data.status === 'RUNTIME_ERROR' ? data.error || "Runtime Error" : "Your code produced incorrect output for the sample.",
+            userOutput: data.output,
+            expectedOutput: data.expectedOutput,
+            errorTrace: data.error
+          });
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setCurrentState(SUBMISSION_STATES.COMPILE_ERROR);
+      setFeedback({ status: "Network Error", message: "Failed to communicate with the server." });
+    }
   };
 
   const resetState = () => {

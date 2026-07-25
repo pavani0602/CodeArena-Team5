@@ -1,21 +1,49 @@
+import { useState, useEffect } from "react";
 import "./ProblemTable.css";
 import ProblemRow from "./ProblemRow";
+import { fetchApi } from "../../services/api";
 
 function ProblemTable({ searchQuery, difficulty, sortBy, onRowClick }) {
-    const problems = [
-        { id: 1, title: "Two Sum", difficulty: "Easy", status: "Solved" },
-        { id: 2, title: "Valid Parentheses", difficulty: "Easy", status: "Solved" },
-        { id: 3, title: "Longest Substring Without Repeating Characters", difficulty: "Medium", status: "Attempted" },
-        { id: 4, title: "Merge Intervals", difficulty: "Medium", status: "Unsolved" },
-        { id: 5, title: "Binary Tree Inorder Traversal", difficulty: "Easy", status: "Solved" },
-        { id: 6, title: "Course Schedule", difficulty: "Medium", status: "Unsolved" },
-        { id: 7, title: "Number of Islands", difficulty: "Medium", status: "Attempted" },
-        { id: 8, title: "Word Ladder", difficulty: "Hard", status: "Unsolved" },
-        { id: 9, title: "LRU Cache", difficulty: "Hard", status: "Unsolved" },
-        { id: 10, title: "Kth Largest Element", difficulty: "Medium", status: "Solved" },
-        { id: 11, title: "Climbing Stairs", difficulty: "Easy", status: "Solved" },
-        { id: 12, title: "Search in Rotated Sorted Array", difficulty: "Medium", status: "Attempted" }
-    ];
+    const [problems, setProblems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadProblems = async () => {
+            try {
+                const [problemsRes, statusesRes] = await Promise.all([
+                    fetchApi('/api/problems'),
+                    fetchApi('/api/submissions/statuses')
+                ]);
+
+                if (!problemsRes.ok) throw new Error("Failed to fetch problems");
+                
+                const data = await problemsRes.json();
+                let statuses = {};
+                
+                // If user is logged out, this might return 401 or 403, which is fine to ignore
+                if (statusesRes.ok) {
+                    statuses = await statusesRes.json();
+                }
+                
+                const mappedData = data.map(p => ({
+                    id: p.id,
+                    title: p.title,
+                    difficulty: p.difficulty,
+                    status: statuses[p.id] || "Unsolved"
+                }));
+                
+                setProblems(mappedData);
+            } catch (err) {
+                console.error(err);
+                setError("Failed to load problems from the server.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadProblems();
+    }, []);
 
     // 1. Filter the problems first
     const filteredProblems = problems.filter((prob) => {
@@ -30,13 +58,14 @@ function ProblemTable({ searchQuery, difficulty, sortBy, onRowClick }) {
             return a.title.localeCompare(b.title); // Sort alphabetically A-Z
         }
         if (sortBy === "difficulty") {
-            // Mapping difficulties to values to sort easily (Easy -> Medium -> Hard)
-            const difficultyOrder = { "Easy": 1, "Medium": 2, "Hard": 3 };
-            return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+            const difficultyOrder = { "EASY": 1, "Easy": 1, "MEDIUM": 2, "Medium": 2, "HARD": 3, "Hard": 3 };
+            return (difficultyOrder[a.difficulty] || 0) - (difficultyOrder[b.difficulty] || 0);
         }
-        // "latest" defaults to sorting by ID descending (highest/newest first)
         return a.id - b.id; 
     });
+
+    if (loading) return <div style={{ textAlign: "center", padding: "30px" }}>Loading problems...</div>;
+    if (error) return <div style={{ textAlign: "center", padding: "30px", color: "red" }}>{error}</div>;
 
     return (
         <div className="problem-table-container">

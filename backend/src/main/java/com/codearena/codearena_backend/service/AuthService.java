@@ -10,19 +10,25 @@ import com.codearena.codearena_backend.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtService jwtService) {
+                       JwtService jwtService,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.emailService = emailService;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -46,6 +52,9 @@ public class AuthService {
         }
 
         userRepository.save(user);
+        
+        // Trigger Welcome Email asynchronously
+        emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
 
         String token = jwtService.generateToken(user.getUsername());
 
@@ -75,8 +84,38 @@ public class AuthService {
         if (email == null || email.trim().isEmpty()) {
             throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Email address is required");
         }
-        // Check if email exists in database (optional for security, return success regardless)
-        userRepository.findByEmail(email.trim());
+        
+        java.util.Optional<User> userOpt = userRepository.findByEmail(email.trim());
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            String token = UUID.randomUUID().toString();
+            user.setResetToken(token);
+            user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
+            userRepository.save(user);
+            
+            return java.util.Map.of(
+                "message", "If an account matching " + email + " exists, a recovery link has been sent."
+            );
+        }
+        
         return java.util.Map.of("message", "If an account matching " + email + " exists, a recovery link has been sent.");
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        if (token == null || token.trim().isEmpty() || newPassword == null || newPassword.trim().isEmpty()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Invalid token or password");
+        }
+
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Invalid or expired token"));
+
+        if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Token has expired");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
     }
 }

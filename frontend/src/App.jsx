@@ -23,6 +23,8 @@ import ResetPassword from "./pages/Auth/ResetPassword";
 
 // Admin Workspace Dashboard
 import Admin from "./pages/Admin/Admin";
+import AdminUsers from "./pages/Admin/AdminUsers";
+import AdminAnalytics from "./pages/Admin/AdminAnalytics";
 
 function App() {
   return (
@@ -40,6 +42,22 @@ function App() {
             element={
               <ProtectedRoute allowedRole="admin">
                 <Admin />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/users" 
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <AdminUsers />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/analytics" 
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <AdminAnalytics />
               </ProtectedRoute>
             } 
           />

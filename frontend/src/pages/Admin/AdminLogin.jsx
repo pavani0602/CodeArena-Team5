@@ -11,20 +11,39 @@ function AdminLogin() {
         setCredentials({ ...credentials, [e.target.name]: e.target.value });
     };
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        setError(''); // Reset error banner
+        setError('');
 
-        // 💡 Hardcoded placeholder check for local testing before backend integration
-        if (credentials.email === 'admin@codearena.com' && credentials.password === 'admin123') {
-            // Set an admin flag in localStorage so MainLayout can verify role later
-            localStorage.setItem('userRole', 'admin');
-            localStorage.setItem('token', 'mock-admin-jwt-token');
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: credentials.email,
+                    password: credentials.password
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.message || 'Login failed. Please check your credentials.');
+            }
+
+            const data = await response.json();
             
-            alert('Welcome back, Admin!');
-            navigate('/admin'); // 🚀 Redirects to your clean workspace grid table
-        } else {
-            setError('Invalid Admin credentials. Please check your email or password.');
+            if (data.role?.toUpperCase() !== 'ADMIN') {
+                throw new Error("Access Denied: You do not have administrator privileges.");
+            }
+
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userRole', 'admin');
+            localStorage.setItem('userEmail', credentials.email);
+            
+            alert(`Welcome back to the Admin Workspace, ${data.username}!`);
+            navigate('/admin');
+        } catch (err) {
+            setError(err.message);
         }
     };
 

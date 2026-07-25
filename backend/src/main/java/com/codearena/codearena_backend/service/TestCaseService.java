@@ -36,4 +36,9 @@ public class TestCaseService {
     public List<TestCase> getTestCasesByProblemId(Long problemId) {
         return testCaseRepository.findByProblemId(problemId);
     }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteTestCasesByProblemId(Long problemId) {
+        testCaseRepository.deleteByProblemId(problemId);
+    }
 }

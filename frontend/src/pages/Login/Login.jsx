@@ -15,66 +15,40 @@ function Login() {
         setCredentials({ ...credentials, [e.target.name]: e.target.value });
     };
 
-    // const handleLogin = (e) => {
-    //     e.preventDefault();
-    //     setError('');
-
-    //     if (role === 'admin') {
-    //         if (credentials.email === 'admin@codearena.com' && credentials.password === 'admin123') {
-    //             localStorage.setItem('userRole', 'admin');
-    //             localStorage.setItem('token', 'mock-admin-token');
-    //             alert('Welcome to the Admin Workspace!');
-    //             navigate('/admin');
-    //         } else {
-    //             setError('Invalid Admin credentials.');
-    //         }
-    //     } else {
-    //         if (credentials.email === 'user@codearena.com' && credentials.password === 'user123') {
-    //             localStorage.setItem('userRole', 'user');
-    //             localStorage.setItem('token', 'mock-user-token');
-    //             alert('Login successful! Welcome back.');
-    //             navigate('/problems');
-    //         } else if (credentials.email && credentials.password) {
-    //             localStorage.setItem('userRole', 'user');
-    //             localStorage.setItem('token', 'mock-user-token');
-    //             alert('Login successful with custom testing account!');
-    //             navigate('/problems');
-    //         } else {
-    //             setError('Please fill in all fields.');
-    //         }
-    //     }
-    // };
-
-const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
 
-        if (role === 'admin') {
-            if (credentials.email === 'admin@codearena.com' && credentials.password === 'admin123') {
-                localStorage.setItem('userRole', 'admin');
-                localStorage.setItem('token', 'mock-admin-token');
-                localStorage.setItem('userEmail', credentials.email); // 👈 Add this here
-                alert('Welcome to the Admin Workspace!');
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: credentials.email, // backend maps email to username for now
+                    password: credentials.password
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.message || 'Login failed. Please check your credentials.');
+            }
+
+            const data = await response.json();
+            
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userRole', data.role.toLowerCase());
+            localStorage.setItem('userEmail', credentials.email);
+            
+            alert(`Welcome back to CodeArena, ${data.username}!`);
+            
+            if (data.role.toUpperCase() === 'ADMIN') {
                 navigate('/admin');
             } else {
-                setError('Invalid Admin credentials.');
-            }
-        } else {
-            if (credentials.email === 'user@codearena.com' && credentials.password === 'user123') {
-                localStorage.setItem('userRole', 'user');
-                localStorage.setItem('token', 'mock-user-token');
-                localStorage.setItem('userEmail', credentials.email); // 👈 Add this here
-                alert('Login successful! Welcome back.');
                 navigate('/problems');
-            } else if (credentials.email && credentials.password) {
-                localStorage.setItem('userRole', 'user');
-                localStorage.setItem('token', 'mock-user-token');
-                localStorage.setItem('userEmail', credentials.email); // 👈 Add this here
-                alert('Login successful with custom testing account!');
-                navigate('/problems');
-            } else {
-                setError('Please fill in all fields.');
             }
+        } catch (err) {
+            setError(err.message);
         }
     };
 

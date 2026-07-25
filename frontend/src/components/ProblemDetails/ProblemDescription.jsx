@@ -15,7 +15,7 @@ import {
     FaBug 
 } from 'react-icons/fa';
 
-// Import your custom component from the correct relative path
+import ReactMarkdown from 'react-markdown';
 import HintsAndEditorial from './HintsAndEditorial'; 
 
 // Helper function to handle verdict states
@@ -39,31 +39,7 @@ const getVerdictDetails = (status) => {
     }
 };
 
-const INITIAL_SUBMISSIONS = [
-    { 
-        id: 'mock-1', 
-        status: "Accepted", 
-        lang: "Python", 
-        runtime: "45 ms", 
-        date: "2 mins ago", 
-        notes: "Optimized sliding window approach.",
-        testCasesBreakdown: [
-            { id: 1, status: "Passed", runtime: "12 ms", memory: "12.1 MB" }
-        ]
-    },
-    { 
-        id: 'mock-2', 
-        status: "Time Limit Exceeded", 
-        lang: "Python", 
-        runtime: "N/A", 
-        date: "10 mins ago", 
-        notes: "Loop is too slow, need O(n).",
-        testCasesBreakdown: [
-            { id: 1, status: "Passed", runtime: "10 ms", memory: "12.0 MB" },
-            { id: 2, status: "Time Limit Exceeded", runtime: "5000 ms", memory: "14.1 MB" }
-        ]
-    },
-];
+const INITIAL_SUBMISSIONS = [];
 
 function ProblemDescription({ problem, submissionHistory = [] }) {
     const [activeTab, setActiveTab] = useState('description'); 
@@ -80,13 +56,10 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                 runtime: item.runtime,
                 date: item.timeSubmitted,
                 notes: "",
-                testCasesBreakdown: item.testCasesBreakdown || [
-                    { id: 1, status: "Passed", runtime: "12 ms", memory: "12.1 MB" },
-                    { id: 2, status: "Passed", runtime: "15 ms", memory: "13.4 MB" }
-                ]
+                testCasesBreakdown: item.testCasesBreakdown || []
             }));
 
-            setSubmissions([...formattedLiveItems, ...INITIAL_SUBMISSIONS]);
+            setSubmissions(formattedLiveItems);
         } else {
             setSubmissions(INITIAL_SUBMISSIONS);
         }
@@ -140,23 +113,15 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                             <span className={`badge ${problem.difficulty?.toLowerCase() || 'easy'}`}>
                                 {problem.difficulty || 'Easy'}
                             </span>
-                            {problem.tags?.map(tag => (
-                                <span key={tag} className="tag">{tag}</span>
+                            {(typeof problem.tags === 'string' ? problem.tags.split(',') : (problem.tags || [])).map(tag => (
+                                <span key={tag.trim()} className="tag">{tag.trim()}</span>
                             ))}
                         </div>
                         
                         <div className="description-text">
-                            <p>{problem.description}</p>
+                            <ReactMarkdown>{problem.description}</ReactMarkdown>
                         </div>
 
-                        <div className="example-block">
-                            <h4>Example 1:</h4>
-                            <pre>
-                                <strong>Input:</strong> {problem.exampleInput}{"\n"}
-                                <strong>Output:</strong> {problem.exampleOutput}{"\n"}
-                                <strong>Explanation:</strong> {problem.explanation}
-                            </pre>
-                        </div>
                     </div>
                 )}
 
@@ -164,6 +129,7 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                 {activeTab === 'hints' && (
                     <div className="tab-view-container animate-fade-in">
                         <HintsAndEditorial 
+                            problem={problem}
                             failedAttempts={failedAttemptsCount} 
                             requiredAttempts={3} 
                         />

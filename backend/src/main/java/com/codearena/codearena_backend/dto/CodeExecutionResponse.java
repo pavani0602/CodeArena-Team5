@@ -6,6 +6,7 @@ public class CodeExecutionResponse {
     private String error;
     private String status;
     private Long executionTimeMs;
+    private String expectedOutput;
 
     public CodeExecutionResponse() {
     }
@@ -21,6 +22,14 @@ public class CodeExecutionResponse {
         this.error = error;
         this.status = status;
         this.executionTimeMs = executionTimeMs;
+    }
+
+    public CodeExecutionResponse(String output, String error, String status, Long executionTimeMs, String expectedOutput) {
+        this.output = output;
+        this.error = error;
+        this.status = status;
+        this.executionTimeMs = executionTimeMs;
+        this.expectedOutput = expectedOutput;
     }
 
     public String getOutput() {
@@ -53,5 +62,13 @@ public class CodeExecutionResponse {
 
     public void setExecutionTimeMs(Long executionTimeMs) {
         this.executionTimeMs = executionTimeMs;
+    }
+
+    public String getExpectedOutput() {
+        return expectedOutput;
+    }
+
+    public void setExpectedOutput(String expectedOutput) {
+        this.expectedOutput = expectedOutput;
     }
 }

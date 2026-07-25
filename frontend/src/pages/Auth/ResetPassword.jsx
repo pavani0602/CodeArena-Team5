@@ -13,7 +13,7 @@ function ResetPassword() {
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
-    const handlePasswordReset = (e) => {
+    const handlePasswordReset = async (e) => {
         e.preventDefault();
         setErrorMessage('');
 
@@ -27,9 +27,22 @@ function ResetPassword() {
             return;
         }
 
-        // Here you would normally send the token and new password to your backend
-        console.log('Password reset successfully with token:', token);
-        setSubmitted(true);
+        try {
+            const res = await fetch('/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token, newPassword })
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => null);
+                throw new Error(data?.message || 'Failed to reset password. Link may be expired.');
+            }
+
+            setSubmitted(true);
+        } catch(err) {
+            setErrorMessage(err.message);
+        }
     };
 
     return (

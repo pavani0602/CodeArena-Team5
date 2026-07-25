@@ -8,4 +8,7 @@ import java.util.List;
 public interface TestCaseRepository extends JpaRepository<TestCase, Long> {
 
     List<TestCase> findByProblemId(Long problemId);
+    
+    @org.springframework.transaction.annotation.Transactional
+    void deleteByProblemId(Long problemId);
 }

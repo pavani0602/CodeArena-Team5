@@ -15,15 +15,21 @@ const EMAILJS_PUBLIC_KEY = 'aroQ7qSy3luWdBGGN';
 export const registerUser = async (userData) => {
     // --- MODE SWITCH ---
     // Change this to true when backend API is ready!
-    const USE_REAL_BACKEND = false; 
+    const USE_REAL_BACKEND = true; 
 
     if (USE_REAL_BACKEND) {
         // BACKEND INTEGRATION CODE (Backend team will uncomment this)
-        /*
+        
+        const payload = {
+            username: userData.fullName,
+            email: userData.email,
+            password: userData.password
+        };
+
         const response = await fetch('/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
@@ -32,7 +38,7 @@ export const registerUser = async (userData) => {
         }
 
         return await response.json();
-        */
+        
     } else {
         // FRONTEND DEMO CODE (Current implementation)
         try {

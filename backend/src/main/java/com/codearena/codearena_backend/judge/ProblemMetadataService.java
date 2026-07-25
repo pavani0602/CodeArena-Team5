@@ -27,7 +27,19 @@ public class ProblemMetadataService {
         if (title == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(metadataByTitle.get(normalize(title)));
+        ProblemMetadata metadata = metadataByTitle.get(normalize(title));
+        if (metadata != null) {
+            return Optional.of(metadata);
+        }
+        return Optional.of(new ProblemMetadata(
+                title,
+                "FUNCTION",
+                "Solution",
+                "solve",
+                List.of("input"),
+                List.of("string"),
+                "string"
+        ));
     }
 
     private static Map.Entry<String, ProblemMetadata> entry(

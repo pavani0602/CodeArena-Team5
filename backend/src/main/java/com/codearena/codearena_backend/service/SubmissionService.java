@@ -16,6 +16,7 @@ import com.codearena.codearena_backend.repository.SubmissionResultRepository;
 import com.codearena.codearena_backend.repository.TestCaseRepository;
 import com.codearena.codearena_backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,6 +59,7 @@ public class SubmissionService {
         this.leaderboardService = leaderboardService;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Submission createSubmission(Long problemId, String username, SubmissionRequest request) {
 
         Problem problem = problemRepository.findById(problemId)
@@ -143,22 +145,23 @@ public class SubmissionService {
                     SubmissionStatus.ACCEPTED
             );
             submission.setStatus(SubmissionStatus.ACCEPTED);
-            if (!alreadySolved) {
-                leaderboardService.updateLeaderboard(user);
-            }
+            leaderboardService.updateLeaderboard(user, true, !alreadySolved);
         } else if ("WRONG_ANSWER".equals(firstFailureStatus)) {
             submission.setStatus(SubmissionStatus.WRONG_ANSWER);
+            leaderboardService.updateLeaderboard(user, false, false);
         } else if (firstFailureStatus != null) {
             submission.setStatus(convertStatus(firstFailureStatus));
+            leaderboardService.updateLeaderboard(user, false, false);
         } else {
             submission.setStatus(SubmissionStatus.WRONG_ANSWER);
+            leaderboardService.updateLeaderboard(user, false, false);
         }
 
         return submissionRepository.save(submission);
     }
 
-    public List<Submission> getSubmissionsByProblemId(Long problemId) {
-        return submissionRepository.findByProblemId(problemId);
+    public List<Submission> getSubmissionsByProblemIdAndUsername(Long problemId, String username) {
+        return submissionRepository.findByProblemIdAndUserUsername(problemId, username);
     }
 
     public Map<Long, String> getProblemStatusesForUser(String username) {
@@ -169,9 +172,9 @@ public class SubmissionService {
             String current = statuses.get(submittedProblemId);
 
             if (submission.getStatus() == SubmissionStatus.ACCEPTED) {
-                statuses.put(submittedProblemId, "Completed");
-            } else if (!"Completed".equals(current)) {
-                statuses.put(submittedProblemId, "In Progress");
+                statuses.put(submittedProblemId, "Solved");
+            } else if (!"Solved".equals(current)) {
+                statuses.put(submittedProblemId, "Attempted");
             }
         }
 
