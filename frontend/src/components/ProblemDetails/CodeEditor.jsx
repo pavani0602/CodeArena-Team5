@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import Editor from '@monaco-editor/react';
 import './CodeEditor.css';
 import { FaCode, FaUndo, FaExclamationTriangle } from 'react-icons/fa';
 
@@ -11,8 +12,7 @@ const BOILERPLATE_DATA = {
 
 function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
     const [codeText, setCodeText] = useState(BOILERPLATE_DATA.python);
-    const [isConfirming, setIsConfirming] = useState(false); // Track inline reset confirmation state
-    const editorRef = useRef(null);
+    const [isConfirming, setIsConfirming] = useState(false);
     const timerRef = useRef(null);
 
     // Swap boilerplate text cleanly whenever language changes
@@ -20,11 +20,7 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
         const defaultCode = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
         setCodeText(defaultCode);
         if (onChange) onChange(defaultCode); 
-        
-        if (editorRef.current) {
-            editorRef.current.innerText = defaultCode;
-        }
-        setIsConfirming(false); // Reset confirmation state if they switch languages
+        setIsConfirming(false);
     }, [selectedLang]);
 
     // Clean up timer on unmount
@@ -32,19 +28,29 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
         return () => { if (timerRef.current) clearTimeout(timerRef.current); };
     }, []);
 
-    const handleInput = (e) => {
-        const currentText = e.target.innerText;
-        setCodeText(currentText);
-        if (onChange) onChange(currentText); 
+    const handleEditorChange = (newValue) => {
+        const text = newValue || '';
+        setCodeText(text);
+        if (onChange) onChange(text);
+    };
+
+    // Map application language keys to Monaco language identifiers
+    const getMonacoLanguage = (lang) => {
+        switch (lang?.toLowerCase()) {
+            case 'cpp':
+            case 'c++': return 'cpp';
+            case 'java': return 'java';
+            case 'python': return 'python';
+            case 'javascript':
+            case 'js': return 'javascript';
+            default: return 'javascript';
+        }
     };
 
     // 🔄 Smooth Inline Reset Handler
     const handleResetCode = () => {
         if (!isConfirming) {
-            // First click: prompt for confirmation inline
             setIsConfirming(true);
-            
-            // Auto-cancel confirmation after 4 seconds of inactivity
             if (timerRef.current) clearTimeout(timerRef.current);
             timerRef.current = setTimeout(() => {
                 setIsConfirming(false);
@@ -52,24 +58,16 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
             return;
         }
 
-        // Second click: perform the actual structural reset
         if (timerRef.current) clearTimeout(timerRef.current);
         setIsConfirming(false);
 
         const originalTemplate = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
         setCodeText(originalTemplate);
         if (onChange) onChange(originalTemplate);
-
-        if (editorRef.current) {
-            editorRef.current.innerText = originalTemplate;
-        }
     };
 
-    // Dynamic line numbers based on code text row splits
-    const linesCount = codeText.split('\n').length || 1;
-
     return (
-        <section className="panel editor-panel">
+        <section className="panel editor-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div className="panel-tabs justify-between">
                 <div className="tab-left">
                     <button className="tab-item active"><FaCode size={13} /> Code</button>
@@ -80,7 +78,6 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
                         className={`reset-code-btn ${isConfirming ? 'confirm-mode' : ''}`}
                         onClick={handleResetCode}
                         onMouseLeave={() => {
-                            // Optional comfort feature: reset warning if mouse leaves button area long enough
                             if (isConfirming) {
                                 timerRef.current = setTimeout(() => setIsConfirming(false), 1500);
                             }
@@ -113,28 +110,21 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
                 </div>
             </div>
             
-            <div className="editor-workspace">
-                <div className="line-numbers-sidebar">
-                    {Array.from({ length: linesCount }).map((_, index) => (
-                        <div key={index} className="line-number">{index + 1}</div>
-                    ))}
-                </div>
-
-                <div className="code-area-wrapper">
-                    <pre 
-                        ref={editorRef}
-                        className="code-editor-view"
-                        contentEditable="true"
-                        onInput={handleInput}
-                        suppressContentEditableWarning={true}
-                        style={{
-                            outline: 'none',
-                            whiteSpace: 'pre',
-                            margin: 0,
-                            fontFamily: 'monospace'
-                        }}
-                    />
-                </div>
+            <div className="editor-workspace" style={{ flex: 1, position: 'relative', width: '100%', minHeight: '350px' }}>
+                <Editor
+                    height="100%"
+                    language={getMonacoLanguage(selectedLang)}
+                    theme="vs-dark"
+                    value={codeText}
+                    onChange={handleEditorChange}
+                    options={{
+                        fontSize: 14,
+                        minimap: { enabled: false },
+                        automaticLayout: true,
+                        scrollBeyondLastLine: false,
+                        tabSize: 4,
+                    }}
+                />
             </div>
         </section>
     );
