@@ -5,7 +5,10 @@ import {
     FaFire, 
     FaTrophy, 
     FaCode,
-    FaArrowRight
+    FaArrowRight,
+    FaLightbulb,
+    FaCalendarCheck,
+    FaExternalLinkAlt
 } from 'react-icons/fa';
 import './Dashboard.css';
 
@@ -13,23 +16,25 @@ function Dashboard() {
     const navigate = useNavigate();
     const [userEmail, setUserEmail] = useState('');
     const [userRole, setUserRole] = useState('user');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const email = localStorage.getItem('userEmail') || 'pavanisajjana18@gmail.com';
         const role = localStorage.getItem('userRole') || 'user';
         setUserEmail(email);
         setUserRole(role);
+        
+        const timer = setTimeout(() => setLoading(false), 400);
+        return () => clearTimeout(timer);
     }, []);
 
-    // Generate a full year (365 days) of heatmap data starting from August of last year
     const generateHeatmapData = () => {
         const days = [];
         const today = new Date();
         for (let i = 365; i >= 0; i--) {
             const d = new Date(today);
             d.setDate(today.getDate() - i);
-            // Randomly assign submission levels (0 to 4), keeping some sparsity
-            const count = Math.random() > 0.5 ? Math.floor(Math.random() * 5) : 0;
+            const count = Math.random() > 0.45 ? Math.floor(Math.random() * 5) : 0;
             days.push({ date: d.toDateString(), count });
         }
         return days;
@@ -37,7 +42,6 @@ function Dashboard() {
 
     const [heatmapDays] = useState(generateHeatmapData());
 
-    // Slice the 365 days into 12 month groups (approx 30-31 days each)
     const monthsData = [
         { name: 'Aug', days: heatmapDays.slice(0, 31) },
         { name: 'Sep', days: heatmapDays.slice(31, 61) },
@@ -53,13 +57,23 @@ function Dashboard() {
         { name: 'Jul', days: heatmapDays.slice(334, 365) }
     ];
 
+    if (loading) {
+        return (
+            <div className="dashboard-main-content">
+                <div className="skeleton-banner animate-pulse"></div>
+            </div>
+        );
+    }
+
     return (
-        <div className="dashboard-main-content">
+        <div className="dashboard-main-content animate-fade-in">
             {/* Top Welcome Banner */}
             <div className="dashboard-header glow-card">
                 <div className="welcome-text">
                     <h1>Welcome back, <span className="gradient-username">{userEmail.split('@')[0]}</span>! 🚀</h1>
-                    <p>Your consistency is key. Here is your DSA pulse and activity overview.</p>
+                    <p className="daily-quote">
+                        <FaLightbulb className="quote-icon" /> "Consistency is built one problem at a time. Keep your streak alive today!"
+                    </p>
                 </div>
                 <div className="user-profile-pill">
                     <span className={`role-badge ${userRole}`}>{userRole.toUpperCase()}</span>
@@ -78,8 +92,8 @@ function Dashboard() {
                         <p>Problems Solved</p>
                     </div>
                 </div>
-                <div className="stat-card glow-hover">
-                    <div className="stat-icon streak">
+                <div className="stat-card glow-hover streak-active-card">
+                    <div className="stat-icon streak flame-anim">
                         <FaFire />
                     </div>
                     <div className="stat-info">
@@ -98,8 +112,40 @@ function Dashboard() {
                 </div>
             </div>
 
+            {/* NEW: Daily Challenge & Continue Practice Grid */}
+            <div className="dashboard-content-grid top-gap">
+                <div className="content-card glow-hover potd-card">
+                    <div className="potd-badge"><FaCalendarCheck /> Problem of the Day</div>
+                    <h2>Sliding Window Maximum</h2>
+                    <p>Master array manipulation and deque data structures with today's featured challenge.</p>
+                    <div className="potd-meta">
+                        <span className="diff-tag hard">Hard</span>
+                        <span className="acceptance-rate">⚡ 48.2% Acceptance</span>
+                    </div>
+                    <button className="primary-action-btn ripple-btn" onClick={() => navigate('/problems')}>
+                        <span>Solve Challenge</span> <FaExternalLinkAlt size={12} />
+                    </button>
+                </div>
+
+                <div className="content-card glow-hover">
+                    <h2>DSA Progress Breakdown</h2>
+                    <div className="progress-item">
+                        <div className="progress-label"><span>Easy</span> <span>18 / 50</span></div>
+                        <div className="progress-bar"><div className="progress-fill easy animate-fill" style={{ width: '36%' }}></div></div>
+                    </div>
+                    <div className="progress-item">
+                        <div className="progress-label"><span>Medium</span> <span>20 / 80</span></div>
+                        <div className="progress-bar"><div className="progress-fill medium animate-fill" style={{ width: '25%' }}></div></div>
+                    </div>
+                    <div className="progress-item">
+                        <div className="progress-label"><span>Hard</span> <span>4 / 30</span></div>
+                        <div className="progress-bar"><div className="progress-fill hard animate-fill" style={{ width: '13%' }}></div></div>
+                    </div>
+                </div>
+            </div>
+
             {/* GitHub Style Submission Heatmap Section */}
-            <div className="content-card full-width-card">
+            <div className="content-card full-width-card top-gap">
                 <div className="section-header">
                     <h2><FaCode /> Code Activity Heatmap</h2>
                     <span className="heatmap-subtitle">Annual contribution overview</span>
@@ -135,28 +181,36 @@ function Dashboard() {
                 </div>
             </div>
 
-            {/* Recent Activity / Quick Actions Section */}
-            <div className="dashboard-content-grid">
-                <div className="content-card glow-hover">
-                    <h2>Continue Practice</h2>
-                    <p>Pick up right where you left off in your data structures and algorithms mastery path.</p>
-                    <button className="primary-action-btn" onClick={() => navigate('/problems')}>
-                        <span>Go to Problem Set</span> <FaArrowRight />
-                    </button>
+            {/* NEW: Recent Submissions Activity Feed */}
+            <div className="content-card full-width-card">
+                <div className="section-header">
+                    <h2>Recent Submissions</h2>
+                    <button className="text-btn" onClick={() => navigate('/problems')}>View All</button>
                 </div>
-                <div className="content-card glow-hover">
-                    <h2>DSA Progress Breakdown</h2>
-                    <div className="progress-item">
-                        <div className="progress-label"><span>Easy</span> <span>18 / 50</span></div>
-                        <div className="progress-bar"><div className="progress-fill easy" style={{ width: '36%' }}></div></div>
+                <div className="activity-feed">
+                    <div className="activity-item">
+                        <div className="activity-status success"><FaCheckCircle /></div>
+                        <div className="activity-details">
+                            <h4>Valid Parentheses</h4>
+                            <span>Accepted • JavaScript • 2 hours ago</span>
+                        </div>
+                        <span className="activity-diff easy">Easy</span>
                     </div>
-                    <div className="progress-item">
-                        <div className="progress-label"><span>Medium</span> <span>20 / 80</span></div>
-                        <div className="progress-bar"><div className="progress-fill medium" style={{ width: '25%' }}></div></div>
+                    <div className="activity-item">
+                        <div className="activity-status success"><FaCheckCircle /></div>
+                        <div className="activity-details">
+                            <h4>Longest Substring Without Repeating Characters</h4>
+                            <span>Accepted • JavaScript • Yesterday</span>
+                        </div>
+                        <span className="activity-diff medium">Medium</span>
                     </div>
-                    <div className="progress-item">
-                        <div className="progress-label"><span>Hard</span> <span>4 / 30</span></div>
-                        <div className="progress-bar"><div className="progress-fill hard" style={{ width: '13%' }}></div></div>
+                    <div className="activity-item">
+                        <div className="activity-status success"><FaCheckCircle /></div>
+                        <div className="activity-details">
+                            <h4>Merge Two Sorted Lists</h4>
+                            <span>Accepted • JavaScript • 3 days ago</span>
+                        </div>
+                        <span className="activity-diff easy">Easy</span>
                     </div>
                 </div>
             </div>
