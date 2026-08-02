@@ -592,3 +592,19 @@
 .text-btn:hover {
     text-decoration: underline;
 }
+
+/* Language Progress Bar Colors */
+.progress-fill.language-js { 
+    background: #f7df1e; 
+    box-shadow: 0 0 10px rgba(247, 223, 30, 0.4); 
+}
+
+.progress-fill.language-python { 
+    background: #3874a8; 
+    box-shadow: 0 0 10px rgba(56, 116, 168, 0.4); 
+}
+
+.progress-fill.language-cpp { 
+    background: #00599c; 
+    box-shadow: 0 0 10px rgba(0, 89, 156, 0.4); 
+}

@@ -5,10 +5,9 @@ import {
     FaFire, 
     FaTrophy, 
     FaCode,
-    FaArrowRight,
-    FaLightbulb,
     FaCalendarCheck,
-    FaExternalLinkAlt
+    FaExternalLinkAlt,
+    FaLightbulb
 } from 'react-icons/fa';
 import './Dashboard.css';
 
@@ -112,7 +111,7 @@ function Dashboard() {
                 </div>
             </div>
 
-            {/* NEW: Daily Challenge & Continue Practice Grid */}
+            {/* Daily Challenge & Progress Grid */}
             <div className="dashboard-content-grid top-gap">
                 <div className="content-card glow-hover potd-card">
                     <div className="potd-badge"><FaCalendarCheck /> Problem of the Day</div>
@@ -140,6 +139,53 @@ function Dashboard() {
                     <div className="progress-item">
                         <div className="progress-label"><span>Hard</span> <span>4 / 30</span></div>
                         <div className="progress-bar"><div className="progress-fill hard animate-fill" style={{ width: '13%' }}></div></div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Language Usage & Additional Metrics Grid */}
+            <div className="dashboard-content-grid top-gap">
+                <div className="content-card glow-hover">
+                    <h2><FaCode /> Language Usage</h2>
+                    <p>Distribution of programming languages used in your recent submissions.</p>
+                    
+                    <div className="progress-item">
+                        <div className="progress-label">
+                            <span>JavaScript</span>
+                            <span>45% (120 solved)</span>
+                        </div>
+                        <div className="progress-bar">
+                            <div className="progress-fill language-js" style={{ width: '45%' }}></div>
+                        </div>
+                    </div>
+
+                    <div className="progress-item">
+                        <div className="progress-label">
+                            <span>Python</span>
+                            <span>35% (94 solved)</span>
+                        </div>
+                        <div className="progress-bar">
+                            <div className="progress-fill language-python" style={{ width: '35%' }}></div>
+                        </div>
+                    </div>
+
+                    <div className="progress-item">
+                        <div className="progress-label">
+                            <span>C++</span>
+                            <span>20% (54 solved)</span>
+                        </div>
+                        <div className="progress-bar">
+                            <div className="progress-fill language-cpp" style={{ width: '20%' }}></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="content-card glow-hover">
+                    <h2>Quick Summary</h2>
+                    <p>Keep pushing forward! You are matching weekly goals and closing in on higher global ranks.</p>
+                    <div className="stat-info" style={{ marginTop: '20px' }}>
+                        <h3 style={{ color: '#10b981', fontSize: '1.4rem' }}>Active & Consistent</h3>
+                        <p style={{ marginTop: '6px' }}>Your activity level puts you in the top tier of active platform coders this month.</p>
                     </div>
                 </div>
             </div>
@@ -181,7 +227,7 @@ function Dashboard() {
                 </div>
             </div>
 
-            {/* NEW: Recent Submissions Activity Feed */}
+            {/* Recent Submissions Activity Feed */}
             <div className="content-card full-width-card">
                 <div className="section-header">
                     <h2>Recent Submissions</h2>
