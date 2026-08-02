@@ -18,7 +18,8 @@ const MOCK_PROBLEMS = {
         exampleInput: "nums = [2,7,11,15], target = 9",
         exampleOutput: "[0,1]",
         explanation: "Because nums[0] + nums[1] == 9, we return [0, 1].",
-        testCases: [{ expectedOutput: "[0,1]" }, { expectedOutput: "[1,2]" }] 
+        testCases: [{ expectedOutput: "[0,1]" }, { expectedOutput: "[1,2]" }],
+        starterCode: "def twoSum(nums, target):\n    # Write your solution here\n    pass"
     },
     2: {
         id: 2,
@@ -29,7 +30,8 @@ const MOCK_PROBLEMS = {
         exampleInput: 's = "()[]{}"',
         exampleOutput: "true",
         explanation: "All brackets are closed sequentially in correct matching pairs.",
-        testCases: [{ expectedOutput: "true" }, { expectedOutput: "false" }]
+        testCases: [{ expectedOutput: "true" }, { expectedOutput: "false" }],
+        starterCode: "def isValid(s: str) -> bool:\n    # Write your stack logic here\n    pass"
     },
     3: {
         id: 3,
@@ -40,7 +42,8 @@ const MOCK_PROBLEMS = {
         exampleInput: 's = "abcabcbb"',
         exampleOutput: "3",
         explanation: "The answer is \"abc\", with the length of 3.",
-        testCases: [{ expectedOutput: "3" }, { expectedOutput: "1" }]
+        testCases: [{ expectedOutput: "3" }, { expectedOutput: "1" }],
+        starterCode: "def lengthOfLongestSubstring(s: str) -> int:\n    # Write your sliding window logic here\n    pass"
     }
 };
 
@@ -58,6 +61,13 @@ function ProblemDetails() {
     // Dynamic array tracker to manage solution submission history profiles
     const [submissionHistory, setSubmissionHistory] = useState([]);
     const [isSubmitTriggered, setIsSubmitTriggered] = useState(false);
+
+    // Automatically update code editor starter text when switching problems
+    useEffect(() => {
+        if (problem?.starterCode) {
+            setUserCode(problem.starterCode);
+        }
+    }, [currentId, problem]);
 
     // Initialize State Machine Hook
     const {
@@ -185,6 +195,7 @@ function ProblemDetails() {
                     <CodeEditor 
                         selectedLang={selectedLang} 
                         setSelectedLang={setSelectedLang} 
+                        value={userCode} 
                         onChange={(code) => setUserCode(code)} 
                     />
 

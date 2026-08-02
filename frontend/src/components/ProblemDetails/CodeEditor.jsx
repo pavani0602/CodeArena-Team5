@@ -10,18 +10,9 @@ const BOILERPLATE_DATA = {
     javascript: `function twoSum(nums, target) {\n    // Write your JavaScript code here\n    \n}`
 };
 
-function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
-    const [codeText, setCodeText] = useState(BOILERPLATE_DATA.python);
+function CodeEditor({ selectedLang, setSelectedLang, value, onChange }) {
     const [isConfirming, setIsConfirming] = useState(false);
     const timerRef = useRef(null);
-
-    // Swap boilerplate text cleanly whenever language changes
-    useEffect(() => {
-        const defaultCode = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
-        setCodeText(defaultCode);
-        if (onChange) onChange(defaultCode); 
-        setIsConfirming(false);
-    }, [selectedLang]);
 
     // Clean up timer on unmount
     useEffect(() => {
@@ -30,7 +21,6 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
 
     const handleEditorChange = (newValue) => {
         const text = newValue || '';
-        setCodeText(text);
         if (onChange) onChange(text);
     };
 
@@ -47,7 +37,7 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
         }
     };
 
-    // 🔄 Smooth Inline Reset Handler
+    // 🔄 Smooth Inline Reset Handler (Falls back to language boilerplate or problem starter code)
     const handleResetCode = () => {
         if (!isConfirming) {
             setIsConfirming(true);
@@ -62,7 +52,6 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
         setIsConfirming(false);
 
         const originalTemplate = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
-        setCodeText(originalTemplate);
         if (onChange) onChange(originalTemplate);
     };
 
@@ -115,7 +104,7 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange }) {
                     height="100%"
                     language={getMonacoLanguage(selectedLang)}
                     theme="vs-dark"
-                    value={codeText}
+                    value={value} // 👈 Controlled explicitly via parent prop sync
                     onChange={handleEditorChange}
                     options={{
                         fontSize: 14,
