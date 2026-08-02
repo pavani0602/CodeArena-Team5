@@ -133,3 +133,81 @@
         justify-content: space-between;
     }
 }
+
+.filter-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.topic-filter-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+}
+
+.topic-filter-row::-webkit-scrollbar {
+    height: 6px;
+}
+
+.topic-filter-row::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 3px;
+}
+
+.filter-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.topic-filter-row {
+    display: flex;
+    flex-wrap: wrap; /* 👈 This makes them wrap gracefully instead of overflowing */
+    gap: 8px;
+    width: 100%;
+    padding-top: 4px;
+    border-top: 1px solid #1f2937; /* Clean separator line above topics */
+}
+
+.filter-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.filter-top-row {
+    display: flex;
+    justify-content: space-between; /* Pushes Filter to left and Sort to right */
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    width: 100%;
+}
+
+.topic-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+    padding-top: 12px;
+    border-top: 1px solid #1f2937;
+}

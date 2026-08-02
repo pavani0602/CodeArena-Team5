@@ -9,6 +9,7 @@ function Problems() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDifficulty, setSelectedDifficulty] = useState("All");
+    const [selectedTopic, setSelectedTopic] = useState("All"); // 👈 1. Added topic state
     const [sortBy, setSortBy] = useState("latest");
     
     // Check if the current user is an admin
@@ -58,6 +59,8 @@ function Problems() {
                 <FilterBar 
                     selected={selectedDifficulty} 
                     onSelect={setSelectedDifficulty} 
+                    selectedTopic={selectedTopic}     
+                    onTopicSelect={setSelectedTopic}    
                     sortBy={sortBy}
                     onSortChange={setSortBy}
                 />
@@ -65,6 +68,7 @@ function Problems() {
                 <ProblemTable 
                     searchQuery={searchQuery} 
                     difficulty={selectedDifficulty} 
+                    selectedTopic={selectedTopic}         
                     sortBy={sortBy}
                     onRowClick={handleProblemSelect} 
                 />
