@@ -4,58 +4,97 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 320px;
+    max-height: 85vh; /* Prevents it from overflowing off screen */
     background: #111827; /* Dark charcoal slate */
     border-top: 2px solid #374151; /* Muted divider row border */
     display: flex;
     flex-direction: column;
     z-index: 999;
     box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.5);
+    overflow: hidden; /* Locks outer container */
 }
 
 /* Header Action Toolbar Strip */
 .console-header {
-    background: #1f2937;
-    padding: 10px 20px;
+    background: #0f172a;
+    padding: 10px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #374151;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.console-title {
+.console-title-group {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: #e5e7eb;
-    font-size: 0.9rem;
-    font-weight: 600;
+    gap: 20px;
 }
 
-.console-icon {
-    color: #10b981; /* Brand green theme spark color */
+.console-nav-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.console-nav-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8; /* Muted color for inactive tabs */
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.console-nav-btn:hover {
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.console-nav-btn.active {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+    color: #10b981 !important; /* Forces green text */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.console-nav-btn.active .nav-icon {
+    color: #10b981 !important; /* Forces green icon */
+}
+
+.nav-icon {
+    font-size: 0.9rem;
 }
 
 .console-close-btn {
     background: transparent;
     border: none;
-    color: #9ca3af;
+    color: #64748b;
     cursor: pointer;
-    font-size: 1.1rem;
-    transition: color 0.2s ease;
+    font-size: 1rem;
+    padding: 6px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
 }
 
 .console-close-btn:hover {
-    color: #f3f4f6;
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
 }
 
 /* Base Body Pane Window Content Configuration */
 .console-body {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
+    padding: 16px;
+    overflow-y: auto !important; /* Forces scroll behavior */
+    flex: 1 1 auto;
+    max-height: calc(85vh - 60px); /* Leaves room for the header */
     color: #d1d5db;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -160,40 +199,95 @@
     margin-top: 10px;
 }
 
-/* Split Compare Windows for Failed Diagnostic States */
-.diff-analysis-grid {
-    display: flex;
-    gap: 16px;
-    flex: 1;
-}
-
-.diff-card {
-    flex: 1;
+/* Compiler Error Box with Line Highlight */
+.compiler-error-box {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 12px;
     display: flex;
     flex-direction: column;
+    gap: 8px;
 }
 
-.diff-card h4 {
-    font-size: 0.8rem;
-    color: #9ca3af;
-    margin-bottom: 6px;
-    font-weight: 600;
+.error-line-badge {
+    align-self: flex-start;
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
 }
 
-.diff-box {
-    background: #030712;
-    border: 1px solid #1f2937;
-    border-radius: 6px;
-    padding: 12px;
-    font-family: monospace;
+/* Verdict Table Styles */
+.verdict-table-wrapper {
+    margin-top: 16px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 24px; /* Extra padding at the bottom so the last row is fully visible */
+}
+
+.verdict-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
     font-size: 0.85rem;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
 }
 
-.expected-box { border-left: 3px solid #10b981; color: #10b981; }
-.actual-box { border-left: 3px solid #ef4444; color: #ef4444; }
+.verdict-table th {
+    background: #1e293b;
+    color: #94a3b8;
+    padding: 10px 14px;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.verdict-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+}
+
+.verdict-table tr:last-child td {
+    border-bottom: none;
+}
+
+.row-pass {
+    background: rgba(16, 185, 129, 0.02);
+}
+
+.row-fail {
+    background: rgba(239, 68, 68, 0.03);
+}
+
+/* Badges */
+.badge-pass {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #10b981;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+}
+
+.badge-fail {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #ef4444;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+}
 
 /* Metrics Panels for Successful Executions */
 .metrics-row-display {
@@ -227,6 +321,58 @@
     color: #10b981;
 }
 
+/* Test Cases Panel View */
+.test-cases-panel-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tc-tabs-row {
+    display: flex;
+    gap: 8px;
+}
+
+.tc-pill-tab {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #94a3b8;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.tc-pill-tab.active {
+    background: #334155;
+    color: #ffffff;
+    border-color: #10b981;
+}
+
+.tc-content-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tc-field-group label {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.tc-code-block {
+    background: #0b0f19;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 10px 14px;
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+}
+
 /* Layout Keyframe System Animations */
 @keyframes spin {
     from { transform: rotate(0deg); }
@@ -241,17 +387,28 @@
     from { transform: translateY(100%); }
     to { transform: translateY(0); }
 }
-
+/* Core Overlay Floating Drawer Layout Container */
 .console-drawer-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%; /* Spans 100% of the editor column container now, not the whole screen! */
-    height: 320px;
+    width: 100%;
+    height: 320px; /* Lock a fixed height */
+    max-height: 320px; /* Prevent it from expanding */
     background: #111827; 
     border-top: 2px solid #374151; 
     display: flex;
     flex-direction: column;
     z-index: 999;
     box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.5);
+    overflow: hidden; /* Contains children inside the fixed box */
+}
+
+/* Base Body Pane Window Content Configuration */
+.console-body {
+    padding: 16px;
+    overflow-y: auto !important; /* Enables smooth scrolling when content overflows */
+    flex: 1;
+    color: #d1d5db;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
