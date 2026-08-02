@@ -197,6 +197,7 @@ function ProblemDetails() {
                         setSelectedLang={setSelectedLang} 
                         value={userCode} 
                         onChange={(code) => setUserCode(code)} 
+                        compileError={feedback?.isError ? { line: feedback.errorLine, message: feedback.message } : null}
                     />
 
                     <ConsoleDrawer 

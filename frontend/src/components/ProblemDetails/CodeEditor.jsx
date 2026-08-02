@@ -10,14 +10,46 @@ const BOILERPLATE_DATA = {
     javascript: `function twoSum(nums, target) {\n    // Write your JavaScript code here\n    \n}`
 };
 
-function CodeEditor({ selectedLang, setSelectedLang, value, onChange }) {
+function CodeEditor({ selectedLang, setSelectedLang, value, onChange, compileError }) {
     const [isConfirming, setIsConfirming] = useState(false);
     const timerRef = useRef(null);
+    const editorRef = useRef(null);
+    const monacoRef = useRef(null);
 
     // Clean up timer on unmount
     useEffect(() => {
         return () => { if (timerRef.current) clearTimeout(timerRef.current); };
     }, []);
+
+    const handleEditorDidMount = (editor, monaco) => {
+        editorRef.current = editor;
+        monacoRef.current = monaco;
+    };
+
+    // Watch for compile errors and apply line markers/decorations in Monaco
+    useEffect(() => {
+        if (!editorRef.current || !monacoRef.current) return;
+
+        const model = editorRef.current.getModel();
+        if (!model) return;
+
+        if (compileError && compileError.line) {
+            // Set error squiggly lines and warning flags on the specific line number
+            monacoRef.current.editor.setModelMarkers(model, "compiler", [
+                {
+                    startLineNumber: compileError.line,
+                    startColumn: compileError.column || 1,
+                    endLineNumber: compileError.line,
+                    endColumn: compileError.endColumn || 1000,
+                    message: compileError.message || "Compilation Error",
+                    severity: monacoRef.current.MarkerSeverity.Error,
+                }
+            ]);
+        } else {
+            // Clear markers if there is no error
+            monacoRef.current.editor.setModelMarkers(model, "compiler", []);
+        }
+    }, [compileError]);
 
     const handleEditorChange = (newValue) => {
         const text = newValue || '';
@@ -37,7 +69,7 @@ function CodeEditor({ selectedLang, setSelectedLang, value, onChange }) {
         }
     };
 
-    // 🔄 Smooth Inline Reset Handler (Falls back to language boilerplate or problem starter code)
+    // 🔄 Smooth Inline Reset Handler
     const handleResetCode = () => {
         if (!isConfirming) {
             setIsConfirming(true);
@@ -53,6 +85,12 @@ function CodeEditor({ selectedLang, setSelectedLang, value, onChange }) {
 
         const originalTemplate = BOILERPLATE_DATA[selectedLang] || BOILERPLATE_DATA.python;
         if (onChange) onChange(originalTemplate);
+        
+        // Clear markers on reset
+        if (editorRef.current && monacoRef.current) {
+            const model = editorRef.current.getModel();
+            if (model) monacoRef.current.editor.setModelMarkers(model, "compiler", []);
+        }
     };
 
     return (
@@ -104,8 +142,9 @@ function CodeEditor({ selectedLang, setSelectedLang, value, onChange }) {
                     height="100%"
                     language={getMonacoLanguage(selectedLang)}
                     theme="vs-dark"
-                    value={value} // 👈 Controlled explicitly via parent prop sync
+                    value={value} 
                     onChange={handleEditorChange}
+                    onMount={handleEditorDidMount}
                     options={{
                         fontSize: 14,
                         minimap: { enabled: false },
