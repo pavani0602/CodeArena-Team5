@@ -16,11 +16,14 @@
     font-weight: 700;
     color: #94a3b8;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .test-case-tabs {
     display: flex;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
 .tc-tab-btn {
@@ -68,4 +71,47 @@
     border-radius: 6px;
     color: #e2e8f0;
     font-size: 0.82rem;
+    overflow-x: auto;
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .test-case-body {
+        padding: 12px 14px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .test-case-header {
+        padding: 8px 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .test-case-tabs {
+        width: 100%;
+        gap: 4px;
+    }
+
+    .tc-tab-btn {
+        flex: 1;
+        text-align: center;
+        padding: 6px 8px;
+    }
+
+    .test-case-body {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .tc-box {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
 }

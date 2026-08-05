@@ -13,6 +13,7 @@
   max-width: var(--container-width);
   margin: 2rem auto;
   padding: 0 1.5rem;
+  box-sizing: border-box;
 }
 
 /* --- Entry Animation --- */
@@ -45,6 +46,7 @@
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  flex-wrap: wrap;
 }
 
 .main-trophy-icon {
@@ -81,6 +83,7 @@
 .filter-group {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .filter-tab-btn {
@@ -95,6 +98,7 @@
   font-weight: 500;
   font-size: 0.9rem;
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .filter-tab-btn:hover {
@@ -127,6 +131,7 @@
   position: absolute;
   left: 12px;
   color: var(--text-secondary);
+  pointer-events: none;
 }
 
 .search-box input {
@@ -181,7 +186,7 @@
   background: var(--surface);
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  overflow: hidden;
+  overflow-x: auto;
   box-shadow: var(--shadow);
 }
 
@@ -189,6 +194,7 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  min-width: 600px;
 }
 
 .leaderboard-table th {
@@ -272,6 +278,7 @@
   justify-content: center;
   font-size: 0.85rem;
   border: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .username-text {
@@ -351,24 +358,6 @@
   text-align: center;
   color: var(--text-secondary);
   padding: 3rem !important;
-}
-
-/* --- Responsiveness --- */
-@media (max-width: 768px) {
-  .leaderboard-control-panel {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .right-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-box input, 
-  .lang-dropdown {
-    width: 100%;
-  }
 }
 
 /* ==========================================================================
@@ -540,7 +529,7 @@
   border-radius: 8px 8px 0 0;
   border: 1px solid var(--border);
   border-bottom: none;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* 1st Place is highest, then 2nd, then 3rd */
@@ -587,7 +576,24 @@
   color: var(--text-secondary);
 }
 
-/* Responsive Podium Shifts for Smaller Devices */
+/* --- Responsiveness --- */
+@media (max-width: 768px) {
+  .leaderboard-control-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .right-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box input, 
+  .lang-dropdown {
+    width: 100%;
+  }
+}
+
 @media (max-width: 640px) {
   .podium-stage-container {
     flex-direction: column;
@@ -597,6 +603,7 @@
   
   .podium-card {
     width: 100%;
+    max-width: 100%;
     order: unset !important; /* Stack normally */
   }
 

@@ -4,7 +4,8 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    max-height: 85vh; /* Prevents it from overflowing off screen */
+    height: 320px; /* Locked fixed height */
+    max-height: 85vh; /* Safe fallback for smaller viewports */
     background: #111827; /* Dark charcoal slate */
     border-top: 2px solid #374151; /* Muted divider row border */
     display: flex;
@@ -22,6 +23,8 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .console-title-group {
@@ -33,6 +36,7 @@
 .console-nav-tabs {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .console-nav-btn {
@@ -92,9 +96,9 @@
 /* Base Body Pane Window Content Configuration */
 .console-body {
     padding: 16px;
-    overflow-y: auto !important; /* Forces scroll behavior */
-    flex: 1 1 auto;
-    max-height: calc(85vh - 60px); /* Leaves room for the header */
+    overflow-y: auto !important; /* Enables smooth scrolling when content overflows */
+    flex: 1;
+    max-height: calc(320px - 50px); /* Leaves room for the header inside fixed bounds */
     color: #d1d5db;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -141,6 +145,7 @@
 /* Progress Pipeline Trackers */
 .progress-bar-wrapper {
     width: 320px;
+    max-width: 100%;
     margin-top: 20px;
 }
 
@@ -294,6 +299,7 @@
     display: flex;
     gap: 16px;
     margin-top: 10px;
+    flex-wrap: wrap;
 }
 
 .metric-score-card {
@@ -304,6 +310,7 @@
     display: flex;
     flex-direction: column;
     min-width: 140px;
+    flex: 1;
 }
 
 .metric-label {
@@ -331,6 +338,7 @@
 .tc-tabs-row {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .tc-pill-tab {
@@ -371,6 +379,7 @@
     border-radius: 6px;
     color: #e2e8f0;
     font-size: 0.85rem;
+    overflow-x: auto;
 }
 
 /* Layout Keyframe System Animations */
@@ -387,28 +396,58 @@
     from { transform: translateY(100%); }
     to { transform: translateY(0); }
 }
-/* Core Overlay Floating Drawer Layout Container */
-.console-drawer-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 320px; /* Lock a fixed height */
-    max-height: 320px; /* Prevent it from expanding */
-    background: #111827; 
-    border-top: 2px solid #374151; 
-    display: flex;
-    flex-direction: column;
-    z-index: 999;
-    box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.5);
-    overflow: hidden; /* Contains children inside the fixed box */
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .console-drawer-overlay {
+        height: 300px;
+    }
 }
 
-/* Base Body Pane Window Content Configuration */
-.console-body {
-    padding: 16px;
-    overflow-y: auto !important; /* Enables smooth scrolling when content overflows */
-    flex: 1;
-    color: #d1d5db;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .console-drawer-overlay {
+        height: 340px;
+    }
+
+    .console-header {
+        padding: 8px 12px;
+    }
+
+    .console-title-group {
+        width: 100%;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .console-nav-tabs {
+        width: 100%;
+        gap: 4px;
+    }
+
+    .console-nav-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 6px 8px;
+        font-size: 0.78rem;
+    }
+
+    .console-body {
+        padding: 12px;
+        max-height: calc(340px - 80px);
+    }
+
+    .metrics-row-display {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .metric-score-card {
+        min-width: 100%;
+        padding: 10px 16px;
+    }
 }

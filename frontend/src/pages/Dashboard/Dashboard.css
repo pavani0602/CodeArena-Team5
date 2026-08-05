@@ -1,3 +1,7 @@
+/* ==========================================
+   Dashboard Main Layout & Animations
+   ========================================== */
+
 .dashboard-main-content {
     flex: 1;
     padding: 32px 48px;
@@ -45,6 +49,8 @@
     box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.1);
     position: relative;
     overflow: hidden;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .dashboard-header::after {
@@ -155,6 +161,7 @@
     align-items: center;
     justify-content: center;
     font-size: 1.35rem;
+    flex-shrink: 0;
 }
 
 .stat-icon.problems { background: rgba(16, 185, 129, 0.15); color: #10b981; }
@@ -196,6 +203,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .section-header h2 {
@@ -216,12 +225,13 @@
     color: #94a3b8;
 }
 
-/* Heatmap Layout with Fixed Months & No Overflow Space */
+/* Heatmap Layout */
 .heatmap-container {
     background: #0b0f19;
-    padding: 20px 20px;
+    padding: 20px;
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.04);
+    overflow-x: auto;
 }
 
 .heatmap-months-view {
@@ -229,6 +239,7 @@
     gap: 10px;
     justify-content: space-between;
     width: 100%;
+    min-width: 650px;
 }
 
 .heatmap-month-column {
@@ -339,7 +350,6 @@
 
 .primary-action-btn:hover .btn-arrow {
     transform: translateX(4px);
-    transition: transform 0.2s ease;
 }
 
 .btn-arrow {
@@ -386,106 +396,20 @@
 .progress-fill.medium { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
 .progress-fill.hard { background: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
 
-.heatmap-container {
-    background: #0b0f19;
-    padding: 20px 24px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+/* Language Progress Bar Colors */
+.progress-fill.language-js { 
+    background: #f7df1e; 
+    box-shadow: 0 0 10px rgba(247, 223, 30, 0.4); 
 }
 
-.heatmap-months-view {
-    display: flex;
-    gap: 14px;
-    overflow-x: auto;
-    padding-bottom: 12px;
-    justify-content: flex-start;
+.progress-fill.language-python { 
+    background: #3874a8; 
+    box-shadow: 0 0 10px rgba(56, 116, 168, 0.4); 
 }
 
-.heatmap-month-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-.heatmap-grid-mini {
-    display: grid;
-    grid-template-rows: repeat(7, 11px);
-    grid-auto-flow: column;
-    gap: 4px;
-}
-
-.heatmap-month-label {
-    font-size: 0.72rem;
-    color: #94a3b8;
-    text-align: center;
-}
-
-.heatmap-cell {
-    width: 11px;
-    height: 11px;
-    border-radius: 2px;
-    background-color: #161b22;
-    transition: transform 0.15s ease, outline 0.15s ease;
-}
-
-.heatmap-cell:hover {
-    transform: scale(1.3);
-    outline: 1px solid #ffffff;
-    z-index: 10;
-}
-
-/* Activity Levels */
-.heatmap-cell.level-0 { background-color: #161b22; }
-.heatmap-cell.level-1 { background-color: #0e4429; }
-.heatmap-cell.level-2 { background-color: #006d32; }
-.heatmap-cell.level-3 { background-color: #26a641; }
-.heatmap-cell.level-4 { background-color: #39d353; box-shadow: 0 0 6px rgba(57, 211, 83, 0.4); }
-
-.heatmap-legend {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 10px;
-    font-size: 0.75rem;
-    color: #94a3b8;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
-    padding-top: 12px;
-}
-
-.legend-cells {
-    display: flex;
-    gap: 5px;
-}
-
-.legend-cells .heatmap-cell {
-    width: 11px;
-    height: 11px;
-}
-
-.heatmap-container {
-    background: #0b0f19;
-    padding: 20px 20px; /* Reduced right/left padding slightly */
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    overflow-x: auto; /* Moves scrollbar to the card if screen is narrow */
-}
-
-.heatmap-months-view {
-    display: flex;
-    gap: 10px; /* Tighter gap between months to eliminate wide empty spaces */
-    justify-content: space-between; /* Distributes the 12 months evenly across the container */
-    width: 100%;
-}
-
-.heatmap-month-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    flex: 1; /* Ensures all months share space equally */
+.progress-fill.language-cpp { 
+    background: #00599c; 
+    box-shadow: 0 0 10px rgba(0, 89, 156, 0.4); 
 }
 
 .top-gap {
@@ -520,6 +444,7 @@
     margin-bottom: 20px;
     font-size: 0.8rem;
     color: #94a3b8;
+    flex-wrap: wrap;
 }
 
 .diff-tag {
@@ -549,6 +474,7 @@
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.04);
     transition: all 0.2s ease;
+    gap: 12px;
 }
 
 .activity-item:hover {
@@ -593,18 +519,36 @@
     text-decoration: underline;
 }
 
-/* Language Progress Bar Colors */
-.progress-fill.language-js { 
-    background: #f7df1e; 
-    box-shadow: 0 0 10px rgba(247, 223, 30, 0.4); 
+/* ==========================================
+   Responsive Adaptations
+   ========================================== */
+
+@media (max-width: 1024px) {
+    .dashboard-main-content {
+        padding: 24px;
+    }
 }
 
-.progress-fill.language-python { 
-    background: #3874a8; 
-    box-shadow: 0 0 10px rgba(56, 116, 168, 0.4); 
-}
+@media (max-width: 768px) {
+    .dashboard-main-content {
+        padding: 16px;
+    }
 
-.progress-fill.language-cpp { 
-    background: #00599c; 
-    box-shadow: 0 0 10px rgba(0, 89, 156, 0.4); 
+    .dashboard-header {
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .welcome-text h1 {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 }

@@ -12,6 +12,7 @@
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .section-header-title h3 {
@@ -74,6 +75,8 @@
     cursor: pointer;
     font-size: 0.9rem;
     text-align: left;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .hint-card-header:hover {
@@ -159,6 +162,8 @@
     gap: 8px;
     align-items: center;
     margin-top: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .success-sub-text {
@@ -200,6 +205,7 @@
     border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 500;
+    flex-wrap: wrap;
 }
 
 .success-icon {
@@ -258,4 +264,49 @@
 
 .animate-fadeIn {
     animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .hints-editorial-container {
+        padding: 1.25rem;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .hints-editorial-container {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .editorial-lock-box {
+        padding: 1.25rem 1rem;
+    }
+
+    .editorial-lock-box p {
+        max-width: 100%;
+    }
+
+    .hint-card-header {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .hint-card-body {
+        padding: 0 0.75rem 0.75rem 0.75rem;
+        font-size: 0.82rem;
+    }
+
+    .code-snippet-box {
+        padding: 0.75rem;
+    }
+
+    .code-snippet-box pre {
+        font-size: 0.8rem;
+    }
 }

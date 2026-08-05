@@ -47,6 +47,7 @@
     font-size: 0.8rem;
     font-weight: 600;
     display: inline-block;
+    white-space: nowrap;
 }
 
 .difficulty-badge.easy {
@@ -78,10 +79,39 @@
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .solve-btn:hover {
     background: #10b981;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .problem-title {
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .problem-title {
+        font-size: 0.85rem;
+    }
+
+    .difficulty-badge {
+        padding: 3px 10px;
+        font-size: 0.75rem;
+    }
+
+    .solve-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
 }

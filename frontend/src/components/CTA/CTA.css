@@ -40,21 +40,49 @@
     box-shadow: var(--shadow);
 }
 
-@media (max-width: 768px) {
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
 
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
     .cta {
-        padding: 70px 0;
+        padding: 60px 0;
     }
 
     .cta-content {
-        padding: 50px 24px;
+        padding: 60px 32px;
     }
 
     .cta-content h2 {
-        font-size: 2rem;
+        font-size: 2.25rem;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .cta {
+        padding: 40px 0;
+    }
+
+    .cta-content {
+        padding: 40px 20px;
+        border-radius: calc(var(--radius) - 2px);
+    }
+
+    .cta-content h2 {
+        font-size: 1.75rem;
+        margin-bottom: 16px;
     }
 
     .cta-content p {
-        font-size: 1rem;
+        font-size: 0.95rem;
+        margin-bottom: 28px;
+    }
+
+    .cta-button {
+        width: 100%;
+        text-align: center;
+        padding: 12px 24px;
     }
 }

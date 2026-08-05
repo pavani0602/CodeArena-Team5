@@ -1,59 +1,60 @@
 .problem-description{
     background: var(--surface);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:30px;
-    margin-bottom:25px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 25px;
 }
 
 .problem-header h1{
-    color:var(--text-primary);
-    font-size:2rem;
-    margin-bottom:15px;
+    color: var(--text-primary);
+    font-size: 2rem;
+    margin-bottom: 15px;
 }
 
 .problem-meta{
-    display:flex;
-    gap:12px;
-    margin-bottom:25px;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
 }
 
 .tag{
-    background:rgba(255,255,255,.05);
-    color:var(--text-secondary);
-    padding:6px 14px;
-    border-radius:999px;
-    font-size:.85rem;
+    background: rgba(255, 255, 255, .05);
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: .85rem;
 }
 
 .description{
-    color:var(--text-secondary);
-    line-height:1.8;
+    color: var(--text-secondary);
+    line-height: 1.8;
 }
 
 .description h3{
-    margin-top:28px;
-    margin-bottom:15px;
-    color:var(--text-primary);
+    margin-top: 28px;
+    margin-bottom: 15px;
+    color: var(--text-primary);
 }
 
 .example-box{
-    background:#111827;
-    border-radius:12px;
-    padding:18px;
-    border:1px solid var(--border);
+    background: #111827;
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid var(--border);
 }
 
 .example-box p{
-    margin:8px 0;
+    margin: 8px 0;
 }
 
 .description ul{
-    padding-left:22px;
+    padding-left: 22px;
 }
 
 .description li{
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
 
 .description-panel {
@@ -105,6 +106,7 @@
     font-size: 0.92rem;
     line-height: 1.6;
     color: #e2e8f0;
+    overflow-x: auto;
 }
 
 /* Emphasize Example interior variables */
@@ -112,6 +114,7 @@
     color: #94a3b8;
     font-weight: 600;
 }
+
 /* --- Submissions View Restructuring --- */
 .submissions-heading {
     font-size: 1.2rem;
@@ -124,7 +127,7 @@
     background: #090d16;
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    overflow: hidden;
+    overflow-x: auto;
 }
 
 .submissions-table {
@@ -178,9 +181,11 @@
     flex-shrink: 0;
 }
 
-.status-cell.accepted { color: #10b981; }
-.status-cell.wrong-answer { color: #ef4444; }
-.status-cell.time-limit-exceeded { color: #f59e0b; }
+.status-cell.accepted, .badge-accepted { color: #10b981; }
+.status-cell.wrong-answer, .badge-wrong-answer { color: #ef4444; }
+.status-cell.time-limit-exceeded, .badge-tle { color: #f59e0b; }
+.status-cell.memory-limit-exceeded, .badge-mle { color: #8b5cf6; }
+.status-cell.runtime-error, .badge-re { color: #ec4899; }
 
 /* Language Badge Layout Fixes */
 .lang-cell-badge {
@@ -202,7 +207,7 @@
 
 .submissions-subtitle {
     font-size: 0.85rem;
-    color: #64748b;
+    color: #10b981;
     margin-top: -14px;
     margin-bottom: 16px;
 }
@@ -290,27 +295,45 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-.submissions-subtitle {
-    color : #10B981;
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .problem-description {
+        padding: 20px;
+    }
 }
 
-/* Status badge styling for different verdicts */
-.status-cell.accepted, .badge-accepted {
-    color: #10b981;
-}
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .problem-description {
+        padding: 16px;
+        border-radius: 12px;
+    }
 
-.status-cell.wrong-answer, .badge-wrong-answer {
-    color: #ef4444;
-}
+    .problem-header h1 {
+        font-size: 1.5rem;
+    }
 
-.status-cell.time-limit-exceeded, .badge-tle {
-    color: #f59e0b;
-}
+    .panel-content h2 {
+        font-size: 1.3rem;
+    }
 
-.status-cell.memory-limit-exceeded, .badge-mle {
-    color: #8b5cf6;
-}
+    .submissions-table {
+        table-layout: auto; /* Allow auto layout on small viewports combined with wrapper scroll */
+        min-width: 500px;
+    }
 
-.status-cell.runtime-error, .badge-re {
-    color: #ec4899;
+    .submissions-table th, 
+    .submissions-table td {
+        padding: 12px 10px;
+        font-size: 0.85rem;
+    }
+
+    .example-block pre {
+        padding: 12px;
+        font-size: 0.85rem;
+    }
 }

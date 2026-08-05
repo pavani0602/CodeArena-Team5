@@ -48,6 +48,9 @@
     font-size: 1.05rem; /* Upgraded easily readable text font scale */
     line-height: 1.7;
     color: #e2e8f0; /* Default white token base fallback */
+    min-height: 100%;
+    width: 100%;
+    cursor: text; /* Changes cursor arrow into a standard typing selection marker */
 }
 
 .code-editor-view code {
@@ -110,17 +113,6 @@
     background: #1e293b;
     border-color: #10b981; /* Glow accent matching branding */
 }
-.code-editor-view {
-    min-height: 100%;
-    width: 100%;
-    cursor: text; /* Changes cursor arrow into a standard typing selection marker */
-}
-
-.reset-code-btn:hover {
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: #ef4444 !important; /* Changes text/icon red on hover */
-    border-color: rgba(239, 68, 68, 0.4) !important;
-}
 
 /* Layout wrapper for top right toolbar alignment */
 .editor-controls-right {
@@ -128,6 +120,7 @@
     align-items: center;
     gap: 10px;
     padding-right: 8px;
+    flex-wrap: wrap;
 }
 
 /* Base styling for the interactive Reset Button */
@@ -153,8 +146,8 @@
 /* Standard hover configuration state */
 .reset-code-btn:hover {
     background: rgba(255, 255, 255, 0.08);
-    color: #f1f5f9;
-    border-color: rgba(255, 255, 255, 0.25);
+    color: #ef4444; /* Changes text/icon red on hover */
+    border-color: rgba(239, 68, 68, 0.4);
 }
 
 /* Active pressed down shadow state depth */
@@ -182,4 +175,59 @@
 @keyframes microPulse {
     0% { transform: scale(1); }
     100% { transform: scale(1.02); }
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .code-editor-view {
+        padding: 20px 14px;
+        font-size: 1rem;
+    }
+
+    .line-numbers-sidebar {
+        padding: 20px 0;
+        width: 42px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .editor-panel {
+        min-height: 400px;
+    }
+
+    .code-editor-view {
+        padding: 16px 10px;
+        font-size: 0.95rem;
+    }
+
+    .line-numbers-sidebar {
+        width: 36px;
+        padding: 16px 0;
+        padding-right: 8px;
+    }
+
+    .line-number {
+        font-size: 0.85rem;
+    }
+
+    .editor-controls-right {
+        gap: 6px;
+        padding-right: 4px;
+    }
+
+    .lang-dropdown {
+        padding: 4px 28px 4px 10px;
+        font-size: 0.8rem;
+    }
+
+    .reset-code-btn {
+        height: 28px;
+        padding: 4px 8px;
+        font-size: 0.78rem;
+    }
 }
