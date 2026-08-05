@@ -35,20 +35,22 @@ public class ExecutionService {
 
     public ExecutionResult execute(String language, String sourceCode) {
 
-
+System.out.println("Language received: " + language);
     String normalized = language == null ? "" : language.toUpperCase(Locale.ROOT);
 
     return switch (normalized) {
-        case "PYTHON" -> executePython(sourceCode);
-        case "JAVA" -> executeJava(sourceCode);
-        case "CPP", "C++" -> executeCpp(sourceCode);
-        default -> new ExecutionResult(
-                JudgeVerdict.RUNTIME_ERROR,
-                "",
-                "Unsupported language: " + language,
-                0L
-        );
-    };
+    case "PYTHON" -> executePython(sourceCode);
+    case "JAVA" -> executeJava(sourceCode);
+    case "CPP", "C++" -> executeCpp(sourceCode);
+    case "JAVASCRIPT", "JS" -> executeJavaScript(sourceCode);
+
+    default -> new ExecutionResult(
+            JudgeVerdict.RUNTIME_ERROR,
+            "",
+            "Unsupported language: " + language,
+            0L
+    );
+};
 }
 
     private ExecutionResult executePython(String sourceCode) {
@@ -133,6 +135,39 @@ runBuilder.directory(tempDir.toFile());
             deleteDirectory(tempDir);
         }
     }
+    private ExecutionResult executeJavaScript(String sourceCode) {
+        System.out.println("Inside JavaScript execution");
+    Path tempDir = null;
+
+    try {
+        tempDir = Files.createTempDirectory("codearena-judge-js-");
+
+        Path sourceFile = tempDir.resolve("main.js");
+
+        Files.writeString(sourceFile, sourceCode);
+
+        ProcessBuilder runBuilder =
+                createDockerBuilder("node", "main.js");
+
+        runBuilder.directory(tempDir.toFile());
+
+        return runProcess(runBuilder, 5);
+
+    } catch (Exception e) {
+
+        return new ExecutionResult(
+                JudgeVerdict.RUNTIME_ERROR,
+                "",
+                e.getMessage(),
+                0L
+        );
+
+    } finally {
+
+        deleteDirectory(tempDir);
+
+    }
+}
 
     
     

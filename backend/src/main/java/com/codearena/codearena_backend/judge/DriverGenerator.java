@@ -12,11 +12,12 @@ public class DriverGenerator {
     public String generate(String language, String userCode, ProblemMetadata metadata, StructuredTestCase testCase) {
         String normalized = language == null ? "" : language.toUpperCase(Locale.ROOT);
         return switch (normalized) {
-            case "PYTHON" -> generatePython(userCode, metadata, testCase);
-            case "JAVA" -> generateJava(userCode, metadata, testCase);
-            case "CPP", "C++" -> generateCpp(userCode, metadata, testCase);
-            default -> throw new IllegalArgumentException("Unsupported language: " + language);
-        };
+    case "PYTHON" -> generatePython(userCode, metadata, testCase);
+    case "JAVA" -> generateJava(userCode, metadata, testCase);
+    case "CPP", "C++" -> generateCpp(userCode, metadata, testCase);
+    case "JAVASCRIPT", "JS" -> generateJavaScript(userCode, metadata, testCase);
+    default -> throw new IllegalArgumentException("Unsupported language: " + language);
+};
     }
 
     private String generatePython(String userCode, ProblemMetadata metadata, StructuredTestCase testCase) {
@@ -344,7 +345,125 @@ public class DriverGenerator {
             default -> throw new IllegalArgumentException("Unsupported C++ parameter type: " + type);
         };
     }
+    private String generateJavaScript(
+        String userCode,
+        ProblemMetadata metadata,
+        StructuredTestCase testCase) {
 
+   StringBuilder driver = new StringBuilder();
+
+boolean usesTreeNode = metadata.parameterTypes().contains("TreeNode");
+
+if (usesTreeNode) {
+    driver.append("""
+        class TreeNode {
+            constructor(val) {
+                this.val = val;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        function buildTree(values) {
+            if (!values || values.length === 0 || values[0] === null) {
+                return null;
+            }
+
+            let root = new TreeNode(values[0]);
+            let queue = [root];
+            let i = 1;
+
+            while (i < values.length) {
+
+                let current = queue.shift();
+
+                if (values[i] !== null && values[i] !== undefined) {
+                    current.left = new TreeNode(values[i]);
+                    queue.push(current.left);
+                }
+
+                i++;
+
+                if (i < values.length && values[i] !== null && values[i] !== undefined) {
+                    current.right = new TreeNode(values[i]);
+                    queue.push(current.right);
+                }
+
+                i++;
+            }
+
+            return root;
+        }
+
+        """);
+}
+
+// User's code
+driver.append(userCode).append("\n\n");
+
+    // Create variables from test case
+    for (int i = 0; i < metadata.parameterNames().size(); i++) {
+
+        String name = metadata.parameterNames().get(i);
+        String type = metadata.parameterTypes().get(i);
+        Object value = testCase.arguments().get(i);
+
+        driver.append("const ")
+              .append(name)
+              .append(" = ")
+              .append(toJavaScriptLiteral(value,type))
+              .append(";\n");
+    }
+
+    driver.append("\n");
+
+    // Call user function
+    boolean hasClass = userCode.contains("class Solution");
+
+if (hasClass) {
+
+    driver.append("const obj = new Solution();\n");
+
+    if ("Reverse String".equals(metadata.title())) {
+
+        driver.append("obj.reverseString(s);\n");
+        driver.append("const result = s;\n\n");
+
+    } else {
+
+        driver.append("const result = obj.")
+                .append(metadata.functionName())
+                .append("(")
+                .append(String.join(", ", metadata.parameterNames()))
+                .append(");\n\n");
+
+    }
+
+} else {
+
+    if ("Reverse String".equals(metadata.title())) {
+
+        driver.append("reverseString(s);\n");
+        driver.append("const result = s;\n\n");
+
+    } else {
+
+        driver.append("const result = ")
+                .append(metadata.functionName())
+                .append("(")
+                .append(String.join(", ", metadata.parameterNames()))
+                .append(");\n\n");
+
+    }
+
+}
+
+driver.append("console.log(JSON.stringify(result));");
+
+
+
+    return driver.toString();
+}
     private String toPythonLiteral(Object value) {
         if (value == null) return "None";
         if (value instanceof String s) return "'" + s.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n").replace("\r", "\\r") + "'";
@@ -407,8 +526,57 @@ public class DriverGenerator {
     private String escapeCppChar(String value) {
         return value.replace("\\", "\\\\").replace("'", "\\'");
     }
+    private String toJavaScriptLiteral(Object value, String type) {
+
+    if ("TreeNode".equals(type)) {
+        return "buildTree(" + toJavaScriptArray(value) + ")";
+    }
+
+    if (value == null)
+        return "null";
+
+    if (value instanceof String s)
+        return "\"" +
+                s.replace("\\", "\\\\")
+                 .replace("\"", "\\\"")
+                 .replace("\n", "\\n")
+                 .replace("\r", "\\r")
+                + "\"";
+
+    if (value instanceof List<?> list) {
+        return "[" +
+                list.stream()
+                    .map(item -> toJavaScriptLiteral(item, ""))
+                    .collect(Collectors.joining(","))
+                + "]";
+    }
+
+    if (value instanceof Boolean)
+        return value.toString();
+
+    if (value instanceof Double)
+        return value.toString();
+
+    if (value instanceof Float)
+        return value.toString();
+
+    return String.valueOf(value);
+}
+private String toJavaScriptArray(Object value) {
+
+    if (!(value instanceof List<?> list)) {
+        return "[]";
+    }
+
+    return "[" +
+            list.stream()
+                .map(item -> item == null ? "null" : String.valueOf(item))
+                .collect(Collectors.joining(","))
+            + "]";
+}
 
     private String joinList(Object value, java.util.function.Function<Object, String> mapper) {
         return ((List<?>) value).stream().map(mapper).collect(Collectors.joining(","));
     }
+    
 }
