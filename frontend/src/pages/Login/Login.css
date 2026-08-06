@@ -1,4 +1,6 @@
-/* Login.css */
+/* ==========================================
+   Login Page & Authentication Design System
+   ========================================== */
 
 .login-page {
     display: flex;
@@ -13,8 +15,7 @@
 .auth-container {
     display: flex;
     width: 100%;
-    /* Decreased max-width to make the box narrower */
-    max-width: 600px;
+    max-width: 850px; /* Expanded slightly to comfortably fit side panels */
     background: #111827;
     border-radius: 16px;
     overflow: hidden;
@@ -26,7 +27,6 @@
 .auth-left {
     flex: 1;
     background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-    /* Increased vertical padding to make it taller */
     padding: 60px 40px;
     display: flex;
     flex-direction: column;
@@ -76,12 +76,12 @@
 
 .feature svg {
     color: #10b981;
+    flex-shrink: 0;
 }
 
 /* Right Form Panel */
 .auth-right {
     flex: 1;
-    /* Increased vertical padding to match the taller height */
     padding: 60px 40px;
     display: flex;
     align-items: center;
@@ -169,10 +169,12 @@
     color: #10b981;
     text-decoration: none;
     font-size: 0.8rem;
+    transition: opacity 0.2s ease;
 }
 
 .forgot-link:hover {
     text-decoration: underline;
+    opacity: 0.85;
 }
 
 .input-box {
@@ -186,6 +188,7 @@
     left: 14px;
     color: #6b7280;
     font-size: 0.9rem;
+    pointer-events: none;
 }
 
 .input-box input {
@@ -197,7 +200,7 @@
     color: #ffffff;
     font-size: 0.95rem;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
 }
 
@@ -251,6 +254,17 @@
     margin-bottom: 16px;
 }
 
+/* Force Google OAuth wrapper/iframe centering */
+.google-auth-box > div {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+.google-auth-box iframe {
+    margin: 0 auto !important;
+}
+
 .auth-error-banner {
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.2);
@@ -278,30 +292,20 @@
     text-decoration: underline;
 }
 
-/* Responsive layout adjustments for smaller screens */
+/* ==========================================
+   Responsive Adaptations
+   ========================================== */
+
 @media (max-width: 768px) {
     .auth-left {
         display: none;
     }
+    
     .auth-container {
-        max-width: 420px;
+        max-width: 440px;
     }
-}
 
-/* 1. Make Forgot Password green */
-.forgot-link {
-    color: #10b981;
-    text-decoration: none;
-    font-size: 0.8rem;
-}
-
-/* Force the Google OAuth wrapper/iframe to center properly */
-.google-auth-box > div {
-    display: flex !important;
-    justify-content: center !important;
-    width: 100% !important;
-}
-
-.google-auth-box iframe {
-    margin: 0 auto !important;
+    .auth-right {
+        padding: 40px 24px;
+    }
 }

@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import Editor from '@monaco-editor/react';
 import './CodeEditor.css';
 import { FaCode, FaUndo, FaExclamationTriangle } from 'react-icons/fa';
 import { fetchApi } from '../../services/api';
-import Editor from '@monaco-editor/react';
 
 const FALLBACK_BOILERPLATE = {
     python: `def twoSum(nums, target):\n    # Write your Python code here\n    pass`,
@@ -11,11 +11,12 @@ const FALLBACK_BOILERPLATE = {
     javascript: `function twoSum(nums, target) {\n    // Write your JavaScript code here\n    \n}`
 };
 
-function CodeEditor({ selectedLang, setSelectedLang, onChange, problemTitle }) {
-    const [codeText, setCodeText] = useState(FALLBACK_BOILERPLATE.python);
+function CodeEditor({ selectedLang, setSelectedLang, value, onChange, compileError, problemTitle }) {
     const [boilerplateMap, setBoilerplateMap] = useState(FALLBACK_BOILERPLATE);
     const [isConfirming, setIsConfirming] = useState(false);
     const timerRef = useRef(null);
+    const editorRef = useRef(null);
+    const monacoRef = useRef(null);
 
     useEffect(() => {
         if (!problemTitle) return;
@@ -70,10 +71,17 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange, problemTitle }) {
 
     // Swap boilerplate text cleanly whenever language or boilerplateMap changes
     useEffect(() => {
+        // If there's no code provided yet (or on initial switch), set boilerplate
+        // Actually, if we switch languages we usually want to reset to boilerplate
         const defaultCode = boilerplateMap[selectedLang] || boilerplateMap.python;
-        setCodeText(defaultCode);
         if (onChange) onChange(defaultCode); 
         setIsConfirming(false); // Reset confirmation state if they switch languages
+        
+        // Clear markers on reset
+        if (editorRef.current && monacoRef.current) {
+            const model = editorRef.current.getModel();
+            if (model) monacoRef.current.editor.setModelMarkers(model, "compiler", []);
+        }
     }, [selectedLang]);
 
     // Clean up timer on unmount
@@ -81,19 +89,58 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange, problemTitle }) {
         return () => { if (timerRef.current) clearTimeout(timerRef.current); };
     }, []);
 
-    const handleEditorChange = (value) => {
-        const currentText = value || '';
-        setCodeText(currentText);
-        if (onChange) onChange(currentText); 
+    const handleEditorDidMount = (editor, monaco) => {
+        editorRef.current = editor;
+        monacoRef.current = monaco;
+    };
+
+    // Watch for compile errors and apply line markers/decorations in Monaco
+    useEffect(() => {
+        if (!editorRef.current || !monacoRef.current) return;
+
+        const model = editorRef.current.getModel();
+        if (!model) return;
+
+        if (compileError && compileError.line) {
+            // Set error squiggly lines and warning flags on the specific line number
+            monacoRef.current.editor.setModelMarkers(model, "compiler", [
+                {
+                    startLineNumber: compileError.line,
+                    startColumn: compileError.column || 1,
+                    endLineNumber: compileError.line,
+                    endColumn: compileError.endColumn || 1000,
+                    message: compileError.message || "Compilation Error",
+                    severity: monacoRef.current.MarkerSeverity.Error,
+                }
+            ]);
+        } else {
+            // Clear markers if there is no error
+            monacoRef.current.editor.setModelMarkers(model, "compiler", []);
+        }
+    }, [compileError]);
+
+    const handleEditorChange = (newValue) => {
+        const text = newValue || '';
+        if (onChange) onChange(text);
+    };
+
+    // Map application language keys to Monaco language identifiers
+    const getMonacoLanguage = (lang) => {
+        switch (lang?.toLowerCase()) {
+            case 'cpp':
+            case 'c++': return 'cpp';
+            case 'java': return 'java';
+            case 'python': return 'python';
+            case 'javascript':
+            case 'js': return 'javascript';
+            default: return 'javascript';
+        }
     };
 
     // 🔄 Smooth Inline Reset Handler
     const handleResetCode = () => {
         if (!isConfirming) {
-            // First click: prompt for confirmation inline
             setIsConfirming(true);
-            
-            // Auto-cancel confirmation after 4 seconds of inactivity
             if (timerRef.current) clearTimeout(timerRef.current);
             timerRef.current = setTimeout(() => {
                 setIsConfirming(false);
@@ -101,20 +148,21 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange, problemTitle }) {
             return;
         }
 
-        // Second click: perform the actual structural reset
         if (timerRef.current) clearTimeout(timerRef.current);
         setIsConfirming(false);
 
         const originalTemplate = boilerplateMap[selectedLang] || boilerplateMap.python;
-        setCodeText(originalTemplate);
         if (onChange) onChange(originalTemplate);
+        
+        // Clear markers on reset
+        if (editorRef.current && monacoRef.current) {
+            const model = editorRef.current.getModel();
+            if (model) monacoRef.current.editor.setModelMarkers(model, "compiler", []);
+        }
     };
 
-    // Dynamic line numbers based on code text row splits
-    const linesCount = codeText.split('\n').length || 1;
-
     return (
-        <section className="panel editor-panel">
+        <section className="panel editor-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div className="panel-tabs justify-between">
                 <div className="tab-left">
                     <button className="tab-item active"><FaCode size={13} /> Code</button>
@@ -125,7 +173,6 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange, problemTitle }) {
                         className={`reset-code-btn ${isConfirming ? 'confirm-mode' : ''}`}
                         onClick={handleResetCode}
                         onMouseLeave={() => {
-                            // Optional comfort feature: reset warning if mouse leaves button area long enough
                             if (isConfirming) {
                                 timerRef.current = setTimeout(() => setIsConfirming(false), 1500);
                             }
@@ -158,19 +205,21 @@ function CodeEditor({ selectedLang, setSelectedLang, onChange, problemTitle }) {
                 </div>
             </div>
             
-            <div className="editor-workspace" style={{ height: '500px', width: '100%' }}>
+            <div className="editor-workspace" style={{ flex: 1, position: 'relative', width: '100%', minHeight: '350px' }}>
                 <Editor
                     height="100%"
-                    language={selectedLang}
+                    language={getMonacoLanguage(selectedLang)}
                     theme="vs-dark"
-                    value={codeText}
+                    value={value} 
                     onChange={handleEditorChange}
+                    onMount={handleEditorDidMount}
                     options={{
                         minimap: { enabled: false },
                         fontSize: 14,
                         wordWrap: 'on',
                         scrollBeyondLastLine: false,
                         automaticLayout: true,
+                        tabSize: 4,
                     }}
                 />
             </div>

@@ -1,10 +1,7 @@
 .footer {
     background: var(--surface);
-
     border-top: 1px solid var(--border);
-
     margin-top: 80px;
-
     padding: 40px;
 }
 
@@ -12,7 +9,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     margin-bottom: 24px;
 }
 
@@ -48,4 +44,42 @@
 .arena {
     color: white;
     font-size: 1.5rem;
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .footer {
+        margin-top: 60px;
+        padding: 30px 24px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .footer {
+        margin-top: 40px;
+        padding: 24px 16px;
+    }
+
+    .top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px 24px;
+    }
+
+    .bottom p {
+        font-size: 0.85rem;
+    }
 }

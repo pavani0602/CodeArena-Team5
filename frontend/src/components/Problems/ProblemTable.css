@@ -21,6 +21,7 @@
     letter-spacing: 0.05em;
     padding: 16px 24px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
 }
 
 .problem-table td {
@@ -31,4 +32,38 @@
 /* Zebra striping for modern visual rhythm */
 .problem-table tbody tr:nth-child(even) {
     background-color: rgba(255, 255, 255, 0.01);
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .problem-table-container {
+        border-radius: 10px;
+    }
+
+    .problem-table th,
+    .problem-table td {
+        padding: 14px 18px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .problem-table-container {
+        border-radius: 8px;
+        overflow-x: auto; /* Enables smooth horizontal scrolling for small screens */
+    }
+
+    .problem-table {
+        min-width: 600px; /* Prevents cell cramping on mobile viewports */
+    }
+
+    .problem-table th,
+    .problem-table td {
+        padding: 12px 14px;
+        font-size: 0.85rem;
+    }
 }

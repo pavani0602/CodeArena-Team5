@@ -9,6 +9,7 @@ import { useSubmissionStateMachine } from '../../hooks/useSubmissionStateMachine
 import { fetchApi } from '../../services/api';
 import './ProblemDetails.css';
 
+
 function ProblemDetails() {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -68,6 +69,13 @@ function ProblemDetails() {
     // Dynamic array tracker to manage solution submission history profiles
     const [submissionHistory, setSubmissionHistory] = useState([]);
     const [isSubmitTriggered, setIsSubmitTriggered] = useState(false);
+
+    // Automatically update code editor starter text when switching problems
+    useEffect(() => {
+        if (problem?.starterCode) {
+            setUserCode(problem.starterCode);
+        }
+    }, [currentId, problem]);
 
     // Initialize State Machine Hook
     const {
@@ -201,8 +209,10 @@ function ProblemDetails() {
                     <CodeEditor 
                         selectedLang={selectedLang} 
                         setSelectedLang={setSelectedLang} 
+                        value={userCode} 
                         onChange={(code) => setUserCode(code)} 
                         problemTitle={problem.title}
+                        compileError={feedback?.isError ? { line: feedback.errorLine, message: feedback.message } : null}
                     />
 
                     <ConsoleDrawer 

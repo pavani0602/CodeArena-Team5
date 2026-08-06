@@ -1,28 +1,37 @@
 .filter-bar-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    background: var(--surface);
-    padding: 14px 24px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
+    flex-direction: column;
+    gap: 16px;
+    background-color: #111827;
+    background: var(--surface, #111827);
+    border: 1px solid var(--border, #1f2937);
+    border-radius: 12px;
+    padding: 16px 24px;
     margin-bottom: 24px;
+    box-shadow: var(--shadow, none);
+}
+
+.filter-top-row {
+    display: flex;
+    justify-content: space-between; /* Pushes Filter to left and Sort to right */
+    align-items: center;
     flex-wrap: wrap;
-    box-shadow: var(--shadow);
+    gap: 16px;
+    width: 100%;
 }
 
 .filter-group, .sort-group {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .filter-label {
     display: flex;
     align-items: center;
     gap: 6px;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #94a3b8);
     font-size: 0.9rem;
     font-weight: 500;
     text-transform: uppercase;
@@ -31,57 +40,66 @@
 
 .filter-label .icon {
     font-size: 0.85rem;
-    color: var(--primary);
+    color: var(--primary, #10b981);
 }
 
 /* --- Difficulty Filter Button Badges --- */
 .difficulty-filters {
     display: flex;
     gap: 8px;
-    background: transparent; /* Removed dark background container wrap */
-    padding: 0;               /* Removed inner framing pad */
-    border: none;            /* Removed the outer border outline */
+    background: transparent;
+    padding: 0;
+    border: none;
+    flex-wrap: wrap;
 }
 
-/* Optional: Give the passive buttons a light border or subtle surface background instead */
 .filter-btn {
     padding: 6px 16px;
     border-radius: 6px;
     font-size: 0.9rem;
     font-weight: 600;
-    background: rgba(255, 255, 255, 0.03); /* Gives individual buttons depth */
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-secondary, #94a3b8);
+    border: 1px solid var(--border, #334155);
     cursor: pointer;
-    transition: var(--transition);
+    transition: var(--transition, all 0.2s ease);
 }
 
 .filter-btn:hover {
-    color: var(--text-primary);
+    color: var(--text-primary, #f8fafc);
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-
 /* Custom design configurations when active */
 .filter-btn.active.all {
-    background: var(--border);
-    color: var(--text-primary);
+    background: var(--border, #334155);
+    color: var(--text-primary, #f8fafc);
 }
 
 .filter-btn.active.easy {
     background: rgba(16, 185, 129, 0.15);
-    color: var(--success);
+    color: var(--success, #10b981);
 }
 
 .filter-btn.active.medium {
     background: rgba(245, 158, 11, 0.15);
-    color: var(--warning);
+    color: var(--warning, #f59e0b);
 }
 
 .filter-btn.active.hard {
     background: rgba(239, 68, 68, 0.15);
-    color: var(--danger);
+    color: var(--danger, #ef4444);
+}
+
+/* --- Topic Filter Row --- */
+.topic-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+    padding-top: 12px;
+    border-top: 1px solid #1f2937;
 }
 
 /* --- Sort Dropdown Styling --- */
@@ -93,19 +111,19 @@
     appearance: none;
     -webkit-appearance: none;
     background: rgba(15, 23, 42, 0.4);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
+    border: 1px solid var(--border, #334155);
+    color: var(--text-primary, #f8fafc);
     padding: 8px 36px 8px 16px;
     border-radius: 8px;
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    transition: var(--transition);
+    transition: var(--transition, all 0.2s ease);
     outline: none;
 }
 
 .sort-select:focus {
-    border-color: var(--primary);
+    border-color: var(--primary, #10b981);
     box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
 }
 
@@ -113,7 +131,7 @@
 .sort-select-wrapper::after {
     content: "▾";
     font-size: 0.8rem;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #94a3b8);
     position: absolute;
     right: 14px;
     top: 50%;
@@ -121,15 +139,58 @@
     pointer-events: none;
 }
 
-/* Responsive adjustment */
-@media (max-width: 680px) {
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
     .filter-bar-container {
+        padding: 14px 18px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .filter-bar-container {
+        padding: 14px;
+        gap: 12px;
+    }
+
+    .filter-top-row {
         flex-direction: column;
         align-items: flex-start;
-        gap: 16px;
+        gap: 14px;
     }
+
     .filter-group, .sort-group {
         width: 100%;
         justify-content: space-between;
+    }
+
+    .difficulty-filters {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .filter-btn {
+        width: 100%;
+        text-align: center;
+        padding: 6px 10px;
+    }
+
+    .sort-select-wrapper {
+        width: 100%;
+    }
+
+    .sort-select {
+        width: 100%;
+    }
+
+    .topic-filter-row {
+        gap: 6px;
+        padding-top: 10px;
     }
 }

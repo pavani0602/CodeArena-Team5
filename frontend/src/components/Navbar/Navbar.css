@@ -198,9 +198,10 @@
 .dropdown-item.logout-btn:hover {
     background: rgba(239, 68, 68, 0.05);
 }
+
 /* 👤 Specific Profile Trigger Fixes */
 .navbar .right button.profile-trigger-btn {
-    background: #1f2937 !important; /* Elegant dark slate gray tile */
+    background: #1f2937 !important;
     color: #e2e8f0 !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     padding: 8px 14px !important;
@@ -262,7 +263,7 @@
     margin: 6px 0 !important;
 }
 
-/* 🔗 Standard Row Items (Links and Buttons alike) */
+/* 🔗 Standard Row Items */
 .dropdown-item {
     display: flex !important;
     align-items: center !important;
@@ -285,10 +286,10 @@
     color: #ffffff !important;
 }
 
-/* 🚪 Completely Reset the Logout Button Block */
+/* 🚪 Logout Button Block */
 .navbar .right button.dropdown-logout-action {
     background: transparent !important;
-    color: #ef4444 !important; /* Beautiful crisp destructive red text */
+    color: #ef4444 !important;
     border: none !important;
     padding: 10px 16px !important;
     width: 100% !important;
@@ -305,4 +306,54 @@
 .navbar .right button.dropdown-logout-action:hover {
     background: rgba(239, 68, 68, 0.08) !important;
     color: #f87171 !important;
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .navbar {
+        padding: 14px 24px;
+    }
+
+    .middle {
+        gap: 20px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px 16px;
+        gap: 12px;
+    }
+
+    .left {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .middle {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px 20px;
+        padding-top: 4px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .authenticated-actions-wrapper {
+        justify-content: flex-end;
+        width: 100%;
+    }
+
+    /* Position dropdown cleanly relative to mobile layout */
+    .navbar-dropdown-menu {
+        right: 0;
+        left: auto;
+        width: 200px !important;
+    }
 }

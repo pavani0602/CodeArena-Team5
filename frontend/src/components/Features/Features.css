@@ -66,18 +66,38 @@
     line-height: 1.7;
 }
 
-@media (max-width: 768px) {
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
 
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
     .features {
-        padding: 70px 0;
+        padding: 50px 0;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .features {
+        padding: 40px 0;
     }
 
     .features-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 
     .section-header h2 {
         font-size: 2rem;
+    }
+
+    .section-header p {
+        font-size: 1rem;
     }
 
     .feature-card {

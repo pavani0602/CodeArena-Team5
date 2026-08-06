@@ -1,87 +1,45 @@
-.action-buttons{
-    display:flex;
-    justify-content:flex-end;
-    gap:16px;
-}
-
-.action-buttons button{
-    margin-top: 10px;
-    padding:14px 28px;
-    border:none;
-    border-radius:12px;
-    font-size:1rem;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.25s;
-}
-
-.run-btn{
-    background:#1e293b;
-    color:white;
-}
-
-.run-btn:hover{
-    background:#334155;
-    transform:translateY(-2px);
-}
-
-.submit-btn{
-    background:var(--primary);
-    color:white;
-}
-
-.submit-btn:hover{
-    background:var(--primary-hover);
-    transform:translateY(-2px);
-}
-
-.header-actions {
+.action-buttons {
     display: flex;
-    align-items: center;
-    gap: 12px; /* Adds explicit spacing between Run and Submit buttons */
-    margin-left: auto; /* Pushes the buttons perfectly to the right side */
+    justify-content: flex-end;
+    gap: 16px;
 }
 
-.run-action-btn, .submit-action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 6px 16px;
-    border-radius: 6px;
-    font-size: 0.85rem;
+.action-buttons button {
+    margin-top: 10px;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    border: none;
-    transition: all 0.2s ease;
-    white-space: nowrap; /* Prevents text from breaking or squishing */
+    transition: 0.25s;
 }
 
-.run-action-btn {
-    background: rgba(255, 255, 255, 0.08);
-    color: #e2e8f0;
+.run-btn {
+    background: #1e293b;
+    color: white;
 }
 
-.run-action-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: #ffffff;
+.run-btn:hover {
+    background: #334155;
+    transform: translateY(-2px);
 }
 
-.submit-action-btn {
-    background: #10b981;
-    color: #ffffff;
+.submit-btn {
+    background: var(--primary);
+    color: white;
 }
 
-.submit-action-btn:hover {
-    background: #059669;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+.submit-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
 }
 
-/* Save this as ActionButtons.css */
 .header-actions {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-left: auto;
 }
 
 /* Base button layouts */
@@ -99,9 +57,10 @@
     cursor: pointer;
     transition: all 0.2s ease;
     border: 1px solid transparent;
+    white-space: nowrap;
 }
 
-/* Run Button styling (Muted dark slate with subtle hover) */
+/* Run Button styling */
 .run-action-btn {
     background-color: #334155;
     color: #f1f5f9;
@@ -117,7 +76,7 @@
     background-color: #1e293b;
 }
 
-/* Submit Button styling (Vibrant Green Leetcode theme) */
+/* Submit Button styling */
 .submit-action-btn {
     background-color: #10b981;
     color: #ffffff;
@@ -131,4 +90,49 @@
 .submit-action-btn:active {
     background-color: #047857;
     transform: scale(0.98);
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .action-buttons {
+        gap: 12px;
+    }
+    
+    .action-buttons button {
+        padding: 12px 20px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .action-buttons button {
+        width: 100%;
+        margin-top: 0;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .header-actions {
+        width: 100%;
+        margin-left: 0;
+        justify-content: stretch;
+        gap: 8px;
+    }
+
+    .run-action-btn,
+    .submit-action-btn {
+        flex: 1;
+        height: 38px;
+        font-size: 0.9rem;
+    }
 }

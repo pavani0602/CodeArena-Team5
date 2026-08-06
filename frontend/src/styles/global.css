@@ -1,10 +1,37 @@
+/* ==========================================================================
+   Global Base & Responsive Layout - CodeArena Design System
+   ========================================================================== */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
+/* --- CSS Variables Fallback (Ensures safe inheritance if root is missing) --- */
+:root {
+    --background: #0b0f19;
+    --surface: #111827;
+    --surface-hover: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --border: rgba(255, 255, 255, 0.05);
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    --radius: 12px;
+    --container-width: 1200px;
+    --transition: all 0.2s ease;
+}
 
 body {
     font-family: "Inter", sans-serif;
     background: var(--background);
     color: var(--text-primary);
     line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
 }
 
 h1,
@@ -15,6 +42,7 @@ h5,
 h6 {
     font-family: "Poppins", sans-serif;
     font-weight: 600;
+    margin-top: 0;
 }
 
 button {
@@ -27,4 +55,83 @@ button {
 .container {
     width: min(90%, var(--container-width));
     margin: auto;
+}
+
+/* ==========================================================================
+   Mobile & Tablet Responsive Breakpoints
+   ========================================================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media screen and (max-width: 1024px) {
+    .dashboard-main-content,
+    .problems-container,
+    .editor-main-content {
+        padding: 20px 24px !important;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 22px 24px;
+    }
+
+    .user-profile-pill {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .dashboard-content-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media screen and (max-width: 768px) {
+    .dashboard-main-content,
+    .problems-container {
+        padding: 16px !important;
+    }
+
+    /* Stack statistic cards into a single column on phones */
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+    }
+
+    .welcome-text h1 {
+        font-size: 1.45rem;
+    }
+
+    /* Stack code editor description and editor pane vertically */
+    .editor-split-pane {
+        flex-direction: column !important;
+    }
+
+    .problem-description-pane,
+    .code-editor-pane {
+        width: 100% !important;
+        min-height: 400px;
+    }
+
+    /* Allow horizontal scrolling for the heatmap container instead of overflowing */
+    .heatmap-container {
+        overflow-x: auto;
+        padding: 15px;
+    }
+
+    .heatmap-months-view {
+        min-width: 650px; 
+    }
+
+    /* Stack activity feed items vertically */
+    .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
 }

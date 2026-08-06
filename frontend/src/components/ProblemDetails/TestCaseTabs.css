@@ -1,0 +1,117 @@
+.test-case-container {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    margin-top: 12px;
+    overflow: hidden;
+}
+
+.test-case-header {
+    background: #1e293b;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94a3b8;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.test-case-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tc-tab-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tc-tab-btn:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.tc-tab-btn.active {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #10b981;
+}
+
+.test-case-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tc-field label {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.tc-box {
+    background: #0b0f19;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-size: 0.82rem;
+    overflow-x: auto;
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
+    .test-case-body {
+        padding: 12px 14px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .test-case-header {
+        padding: 8px 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .test-case-tabs {
+        width: 100%;
+        gap: 4px;
+    }
+
+    .tc-tab-btn {
+        flex: 1;
+        text-align: center;
+        padding: 6px 8px;
+    }
+
+    .test-case-body {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .tc-box {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+}

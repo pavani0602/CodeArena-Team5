@@ -9,47 +9,73 @@
 }
 
 .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    background: var(--surface, #111827);
+    border: 1px solid var(--border, #1f2937);
+    border-radius: var(--radius, 12px);
     padding: 36px 24px;
     text-align: center;
-    transition: var(--transition);
+    transition: var(--transition, all 0.2s ease);
 }
 
 .stat-card:hover {
     transform: translateY(-8px);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow, 0 10px 25px -5px rgba(0, 0, 0, 0.3));
 }
 
 .stat-card h3 {
     font-size: 2.5rem;
-    color: var(--primary);
+    color: var(--primary, #10b981);
     margin-bottom: 12px;
 }
 
 .stat-card p {
-    color: var(--text-secondary);
+    color: var(--text-secondary, #94a3b8);
     font-size: 1rem;
 }
 
-@media (max-width: 768px) {
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
 
+/* Tablet View (Max-width: 1024px) */
+@media (max-width: 1024px) {
     .stats {
-        padding: 70px 0;
+        padding: 60px 0;
     }
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+/* Mobile View (Max-width: 768px) */
+@media (max-width: 768px) {
+    .stats {
+        padding: 50px 0;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .stat-card {
+        padding: 24px 16px;
     }
 
     .stat-card h3 {
         font-size: 2rem;
+        margin-bottom: 8px;
+    }
+
+    .stat-card p {
+        font-size: 0.9rem;
     }
 }
 
+/* Small Mobile View (Max-width: 480px) */
 @media (max-width: 480px) {
-
     .stats-grid {
         grid-template-columns: 1fr;
     }

@@ -3,7 +3,7 @@ import "./ProblemTable.css";
 import ProblemRow from "./ProblemRow";
 import { fetchApi } from "../../services/api";
 
-function ProblemTable({ searchQuery, difficulty, sortBy, onRowClick }) {
+function ProblemTable({ searchQuery, difficulty, selectedTopic, sortBy, onRowClick }) {
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -30,6 +30,7 @@ function ProblemTable({ searchQuery, difficulty, sortBy, onRowClick }) {
                     id: p.id,
                     title: p.title,
                     difficulty: p.difficulty,
+                    topic: p.tags && p.tags.length > 0 ? p.tags[0] : "General",
                     status: statuses[p.id] || "Unsolved"
                 }));
                 
@@ -45,11 +46,12 @@ function ProblemTable({ searchQuery, difficulty, sortBy, onRowClick }) {
         loadProblems();
     }, []);
 
-    // 1. Filter the problems first
+    // 1. Filter the problems by search query, difficulty, and topic tag
     const filteredProblems = problems.filter((prob) => {
         const matchesSearch = prob.title.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesDifficulty = difficulty === "All" || prob.difficulty === difficulty;
-        return matchesSearch && matchesDifficulty;
+        const matchesTopic = !selectedTopic || selectedTopic === "All" || prob.topic === selectedTopic;
+        return matchesSearch && matchesDifficulty && matchesTopic;
     });
 
     // 2. Sort the filtered array dynamically
@@ -75,6 +77,7 @@ function ProblemTable({ searchQuery, difficulty, sortBy, onRowClick }) {
                         <th>#</th>
                         <th>Problem</th>
                         <th>Difficulty</th>
+                        <th>Topic</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -90,7 +93,7 @@ function ProblemTable({ searchQuery, difficulty, sortBy, onRowClick }) {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="5" style={{ textAlign: "center", padding: "30px", color: "var(--text-secondary)" }}>
+                            <td colSpan="6" style={{ textAlign: "center", padding: "30px", color: "var(--text-secondary)" }}>
                                 No problems found matching your criteria.
                             </td>
                         </tr>
