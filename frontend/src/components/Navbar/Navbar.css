@@ -59,6 +59,20 @@
     transition: var(--transition);
 }
 
+.language-selector {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-primary);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.language-selector option {
+    color: #111827;
+}
+
 .right button:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);

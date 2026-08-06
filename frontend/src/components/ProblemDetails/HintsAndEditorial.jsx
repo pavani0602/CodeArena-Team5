@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { FaLightbulb, FaLock, FaUnlock, FaCheckCircle, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 import './HintsAndEditorial.css';
 
 function HintsAndEditorial({ problem, failedAttempts = 0, requiredAttempts = 3 }) {
+    const { t } = useTranslation();
     // Track which hints have been revealed (by index)
     const [revealedHints, setRevealedHints] = useState({});
     
@@ -30,15 +32,15 @@ function HintsAndEditorial({ problem, failedAttempts = 0, requiredAttempts = 3 }
             <div className="hints-section">
                 <div className="section-header-title">
                     <FaLightbulb className="section-icon hints-glow" />
-                    <h3>Step-by-Step Hints</h3>
+                    <h3>{t('problemDetails.hints.title')}</h3>
                 </div>
                 <p className="section-subtitle">
-                    Stuck? Reveal hints one by one to guide your thought process without spoiling the complete answer.
+                    {t('problemDetails.hints.subtitle')}
                 </p>
 
                 <div className="hints-accordion-list">
                     {hints.length === 0 ? (
-                        <p style={{ color: '#94a3b8', padding: '10px 20px' }}>No hints available for this problem.</p>
+                        <p style={{ color: '#94a3b8', padding: '10px 20px' }}>{t('problemDetails.hints.empty')}</p>
                     ) : (
                         hints.map((hint, index) => {
                             const isRevealed = revealedHints[index];
@@ -49,8 +51,8 @@ function HintsAndEditorial({ problem, failedAttempts = 0, requiredAttempts = 3 }
                                         onClick={() => toggleHint(index)}
                                     >
                                         <span className="hint-title-text">
-                                            <span className="hint-badge">Hint {index + 1}</span> 
-                                            {isRevealed ? `Hint ${index + 1}` : `Unlock Hint ${index + 1}...`}
+                                            <span className="hint-badge">{t('problemDetails.hints.hintLabel', { number: index + 1 })}</span> 
+                                            {isRevealed ? t('problemDetails.hints.hintLabel', { number: index + 1 }) : t('problemDetails.hints.unlock', { number: index + 1 })}
                                         </span>
                                         {isRevealed ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
                                     </button>
@@ -77,7 +79,7 @@ function HintsAndEditorial({ problem, failedAttempts = 0, requiredAttempts = 3 }
                     ) : (
                         <FaLock className="section-icon locked-icon" />
                     )}
-                    <h3>Official Solution & Editorial</h3>
+                    <h3>{t('problemDetails.hints.editorialTitle')}</h3>
                 </div>
 
                 {!isEditorialUnlocked ? (
@@ -85,18 +87,17 @@ function HintsAndEditorial({ problem, failedAttempts = 0, requiredAttempts = 3 }
                         <div className="lock-badge-container">
                             <FaLock size={24} />
                         </div>
-                        <h4>Editorial is Gated</h4>
+                        <h4>{t('problemDetails.hints.editorialLocked')}</h4>
                         <p>
-                            To encourage independent problem-solving and critical thinking, the editorial unlocks automatically after 
-                            making <strong className="highlight-text">{requiredAttempts} failed submission attempts</strong>.
+                            {t('problemDetails.hints.editorialBody', { count: requiredAttempts })}
                         </p>
                         
                         <div className="progress-status-pill">
-                            <span>Current Failed Attempts: <strong>{failedAttempts} / {requiredAttempts}</strong></span>
+                            <span>{t('problemDetails.hints.currentFailed', { current: failedAttempts, required: requiredAttempts })}</span>
                             {attemptsRemaining > 0 ? (
-                                <span className="sub-text">({attemptsRemaining} more needed)</span>
+                                <span className="sub-text">({t('problemDetails.hints.remaining', { count: attemptsRemaining })})</span>
                             ) : (
-                                <span className="success-sub-text">Ready to unlock!</span>
+                                <span className="success-sub-text">{t('problemDetails.hints.ready')}</span>
                             )}
                         </div>
 
@@ -104,14 +105,14 @@ function HintsAndEditorial({ problem, failedAttempts = 0, requiredAttempts = 3 }
                             className="override-unlock-btn"
                             onClick={() => setForceUnlocked(true)}
                         >
-                            🔓 Preview Editorial Anyway (Testing Override)
+                            {t('problemDetails.hints.preview')}
                         </button>
                     </div>
                 ) : (
                     <div className="editorial-content-box animate-fadeIn">
                         <div className="unlocked-banner">
                             <FaCheckCircle className="success-icon" />
-                            <span>Editorial Unlocked! Great persistence in working through the problem.</span>
+                            <span>{t('problemDetails.hints.unlocked')}</span>
                         </div>
 
                         {problem?.editorialMd ? (
@@ -119,7 +120,7 @@ function HintsAndEditorial({ problem, failedAttempts = 0, requiredAttempts = 3 }
                                 <ReactMarkdown>{problem.editorialMd}</ReactMarkdown>
                             </div>
                         ) : (
-                            <p style={{ color: '#94a3b8', padding: '10px 0' }}>An editorial has not been written for this problem yet.</p>
+                            <p style={{ color: '#94a3b8', padding: '10px 0' }}>{t('problemDetails.hints.emptyEditorial')}</p>
                         )}
                     </div>
                 )}

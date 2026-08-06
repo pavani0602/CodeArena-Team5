@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import './Leaderboard.css';
 import { FaTrophy, FaMedal, FaSearch, FaGlobe, FaCalendarAlt, FaLaptopCode, FaCheckCircle, FaRunning } from 'react-icons/fa';
 import { fetchApi } from "../../services/api";
+import { useTranslation } from 'react-i18next';
 
 function Leaderboard() {
     const [timeframe, setTimeframe] = useState('global'); // 'global' or 'weekly'
     const [languageFilter, setLanguageFilter] = useState('All'); // 'All', 'Java', 'Python', 'C++', 'JavaScript'
     const [searchQuery, setSearchQuery] = useState('');
+    const { t } = useTranslation();
     const [leaderboardData, setLeaderboardData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -31,7 +33,7 @@ function Leaderboard() {
                 }));
                 setLeaderboardData(mappedData);
             } else {
-                throw new Error(`Server returned status: ${response.status}`);
+                throw new Error(t('errors.leaderboardError'));
             }
         } catch (err) {
             console.error("Leaderboard retrieval failed:", err);
@@ -68,8 +70,8 @@ function Leaderboard() {
                 <div className="header-title-box">
                     <FaTrophy className="main-trophy-icon" />
                     <div>
-                        <h2>Global Arena Leaderboards</h2>
-                        <p>Track your programming velocity, overall submission accuracy, and global standing.</p>
+                        <h2>{t('leaderboard.title')}</h2>
+                        <p>{t('leaderboard.subtitle')}</p>
                     </div>
                 </div>
             </div>
@@ -81,13 +83,13 @@ function Leaderboard() {
                         className={`filter-tab-btn ${timeframe === 'global' ? 'active' : ''}`}
                         onClick={() => setTimeframe('global')}
                     >
-                        <FaGlobe /> Global View
+                        <FaGlobe /> {t('leaderboard.viewGlobal')}
                     </button>
                     <button 
                         className={`filter-tab-btn ${timeframe === 'weekly' ? 'active' : ''}`}
                         onClick={() => setTimeframe('weekly')}
                     >
-                        <FaCalendarAlt /> Weekly Sprint
+                        <FaCalendarAlt /> {t('leaderboard.weeklySprint')}
                     </button>
                 </div>
 
@@ -96,7 +98,7 @@ function Leaderboard() {
                         <FaSearch className="search-icon" />
                         <input 
                             type="text" 
-                            placeholder="Find coder..." 
+                            placeholder={t('leaderboard.searchPlaceholder')} 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -109,10 +111,10 @@ function Leaderboard() {
                             onChange={(e) => setLanguageFilter(e.target.value)}
                             className="lang-dropdown"
                         >
-                            <option value="All">All Languages</option>
-                            <option value="Java">Java Only</option>
-                            <option value="Python">Python Only</option>
-                            <option value="C++">C++ Only</option>
+                            <option value="All">{t('leaderboard.allLanguages')}</option>
+                            <option value="Java">{t('leaderboard.javaOnly')}</option>
+                            <option value="Python">{t('leaderboard.pythonOnly')}</option>
+                            <option value="C++">{t('leaderboard.cppOnly')}</option>
                         </select>
                     </div>
                 </div>
@@ -122,16 +124,16 @@ function Leaderboard() {
             {isLoading ? (
                 <div className="leaderboard-status-box">
                     <div className="spinner"></div>
-                    <p>Recalculating algorithmic weights...</p>
+                    <p>{t('leaderboard.loading')}</p>
                 </div>
             ) : error ? (
                 <div className="leaderboard-status-box error-box">
                     <p className="error-message">{error}</p>
-                    <button className="retry-btn" onClick={fetchLeaderboard}>Retry Connection</button>
+                    <button className="retry-btn" onClick={fetchLeaderboard}>{t('leaderboard.retry')}</button>
                 </div>
             ) : leaderboardData.length === 0 ? (
                 <div className="leaderboard-status-box empty-box">
-                    <p>No programmers have registered submissions for this filter yet.</p>
+                    <p>{t('leaderboard.empty')}</p>
                 </div>
             ) : (
                 <>
@@ -155,11 +157,11 @@ function Leaderboard() {
 
                                     <div className="podium-stats">
                                         <div className="podium-stat">
-                                            <span className="stat-label">Solved</span>
+                                            <span className="stat-label">{t('leaderboard.podium.solved')}</span>
                                             <span className="stat-val">{user.solved || 0}</span>
                                         </div>
                                         <div className="podium-stat">
-                                            <span className="stat-label">Accuracy</span>
+                                            <span className="stat-label">{t('leaderboard.podium.accuracy')}</span>
                                             <span className="stat-val text-success">{user.accuracy || 0}%</span>
                                         </div>
                                     </div>
@@ -181,11 +183,11 @@ function Leaderboard() {
                             <table className="leaderboard-table">
                                 <thead>
                                     <tr>
-                                        <th style={{ width: '10%' }}>Rank</th>
-                                        <th>Programmer</th>
-                                        <th style={{ textAlign: 'center' }}>Problems Solved</th>
-                                        <th style={{ textAlign: 'center' }}>Accuracy Rate</th>
-                                        <th style={{ textAlign: 'center' }}>Total Submissions</th>
+                                        <th style={{ width: '10%' }}>{t('leaderboard.table.rank')}</th>
+                                        <th>{t('leaderboard.table.programmer')}</th>
+                                        <th style={{ textAlign: 'center' }}>{t('leaderboard.table.problemsSolved')}</th>
+                                        <th style={{ textAlign: 'center' }}>{t('leaderboard.table.accuracyRate')}</th>
+                                        <th style={{ textAlign: 'center' }}>{t('leaderboard.table.totalSubmissions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>

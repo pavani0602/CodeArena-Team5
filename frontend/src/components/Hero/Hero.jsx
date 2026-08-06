@@ -1,21 +1,24 @@
 import "./Hero.css";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 function Hero() {
+    const { t } = useTranslation();
+
     return (
         <section className="hero">
         <div className="container">
             <div className="hero-left">
                 <h1>
-                    Master Coding. <br />
-                    <span className="brand-text">One Problem at a Time.</span>
+                    {t('home.hero.title')} <br />
+                    <span className="brand-text">{t('home.hero.highlight')}</span>
                 </h1>
                 <p>
-                    Practice data structures and algorithms, solve coding challenges, track your progress, and climb the leaderboard—all in one place.
+                    {t('home.hero.description')}
                 </p>
                 <div className="hero-buttons">
                     <Link to="/problems">
-                        <button className="primary-butt">Start Solving</button>
+                        <button className="primary-butt">{t('home.hero.button')}</button>
                     </Link>
                     {/* <Link to="/leaderboard">
                         <button className="secondary-butt">View Leaderboard</button>

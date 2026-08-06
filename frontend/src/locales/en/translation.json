@@ -1,0 +1,517 @@
+{
+  "common": {
+    "brand": "CodeArena",
+    "home": "Home",
+    "problems": "Problems",
+    "leaderboard": "Leaderboard",
+    "discussion": "Discussion",
+    "dashboard": "Dashboard",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "loading": "Loading...",
+    "back": "Back",
+    "none": "None",
+    "easy": "Easy",
+    "cancel": "Cancel",
+    "save": "Save",
+    "submit": "Submit",
+    "retry": "Retry",
+    "viewAll": "View All",
+    "noResults": "No results found.",
+    "noRecentSubmissions": "No recent submissions found. Go solve some problems!"
+  },
+  "navbar": {
+    "problemWorkspace": "Problem Workspace",
+    "engineStatus": "Engine Status",
+    "manageUsers": "Manage Users",
+    "submissions": "Submissions",
+    "problems": "Problems",
+    "leaderboard": "Leaderboard",
+    "discussion": "Discussion",
+    "loginOrSignup": "Login or Signup",
+    "signedInAs": "Signed in as",
+    "dashboard": "Dashboard",
+    "signOut": "Sign Out",
+    "admin": "Admin",
+    "coder": "Coder",
+    "streakTooltip": "Your Daily Coding Streak!",
+    "languages": {
+      "en": "English",
+      "ta": "Tamil",
+      "hi": "Hindi",
+      "te": "Telugu"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Master Coding.",
+      "highlight": "One Problem at a Time.",
+      "description": "Practice data structures and algorithms, solve coding challenges, track your progress, and climb the leaderboard—all in one place.",
+      "button": "Start Solving"
+    },
+    "features": {
+      "heading": "Why Choose CodeArena?",
+      "subheading": "Everything you need to improve your programming skills in one platform.",
+      "cards": {
+        "practice": {
+          "title": "Practice Problems",
+          "description": "Solve coding challenges across multiple topics and difficulty levels."
+        },
+        "track": {
+          "title": "Track Progress",
+          "description": "Monitor your solved problems and stay consistent with your learning."
+        },
+        "leaderboard": {
+          "title": "Leaderboard",
+          "description": "Compete with other programmers and improve your ranking."
+        },
+        "community": {
+          "title": "Community Discussions",
+          "description": "Ask questions, share ideas, and learn from fellow developers."
+        }
+      }
+    },
+    "stats": {
+      "heading": "Our Platform in Numbers",
+      "items": {
+        "problems": "Coding Problems",
+        "users": "Active Users",
+        "languages": "Programming Languages",
+        "access": "Practice Access"
+      }
+    },
+    "cta": {
+      "heading": "Ready to Start Your Coding Journey?",
+      "description": "Join CodeArena today and sharpen your problem-solving skills one challenge at a time.",
+      "button": "Get Started!"
+    }
+  },
+  "auth": {
+    "user": "User",
+    "admin": "Admin",
+    "adminEmail": "Admin Email",
+    "emailAddress": "Email Address",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "createAccount": "Create Account",
+    "signIn": "Sign In",
+    "enterPanel": "Enter Panel",
+    "enterWorkspace": "Enter Workspace",
+    "orContinueWith": "or continue with",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": {
+      "titleUser": "Welcome Back",
+      "titleAdmin": "Admin Workspace Sign In",
+      "subtitleUser": "Log in to your account to resume training and track standings.",
+      "subtitleAdmin": "Access the central engine to manage problems and test suites.",
+      "placeholderEmail": "you@example.com",
+      "placeholderAdminEmail": "admin@codearena.com",
+      "placeholderPassword": "••••••••",
+      "success": "Welcome back to CodeArena, {{username}}!",
+      "error": "Login failed. Please check your credentials.",
+      "googleError": "Google Login failed. Please try again.",
+      "googleProfileError": "Google Authentication succeeded, but profile parsing failed.",
+      "googleWelcome": "Welcome back, {{name}}!"
+    },
+    "register": {
+      "title": "Create Your Account",
+      "subtitle": "Join CodeArena and start solving coding challenges today.",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "emailPlaceholder": "you@example.com",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "creating": "Creating Account...",
+      "success": "Account created successfully! Check your inbox for a welcome email.",
+      "passwordMismatch": "Passwords do not match.",
+      "failed": "Failed to create account.",
+      "googleError": "Google Sign-Up failed. Please try again.",
+      "googleProfileError": "Google registration succeeded, but profile parsing failed.",
+      "welcomeGoogle": "Welcome to CodeArena, {{name}}! 🚀"
+    },
+    "adminLogin": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to manage problems and test engines",
+      "forgotPassword": "Forgot Password?",
+      "submit": "Enter Workspace",
+      "accessDenied": "Access Denied: You do not have administrator privileges.",
+      "success": "Welcome back to the Admin Workspace, {{username}}!"
+    },
+    "forgotPasswordPage": {
+      "title": "Reset Password",
+      "subtitleUser": "Enter your registered email to receive a password reset link.",
+      "subtitleAdmin": "Enter your admin email to receive secure workspace recovery instructions.",
+      "send": "Send Reset Link",
+      "sending": "Sending Instructions...",
+      "successTitle": "Check Your Inbox",
+      "successMessage": "We have successfully sent password reset instructions to {{email}}.",
+      "backToLogin": "Back to Sign In",
+      "error": "Failed to send reset instructions. Please try again."
+    },
+    "resetPassword": {
+      "title": "Create New Password",
+      "subtitle": "Enter a secure new password for your CodeArena account.",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "placeholderNew": "At least 6 characters",
+      "placeholderConfirm": "Re-enter password",
+      "resetButton": "Reset Password",
+      "successTitle": "Password Reset!",
+      "successMessage": "Your password has been changed successfully. You can now log in with your new credentials.",
+      "signInNow": "Sign In Now",
+      "passwordTooShort": "Password must be at least 6 characters long.",
+      "passwordMismatch": "Passwords do not match.",
+      "resetFailed": "Failed to reset password. Link may be expired."
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}! 🚀",
+    "quote": "Consistency is built one problem at a time. Keep your streak alive today!",
+    "role": "{{role}}",
+    "stats": {
+      "problemsSolved": "Problems Solved",
+      "currentStreak": "Current Streak 🔥",
+      "globalRank": "Global Rank",
+      "streakDays": "{{count}} Days",
+      "topPercent": "Top {{percent}}%"
+    },
+    "challenge": {
+      "title": "Push Your Limits",
+      "description": "Keep your skills sharp by tackling new problems every day. Your streak is waiting!",
+      "badge": "Challenge Accepted",
+      "button": "Solve Problems",
+      "pill": "Jump Back In"
+    },
+    "progress": {
+      "title": "DSA Progress Breakdown"
+    },
+    "languageUsage": {
+      "title": "Language Usage",
+      "description": "Distribution of programming languages used in your accepted submissions.",
+      "solved": "{{count}} solved"
+    },
+    "summary": {
+      "title": "Quick Summary",
+      "description": "Keep pushing forward! You are matching weekly goals and closing in on higher global ranks.",
+      "active": "Active & Consistent",
+      "warmUp": "Time to warm up!",
+      "activeText": "Your activity level puts you in the top tier of active platform coders this month.",
+      "warmUpText": "Solve a problem today to ignite your streak and climb the ranks!"
+    },
+    "heatmap": {
+      "title": "Code Activity Heatmap (Last 365 Days)",
+      "subtitle": "Annual contribution overview",
+      "legendLess": "Less",
+      "legendMore": "More"
+    },
+    "recentSubmissions": {
+      "title": "Recent Submissions",
+      "button": "View All Problems",
+      "accepted": "Accepted",
+      "failed": "Failed",
+      "empty": "No recent submissions found. Go solve some problems!"
+    },
+    "loading": "Loading dashboard data..."
+  },
+  "problems": {
+    "title": "Problems",
+    "description": "Practice coding challenges, improve your problem-solving skills, and prepare for technical interviews.",
+    "addProblem": "+ Add Problem",
+    "searchPlaceholder": "Search problems...",
+    "filterBy": "Filter by:",
+    "sortBy": "Sort by:",
+    "sortOptions": {
+      "latest": "Latest Added",
+      "difficulty": "Difficulty Level",
+      "name": "Alphabetical (A-Z)"
+    },
+    "topics": {
+      "all": "All",
+      "array": "Array",
+      "string": "String",
+      "stack": "Stack",
+      "tree": "Tree",
+      "graph": "Graph",
+      "dynamicProgramming": "Dynamic Programming",
+      "sorting": "Sorting",
+      "binarySearch": "Binary Search",
+      "design": "Design",
+      "twoPointers": "Two Pointers",
+      "slidingWindow": "Sliding Window",
+      "hashTable": "Hash Table",
+      "heap": "Heap",
+      "greedy": "Greedy"
+    },
+    "table": {
+      "loading": "Loading problems...",
+      "error": "Failed to load problems from the server.",
+      "noProblems": "No problems found matching your criteria.",
+      "headers": {
+        "id": "#",
+        "problem": "Problem",
+        "difficulty": "Difficulty",
+        "topic": "Topic",
+        "status": "Status",
+        "action": "Action"
+      },
+      "button": "Solve →"
+    },
+    "status": {
+      "solved": "Solved",
+      "attempted": "Attempted",
+      "unsolved": "Unsolved"
+    }
+  },
+  "problemDetails": {
+    "loading": "Loading Problem Data...",
+    "notFound": "Problem Not Found",
+    "backToList": "Back to Problem List",
+    "guestBanner": "You are exploring this workspace as a guest. Please {{link}} to save changes and execute code blocks.",
+    "signInLink": "Sign In",
+    "problemList": "Problem List",
+    "randomTitle": "Pick Random Problem",
+    "tabs": {
+      "description": "Description",
+      "hints": "Hints & Editorial",
+      "submissions": "Submissions"
+    },
+    "submissions": {
+      "heading": "Past Submissions",
+      "subtitle": "Click on a row to view or add notes",
+      "headers": {
+        "status": "Status",
+        "language": "Language",
+        "runtime": "Runtime",
+        "timeSubmitted": "Time Submitted"
+      },
+      "notes": "Submission Notes",
+      "notesPlaceholder": "Type your notes here (e.g., edge cases, approach details, complexity updates)...",
+      "testBreakdown": "Test Case Execution Breakdown"
+    },
+    "hints": {
+      "title": "Step-by-Step Hints",
+      "subtitle": "Stuck? Reveal hints one by one to guide your thought process without spoiling the complete answer.",
+      "empty": "No hints available for this problem.",
+      "unlock": "Unlock Hint {{number}}...",
+      "hintLabel": "Hint {{number}}",
+      "editorialTitle": "Official Solution & Editorial",
+      "editorialLocked": "Editorial is Gated",
+      "editorialBody": "To encourage independent problem-solving and critical thinking, the editorial unlocks automatically after making {{count}} failed submission attempts.",
+      "remaining": "{{count}} more needed",
+      "ready": "Ready to unlock!",
+      "preview": "🔓 Preview Editorial Anyway (Testing Override)",
+      "unlocked": "Editorial Unlocked! Great persistence in working through the problem.",
+      "emptyEditorial": "An editorial has not been written for this problem yet.",
+      "currentFailed": "Current Failed Attempts: {{current}} / {{required}}"
+    },
+    "verdict": {
+      "accepted": "Accepted",
+      "wrongAnswer": "Wrong Answer",
+      "timeLimitExceeded": "Time Limit Exceeded",
+      "memoryLimitExceeded": "Memory Limit Exceeded",
+      "runtimeError": "Runtime Error",
+      "pending": "Pending"
+    },
+    "actionButtons": {
+      "run": "Run",
+      "submit": "Submit"
+    },
+    "editor": {
+      "code": "Code",
+      "resetTitle": "Reset code to template",
+      "confirmReset": "Click again to confirm erasing changes",
+      "confirmResetButton": "Confirm Reset?",
+      "languageLabel": "Language",
+      "languages": {
+        "python": "Python",
+        "java": "Java",
+        "cpp": "C++",
+        "javascript": "JavaScript"
+      }
+    },
+    "console": {
+      "sampleTestCases": "Sample Test Cases",
+      "outputResults": "Output Results",
+      "inputData": "Input Data:",
+      "expectedOutput": "Expected Output:",
+      "closeConsole": "Close Console",
+      "compiling": "Compiling Code Architecture...",
+      "compilingSubtext": "Running syntax validation checks and checking structure guidelines.",
+      "evaluating": "Evaluating Test Cases...",
+      "evaluatingSubtext": "Passing execution blocks down evaluation matrix pipeline.",
+      "progress": "Progress",
+      "passed": "Passed",
+      "compilationFailed": "Compilation Failed",
+      "line": "Line {{line}}",
+      "caseLabel": "Case {{number}}",
+      "testLabel": "Test {{number}}",
+      "expectedOutput": "Expected Output:",
+      "receivedOutput": "Received Output:",
+      "syntaxErrorFallback": "Syntax error detected in source code.",
+      "accepted": "Accepted (All Test Cases Passed)",
+      "wrongAnswer": "Wrong Answer",
+      "runtimeError": "Runtime Error",
+      "successMessage": "Your solution successfully verified all test suites.",
+      "wrongAnswerMessage": "One or more test cases failed execution validation.",
+      "runtimeMessage": "Your code crashed during execution.",
+      "inputDynamic": "Input (Dynamic):",
+      "input": "Input:",
+      "receivedOutput": "Received Output:",
+      "runtimeSpeed": "Runtime Speed",
+      "memoryFootprint": "Memory Footprint"
+    }
+  },
+  "leaderboard": {
+    "title": "Global Arena Leaderboards",
+    "subtitle": "Track your programming velocity, overall submission accuracy, and global standing.",
+    "viewGlobal": "Global View",
+    "weeklySprint": "Weekly Sprint",
+    "searchPlaceholder": "Find coder...",
+    "allLanguages": "All Languages",
+    "javaOnly": "Java Only",
+    "pythonOnly": "Python Only",
+    "cppOnly": "C++ Only",
+    "loading": "Recalculating algorithmic weights...",
+    "empty": "No programmers have registered submissions for this filter yet.",
+    "retry": "Retry Connection",
+    "podium": {
+      "solved": "Solved",
+      "accuracy": "Accuracy"
+    },
+    "table": {
+      "rank": "Rank",
+      "programmer": "Programmer",
+      "problemsSolved": "Problems Solved",
+      "accuracyRate": "Accuracy Rate",
+      "totalSubmissions": "Total Submissions"
+    }
+  },
+  "admin": {
+    "workspace": "Admin Workspace",
+    "subtitle": "Manage algorithmic challenges, append test matrices, or build brand new problems.",
+    "tabs": {
+      "create": "Create Problem",
+      "editing": "Editing Problem",
+      "manage": "Manage Existing Problems",
+      "activity": "View User Submissions"
+    },
+    "form": {
+      "editingBanner": "You are currently editing {{title}}",
+      "cancelEdit": "Cancel & Clear",
+      "problemSpecifications": "Problem Specifications",
+      "problemTitle": "Problem Title",
+      "problemTitlePlaceholder": "e.g., Two Sum",
+      "functionName": "Function Name",
+      "functionNamePlaceholder": "twoSum",
+      "returnType": "Return Type",
+      "returnTypePlaceholder": "int[]",
+      "paramNames": "Param Names",
+      "paramNamesTip": "(Comma-separated)",
+      "paramNamesPlaceholder": "nums,target",
+      "paramTypes": "Param Types",
+      "paramTypesPlaceholder": "int[],int",
+      "difficulty": "Difficulty",
+      "tags": "Tags",
+      "tagsPlaceholder": "Arrays, Hash Table",
+      "description": "Problem Description",
+      "descriptionPlaceholder": "Describe the constraints...",
+      "exampleInput": "Example Input",
+      "exampleInputPlaceholder": "nums = [2,7], target = 9",
+      "exampleOutput": "Example Output",
+      "exampleOutputPlaceholder": "[0,1]",
+      "explanation": "Example Explanation",
+      "explanationPlaceholder": "Explanation...",
+      "editorial": "Problem Editorial (Markdown)",
+      "editorialPlaceholder": "Write the editorial approach...",
+      "hints": "Hints",
+      "addHint": "Add Hint",
+      "hintPlaceholder": "Hint {{number}}...",
+      "testCases": "Test Case Validation Matrix",
+      "addCase": "Add Case",
+      "helperText": "Add multiple dynamic cases. Checked items remain hidden from users to prevent hardcoding submissions.",
+      "caseLabel": "Case #{{number}}",
+      "rawInputPlaceholder": "Raw Input string",
+      "expectedOutputPlaceholder": "Expected Output",
+      "hiddenCase": "Hidden Test Case",
+      "submitCreate": "Create Code Arena Problem",
+      "submitUpdate": "Update & Save Changes"
+    },
+    "manage": {
+      "title": "Repository Problem Index",
+      "headers": {
+        "id": "ID",
+        "name": "Problem Name",
+        "difficulty": "Difficulty",
+        "testCases": "Test Cases",
+        "actions": "Actions"
+      },
+      "edit": "Edit Problem",
+      "loaded": "Loaded"
+    },
+    "activity": {
+      "title": "Global User Activity & Submissions",
+      "headers": {
+        "user": "User",
+        "email": "Email",
+        "problemSolved": "Problem Solved",
+        "language": "Language",
+        "status": "Status",
+        "submittedAt": "Submitted At"
+      },
+      "empty": "No submissions found."
+    },
+    "users": {
+      "title": "Manage Users",
+      "subtitle": "View all isolated user accounts registered on CodeArena.",
+      "headers": {
+        "id": "ID",
+        "username": "Username",
+        "email": "Email",
+        "role": "Role",
+        "joined": "Joined"
+      },
+      "empty": "No users found.",
+      "loading": "Loading users..."
+    },
+    "analytics": {
+      "title": "Engine Status & Analytics",
+      "subtitle": "View system metrics and code execution engine health.",
+      "loading": "Loading live engine metrics...",
+      "totalUsers": "Total Users",
+      "activeProblems": "Active Problems",
+      "processedSubmissions": "Processed Submissions",
+      "serverUptime": "Server Uptime",
+      "status": "System {{status}}"
+    },
+    "submissions": {
+      "title": "All User Submissions",
+      "subtitle": "Global feed of all problem attempts, languages used, and results across the platform.",
+      "header": "Global Execution Log",
+      "loading": "Loading submissions log...",
+      "headers": {
+        "submissionId": "Submission ID",
+        "user": "User",
+        "problem": "Problem",
+        "language": "Language",
+        "status": "Status",
+        "time": "Time"
+      },
+      "empty": "No submissions found.",
+      "accepted": "Accepted",
+      "pending": "Pending"
+    }
+  },
+  "errors": {
+    "dashboardLoad": "Failed to load dashboard data.",
+    "dashboardError": "Error loading dashboard data.",
+    "dashboardUnavailable": "Unable to load dashboard",
+    "leaderboardError": "Could not retrieve active rankings. Please try again later.",
+    "adminUsersError": "Failed to load users from the server.",
+    "adminAnalyticsError": "Failed to load analytics",
+    "adminAnalyticsConnect": "Error connecting to server"
+  },
+  "success": {
+    "saved": "Saved successfully"
+  }
+}

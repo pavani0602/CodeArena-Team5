@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import "./ProblemTable.css";
 import ProblemRow from "./ProblemRow";
 import { fetchApi } from "../../services/api";
+import { useTranslation } from 'react-i18next';
 
 function ProblemTable({ searchQuery, difficulty, selectedTopic, sortBy, onRowClick }) {
+    const { t } = useTranslation();
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -66,20 +68,20 @@ function ProblemTable({ searchQuery, difficulty, selectedTopic, sortBy, onRowCli
         return a.id - b.id; 
     });
 
-    if (loading) return <div style={{ textAlign: "center", padding: "30px" }}>Loading problems...</div>;
-    if (error) return <div style={{ textAlign: "center", padding: "30px", color: "red" }}>{error}</div>;
+    if (loading) return <div style={{ textAlign: "center", padding: "30px" }}>{t('problems.table.loading')}</div>;
+    if (error) return <div style={{ textAlign: "center", padding: "30px", color: "red" }}>{t('problems.table.error')}</div>;
 
     return (
         <div className="problem-table-container">
             <table className="problem-table">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Problem</th>
-                        <th>Difficulty</th>
-                        <th>Topic</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th>{t('problems.table.headers.id')}</th>
+                        <th>{t('problems.table.headers.problem')}</th>
+                        <th>{t('problems.table.headers.difficulty')}</th>
+                        <th>{t('problems.table.headers.topic')}</th>
+                        <th>{t('problems.table.headers.status')}</th>
+                        <th>{t('problems.table.headers.action')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -94,7 +96,7 @@ function ProblemTable({ searchQuery, difficulty, selectedTopic, sortBy, onRowCli
                     ) : (
                         <tr>
                             <td colSpan="6" style={{ textAlign: "center", padding: "30px", color: "var(--text-secondary)" }}>
-                                No problems found matching your criteria.
+                                {t('problems.table.noProblems')}
                             </td>
                         </tr>
                     )}

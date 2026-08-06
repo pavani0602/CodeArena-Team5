@@ -1,7 +1,9 @@
 import './FilterBar.css';
 import { FaFilter, FaSortAmountDown } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 function FilterBar({ selected, onSelect, selectedTopic, onTopicSelect, sortBy, onSortChange }) {
+    const { t } = useTranslation();
     const difficulties = ["All", "Easy", "Medium", "Hard"];
     
     const topics = [
@@ -16,7 +18,7 @@ function FilterBar({ selected, onSelect, selectedTopic, onTopicSelect, sortBy, o
             <div className="filter-top-row">
                 <div className="filter-group">
                     <span className="filter-label">
-                        <FaFilter className="icon" /> Filter by:
+                        <FaFilter className="icon" /> {t('problems.filterBy')}
                     </span>
                     <div className="difficulty-filters">
                         {difficulties.map((diff) => (
@@ -33,7 +35,7 @@ function FilterBar({ selected, onSelect, selectedTopic, onTopicSelect, sortBy, o
 
                 <div className="sort-group">
                     <span className="filter-label">
-                        <FaSortAmountDown className="icon" /> Sort by:
+                        <FaSortAmountDown className="icon" /> {t('problems.sortBy')}
                     </span>
                     <div className="sort-select-wrapper">
                         <select 
@@ -41,9 +43,9 @@ function FilterBar({ selected, onSelect, selectedTopic, onTopicSelect, sortBy, o
                             value={sortBy} 
                             onChange={(e) => onSortChange(e.target.value)}
                         >
-                            <option value="latest">Latest Added</option>
-                            <option value="difficulty">Difficulty Level</option>
-                            <option value="name">Alphabetical (A-Z)</option>
+                            <option value="latest">{t('problems.sortOptions.latest')}</option>
+                            <option value="difficulty">{t('problems.sortOptions.difficulty')}</option>
+                            <option value="name">{t('problems.sortOptions.name')}</option>
                         </select>
                     </div>
                 </div>

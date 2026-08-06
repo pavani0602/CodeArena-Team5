@@ -16,32 +16,34 @@ import {
 } from 'react-icons/fa';
 
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 import HintsAndEditorial from './HintsAndEditorial'; 
 
 // Helper function to handle verdict states
-const getVerdictDetails = (status) => {
+const getVerdictDetails = (status, t) => {
     switch (status?.toLowerCase()) {
         case 'accepted':
-            return { icon: <FaCheckCircle />, className: 'accepted', label: 'Accepted' };
+            return { icon: <FaCheckCircle />, className: 'accepted', label: t('problemDetails.verdict.accepted') };
         case 'wrong answer':
-            return { icon: <FaTimesCircle />, className: 'wrong-answer', label: 'Wrong Answer' };
+            return { icon: <FaTimesCircle />, className: 'wrong-answer', label: t('problemDetails.verdict.wrongAnswer') };
         case 'time limit exceeded':
         case 'tle':
-            return { icon: <FaClock />, className: 'time-limit-exceeded', label: 'Time Limit Exceeded' };
+            return { icon: <FaClock />, className: 'time-limit-exceeded', label: t('problemDetails.verdict.timeLimitExceeded') };
         case 'memory limit exceeded':
         case 'mle':
-            return { icon: <FaMemory />, className: 'memory-limit-exceeded', label: 'Memory Limit Exceeded' };
+            return { icon: <FaMemory />, className: 'memory-limit-exceeded', label: t('problemDetails.verdict.memoryLimitExceeded') };
         case 'runtime error':
         case 're':
-            return { icon: <FaBug />, className: 'runtime-error', label: 'Runtime Error' };
+            return { icon: <FaBug />, className: 'runtime-error', label: t('problemDetails.verdict.runtimeError') };
         default:
-            return { icon: <FaExclamationTriangle />, className: 'unknown', label: status || 'Pending' };
+            return { icon: <FaExclamationTriangle />, className: 'unknown', label: status || t('problemDetails.verdict.pending') };
     }
 };
 
 const INITIAL_SUBMISSIONS = [];
 
 function ProblemDescription({ problem, submissionHistory = [] }) {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState('description'); 
     const [submissions, setSubmissions] = useState(INITIAL_SUBMISSIONS);
     const [expandedRowId, setExpandedRowId] = useState(null);
@@ -89,19 +91,19 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                     className={`tab-item ${activeTab === 'description' ? 'active' : ''}`}
                     onClick={() => setActiveTab('description')}
                 >
-                    <FaFileAlt size={13} /> Description
+                    <FaFileAlt size={13} /> {t('problemDetails.tabs.description')}
                 </button>
                 <button 
                     className={`tab-item ${activeTab === 'hints' ? 'active' : ''}`}
                     onClick={() => setActiveTab('hints')}
                 >
-                    <FaLightbulb size={13} /> Hints & Editorial
+                    <FaLightbulb size={13} /> {t('problemDetails.tabs.hints')}
                 </button>
                 <button 
                     className={`tab-item ${activeTab === 'submissions' ? 'active' : ''}`}
                     onClick={() => setActiveTab('submissions')}
                 >
-                    <FaHistory size={13} /> Submissions
+                    <FaHistory size={13} /> {t('problemDetails.tabs.submissions')}
                 </button>
             </div>
             
@@ -138,17 +140,17 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
 
                 {activeTab === 'submissions' && (
                     <div className="tab-view-container animate-fade-in">
-                        <h3 className="submissions-heading">Past Submissions</h3>
-                        <p className="submissions-subtitle">Click on a row to view or add notes</p>
+                        <h3 className="submissions-heading">{t('problemDetails.submissions.heading')}</h3>
+                        <p className="submissions-subtitle">{t('problemDetails.submissions.subtitle')}</p>
                         
                         <div className="submissions-table-wrapper">
                             <table className="submissions-table">
                                 <thead>
                                     <tr>
-                                        <th>Status</th>
-                                        <th>Language</th>
-                                        <th>Runtime</th>
-                                        <th>Time Submitted</th>
+                                        <th>{t('problemDetails.submissions.headers.status')}</th>
+                                        <th>{t('problemDetails.submissions.headers.language')}</th>
+                                        <th>{t('problemDetails.submissions.headers.runtime')}</th>
+                                        <th>{t('problemDetails.submissions.headers.timeSubmitted')}</th>
                                         <th style={{ width: '40px' }}></th>
                                     </tr>
                                 </thead>
@@ -160,12 +162,12 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                                                 onClick={() => toggleRow(sub.id)}
                                             >
                                                 {(() => {
-                                                    const verdict = getVerdictDetails(sub.status);
+                                                    const verdict = getVerdictDetails(sub.status, t);
                                                     return (
                                                         <td className={`status-cell ${verdict.className}`}>
                                                             {verdict.icon}
                                                             <span>{verdict.label}</span>
-                                                            {sub.notes && <FaStickyNote className="has-note-icon" title="Has notes" />}
+                                                            {sub.notes && <FaStickyNote className="has-note-icon" title={t('common.hasNotes')} />}
                                                         </td>
                                                     );
                                                 })()}
@@ -184,7 +186,7 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
                                                             {sub.testCasesBreakdown && (
                                                                 <div className="test-cases-breakdown-wrapper" style={{ marginBottom: '15px' }}>
                                                                     <div className="notes-header" style={{ marginBottom: '8px' }}>
-                                                                        <span>Test Case Execution Breakdown</span>
+                                                                        <span>{t('problemDetails.submissions.testBreakdown')}</span>
                                                                     </div>
                                                                     <div className="tc-mini-grid" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                                                                         {sub.testCasesBreakdown.map((tc) => (
@@ -210,11 +212,11 @@ function ProblemDescription({ problem, submissionHistory = [] }) {
 
                                                             <div className="notes-header">
                                                                 <FaStickyNote size={12} />
-                                                                <span>Submission Notes</span>
+                                                                <span>{t('problemDetails.submissions.notes')}</span>
                                                             </div>
                                                             <textarea
                                                                 className="notes-textarea"
-                                                                placeholder="Type your notes here (e.g., edge cases, approach details, complexity updates)..."
+                                                                placeholder={t('problemDetails.submissions.notesPlaceholder')}
                                                                 value={sub.notes}
                                                                 onClick={(e) => e.stopPropagation()} 
                                                                 onChange={(e) => handleNoteChange(sub.id, e.target.value)}

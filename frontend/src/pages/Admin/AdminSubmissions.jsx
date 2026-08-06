@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import './Admin.css';
 import { fetchApi } from '../../services/api';
 import { FaHistory, FaCheckCircle, FaTimesCircle, FaClock } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 function AdminSubmissions() {
+    const { t } = useTranslation();
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -26,8 +28,8 @@ function AdminSubmissions() {
     }, []);
 
     const getStatusBadge = (status) => {
-        if (status === 'ACCEPTED') return <span className="badge easy"><FaCheckCircle size={10} /> Accepted</span>;
-        if (status === 'PENDING') return <span className="badge medium"><FaClock size={10} /> Pending</span>;
+        if (status === 'ACCEPTED') return <span className="badge easy"><FaCheckCircle size={10} /> {t('admin.submissions.accepted')}</span>;
+        if (status === 'PENDING') return <span className="badge medium"><FaClock size={10} /> {t('admin.submissions.pending')}</span>;
         return <span className="badge hard"><FaTimesCircle size={10} /> {status}</span>;
     };
 
@@ -40,37 +42,37 @@ function AdminSubmissions() {
     return (
         <div className="admin-dashboard-container animate-fade-in">
             <div className="admin-page-header">
-                <h2>All User Submissions</h2>
-                <p>Global feed of all problem attempts, languages used, and results across the platform.</p>
+                <h2>{t('admin.submissions.title')}</h2>
+                <p>{t('admin.submissions.subtitle')}</p>
             </div>
 
             <div className="admin-panel-card animate-fade-in">
                 <div className="card-header-accent">
-                    <FaHistory /> <span>Global Execution Log</span>
+                    <FaHistory /> <span>{t('admin.submissions.header')}</span>
                 </div>
                 
                 {loading ? (
                     <div className="loader-container">
                         <div className="spinner"></div>
-                        <p>Loading submissions log...</p>
+                        <p>{t('admin.submissions.loading')}</p>
                     </div>
                 ) : (
                     <div className="admin-table-wrapper">
                         <table className="admin-problems-table">
                             <thead>
                                 <tr>
-                                    <th>Submission ID</th>
-                                    <th>User</th>
-                                    <th>Problem</th>
-                                    <th>Language</th>
-                                    <th>Status</th>
-                                    <th>Time</th>
+                                    <th>{t('admin.submissions.headers.submissionId')}</th>
+                                    <th>{t('admin.submissions.headers.user')}</th>
+                                    <th>{t('admin.submissions.headers.problem')}</th>
+                                    <th>{t('admin.submissions.headers.language')}</th>
+                                    <th>{t('admin.submissions.headers.status')}</th>
+                                    <th>{t('admin.submissions.headers.time')}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {submissions.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>No submissions found.</td>
+                                        <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>{t('admin.submissions.empty')}</td>
                                     </tr>
                                 ) : (
                                     submissions.map((sub) => (

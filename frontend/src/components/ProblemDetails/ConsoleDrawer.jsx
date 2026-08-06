@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaTerminal, FaTimes, FaCheckCircle, FaExclamationTriangle, FaSpinner, FaVial, FaTimesCircle } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import './ConsoleDrawer.css';
 
 export default function ConsoleDrawer({ 
@@ -10,6 +11,7 @@ export default function ConsoleDrawer({
     totalTestCases, 
     feedback 
 }) {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState('console');
     const [selectedTestCase, setSelectedTestCase] = useState(0);
     const [activeResultTest, setActiveResultTest] = useState(0);
@@ -35,17 +37,17 @@ export default function ConsoleDrawer({
                             className={`console-nav-btn ${activeTab === 'testcases' ? 'active' : ''}`}
                             onClick={() => setActiveTab('testcases')}
                         >
-                            <FaVial className="nav-icon" size={10} /> Sample Test Cases
+                            <FaVial className="nav-icon" size={10} /> {t('problemDetails.console.sampleTestCases')}
                         </button>
                         <button 
                             className={`console-nav-btn ${activeTab === 'console' ? 'active' : ''}`}
                             onClick={() => setActiveTab('console')}
                         >
-                            <FaTerminal className="nav-icon" /> Output Results
+                            <FaTerminal className="nav-icon" /> {t('problemDetails.console.outputResults')}
                         </button>
                     </div>
                 </div>
-                <button className="console-close-btn" onClick={onClose} title="Close Console">
+                <button className="console-close-btn" onClick={onClose} title={t('problemDetails.console.closeConsole')}>
                     <FaTimes />
                 </button>
             </div>
@@ -60,17 +62,17 @@ export default function ConsoleDrawer({
                                     className={`tc-pill-tab ${selectedTestCase === idx ? 'active' : ''}`}
                                     onClick={() => setSelectedTestCase(idx)}
                                 >
-                                    Case {tc.id}
+                                    {t('problemDetails.console.caseLabel', { number: tc.id })}
                                 </button>
                             ))}
                         </div>
                         <div className="tc-content-box">
                             <div className="tc-field-group">
-                                <label>Input Data:</label>
+                                <label>{t('problemDetails.console.inputData')}</label>
                                 <div className="tc-code-block font-mono">{sampleTestCases[selectedTestCase].input}</div>
                             </div>
                             <div className="tc-field-group">
-                                <label>Expected Output:</label>
+                                <label>{t('problemDetails.console.expectedOutput')}</label>
                                 <div className="tc-code-block font-mono">{sampleTestCases[selectedTestCase].expected}</div>
                             </div>
                         </div>
@@ -80,20 +82,20 @@ export default function ConsoleDrawer({
                         {currentState === 'COMPILING' && (
                             <div className="status-container status-loading">
                                 <FaSpinner className="spinner-icon" />
-                                <h3>Compiling Code Architecture...</h3>
-                                <p>Running syntax validation checks and checking structure guidelines.</p>
+                                <h3>{t('problemDetails.console.compiling')}</h3>
+                                <p>{t('problemDetails.console.compilingSubtext')}</p>
                             </div>
                         )}
 
                         {currentState === 'RUNNING_TESTS' && (
                             <div className="status-container status-loading">
                                 <FaSpinner className="spinner-icon" />
-                                <h3>Evaluating Test Cases...</h3>
-                                <p>Passing execution blocks down evaluation matrix pipeline.</p>
+                                <h3>{t('problemDetails.console.evaluating')}</h3>
+                                <p>{t('problemDetails.console.evaluatingSubtext')}</p>
                                 <div className="progress-bar-wrapper">
                                     <div className="progress-bar-label">
-                                        <span>Progress</span>
-                                        <span>{currentTestIndex} / {totalTestCases} Passed</span>
+                                        <span>{t('problemDetails.console.progress')}</span>
+                                        <span>{currentTestIndex} / {totalTestCases} {t('problemDetails.console.passed')}</span>
                                     </div>
                                     <div className="progress-bar-track">
                                         <div 
@@ -109,12 +111,12 @@ export default function ConsoleDrawer({
                             <div className="status-container status-error">
                                 <div className="verdict-banner error-banner">
                                     <FaExclamationTriangle />
-                                    <span>Compilation Failed</span>
+                                    <span>{t('problemDetails.console.compilationFailed')}</span>
                                 </div>
                                 <div className="compiler-error-box">
-                                    <div className="error-line-badge">Line {feedback?.line || 'N/A'}</div>
+                                    <div className="error-line-badge">{t('problemDetails.console.line', { line: feedback?.line || 'N/A' })}</div>
                                     <pre className="terminal-stack-trace font-mono" style={{ whiteSpace: 'pre-wrap' }}>
-                                        {feedback?.message || "Syntax error detected in source code."}
+                                        {feedback?.message || t('problemDetails.console.syntaxErrorFallback')}
                                     </pre>
                                 </div>
                             </div>
@@ -125,23 +127,23 @@ export default function ConsoleDrawer({
                                 <div className={`verdict-banner ${currentState === 'SUCCESS' ? 'success-banner' : 'failed-banner'}`}>
                                     {currentState === 'SUCCESS' ? <FaCheckCircle /> : <FaExclamationTriangle />}
                                     <span>
-                                        {currentState === 'SUCCESS' ? 'Accepted (All Test Cases Passed)' : 
-                                         feedback?.status === 'RUNTIME_ERROR' ? 'Runtime Error' : 'Wrong Answer'}
+                                        {currentState === 'SUCCESS' ? t('problemDetails.console.accepted') : 
+                                         feedback?.status === 'RUNTIME_ERROR' ? t('problemDetails.console.runtimeError') : t('problemDetails.console.wrongAnswer')}
                                     </span>
                                 </div>
 
                                 <p className="status-context-msg">
                                     {currentState === 'SUCCESS' 
-                                        ? 'Your solution successfully verified all test suites.' 
+                                        ? t('problemDetails.console.successMessage') 
                                         : (feedback?.status === 'RUNTIME_ERROR' 
-                                            ? 'Your code crashed during execution.' 
-                                            : 'One or more test cases failed execution validation.')}
+                                            ? t('problemDetails.console.runtimeMessage') 
+                                            : t('problemDetails.console.wrongAnswerMessage'))}
                                 </p>
 
                                 {currentState === 'FAILED_TEST' && feedback?.status === 'RUNTIME_ERROR' ? (
                                     <div className="compiler-error-box" style={{ marginTop: '15px' }}>
                                         <pre className="terminal-stack-trace font-mono" style={{ color: '#f87171', whiteSpace: 'pre-wrap' }}>
-                                            {feedback?.errorTrace || feedback?.message || "Unknown runtime error occurred"}
+                                            {feedback?.errorTrace || feedback?.message || t('errors.runtimeErrorFallback')}
                                         </pre>
                                     </div>
                                 ) : (
@@ -157,7 +159,7 @@ export default function ConsoleDrawer({
                                                         style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                                                     >
                                                         {isPassed ? <FaCheckCircle size={11} color="#10b981" /> : <FaTimesCircle size={11} color="#ef4444" />}
-                                                        Test {tc.id}
+                                                        {t('problemDetails.console.testLabel', { number: tc.id })}
                                                     </button>
                                                 );
                                             })}
@@ -167,15 +169,15 @@ export default function ConsoleDrawer({
                                             {currentState === 'FAILED_TEST' && feedback?.expectedOutput && (
                                                 <>
                                                     <div className="tc-field-group">
-                                                        <label>Input (Dynamic):</label>
+                                                        <label>{t('problemDetails.console.inputDynamic')}</label>
                                                         <div className="tc-code-block font-mono">{feedback?.input || sampleTestCases[activeResultTest].input}</div>
                                                     </div>
                                                     <div className="tc-field-group">
-                                                        <label>Expected Output:</label>
+                                                        <label>{t('problemDetails.console.expectedOutput')}</label>
                                                         <div className="tc-code-block font-mono">{feedback?.expectedOutput}</div>
                                                     </div>
                                                     <div className="tc-field-group">
-                                                        <label>Received Output:</label>
+                                                        <label>{t('problemDetails.console.receivedOutput')}</label>
                                                         <div 
                                                             className="tc-code-block font-mono" 
                                                             style={{ 
@@ -183,22 +185,22 @@ export default function ConsoleDrawer({
                                                                 borderColor: 'rgba(239, 68, 68, 0.3)'
                                                             }}
                                                         >
-                                                            {feedback?.userOutput || "None"}
+                                                            {feedback?.userOutput || t('common.none')}
                                                         </div>
                                                     </div>
                                                 </>
                                             ) || (
                                                 <>
                                                     <div className="tc-field-group">
-                                                        <label>Input:</label>
+                                                        <label>{t('problemDetails.console.input')}</label>
                                                         <div className="tc-code-block font-mono">{sampleTestCases[activeResultTest].input}</div>
                                                     </div>
                                                     <div className="tc-field-group">
-                                                        <label>Expected Output:</label>
+                                                        <label>{t('problemDetails.console.expectedOutput')}</label>
                                                         <div className="tc-code-block font-mono">{sampleTestCases[activeResultTest].expected}</div>
                                                     </div>
                                                     <div className="tc-field-group">
-                                                        <label>Received Output:</label>
+                                                        <label>{t('problemDetails.console.receivedOutput')}</label>
                                                         <div 
                                                             className="tc-code-block font-mono" 
                                                             style={{ 
@@ -218,11 +220,11 @@ export default function ConsoleDrawer({
                                 {currentState === 'SUCCESS' && (
                                     <div className="metrics-row-display" style={{ marginTop: '16px' }}>
                                         <div className="metric-score-card">
-                                            <span className="metric-label">Runtime Speed</span>
+                                            <span className="metric-label">{t('problemDetails.console.runtimeSpeed')}</span>
                                             <span className="metric-value value-green">{feedback?.runtime || "38 ms"}</span>
                                         </div>
                                         <div className="metric-score-card">
-                                            <span className="metric-label">Memory Footprint</span>
+                                            <span className="metric-label">{t('problemDetails.console.memoryFootprint')}</span>
                                             <span className="metric-value value-green">{feedback?.memory || "15.8 MB"}</span>
                                         </div>
                                     </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { FaChevronLeft, FaChevronRight, FaRandom } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import ProblemDescription from '../../components/ProblemDetails/ProblemDescription';
 import CodeEditor from '../../components/ProblemDetails/CodeEditor';
 import ActionButtons from '../../components/ProblemDetails/ActionButtons';
@@ -12,6 +13,7 @@ import './ProblemDetails.css';
 
 function ProblemDetails() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { id } = useParams();
     const currentId = parseInt(id) || 1;
     
@@ -25,7 +27,7 @@ function ProblemDetails() {
             try {
                 // Fetch problem details
                 const probRes = await fetchApi(`/api/problems/${currentId}`);
-                if (!probRes.ok) throw new Error("Problem not found");
+                if (!probRes.ok) throw new Error(t('problemDetails.notFound'));
                 const probData = await probRes.json();
 
                 // Fetch test cases to attach to problem
@@ -52,7 +54,7 @@ function ProblemDetails() {
                 }
             } catch (err) {
                 console.error(err);
-                setError("Failed to load problem details.");
+                setError(t('errors.problemDetailsLoad'));
             } finally {
                 setLoading(false);
             }
@@ -113,9 +115,7 @@ function ProblemDetails() {
         const role = localStorage.getItem('userRole');
         
         if (!token) {
-            const confirmLogin = window.confirm(
-                "You must be logged in to compile or submit solutions and track your progress! Would you like to go to the login page now?"
-            );
+            const confirmLogin = window.confirm(t('problemDetails.auth.confirmLogin'));
             if (confirmLogin) {
                 navigate('/login');
             }
@@ -123,7 +123,7 @@ function ProblemDetails() {
         }
 
         if (role === 'admin' && actionType === 'submit') {
-            alert("⚠️ Submission Access Denied: Admin accounts cannot submit solutions to the live leaderboard to prevent scoring conflicts. Please use a regular Coder account to test submissions.");
+            alert(t('problemDetails.auth.adminSubmissionDenied'));
             return false; 
         }
 
@@ -154,10 +154,10 @@ function ProblemDetails() {
         navigate(`/problems/${randomKey}`);
     };
 
-    if (loading) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh',color:'white'}}>Loading Problem Data...</div>;
+    if (loading) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh',color:'white'}}>{t('problemDetails.loading')}</div>;
     if (error || !problem) return <div style={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',height:'100vh',color:'red'}}>
-        <h2>{error || "Problem Not Found"}</h2>
-        <button onClick={() => navigate('/problems')} style={{marginTop: '20px', padding: '10px 20px'}}>Back to Problem List</button>
+        <h2>{error || t('problemDetails.notFound')}</h2>
+        <button onClick={() => navigate('/problems')} style={{marginTop: '20px', padding: '10px 20px'}}>{t('problemDetails.backToList')}</button>
     </div>;
 
     return (
@@ -166,12 +166,12 @@ function ProblemDetails() {
                 <div className="header-left">
                     <Link to="/" className="brand-logo-link">CodeArena</Link>
                     <span className="divider">|</span>
-                    <button className="back-nav-btn" onClick={() => navigate('/problems')}>Problem List</button>
+                    <button className="back-nav-btn" onClick={() => navigate('/problems')}>{t('problemDetails.problemList')}</button>
                     
                     <div className="nav-controls">
                         <button className="nav-arrow-btn" onClick={handlePrev} disabled={currentId <= 1}><FaChevronLeft size={11} /></button>
                         <button className="nav-arrow-btn" onClick={handleNext}><FaChevronRight size={11} /></button>
-                        <button className="nav-arrow-btn pick-one" onClick={handlePickOne} title="Pick Random Problem"><FaRandom size={12} /></button>
+                        <button className="nav-arrow-btn pick-one" onClick={handlePickOne} title={t('problemDetails.randomTitle')}><FaRandom size={12} /></button>
                     </div>
                 </div>
                 
@@ -193,7 +193,7 @@ function ProblemDetails() {
                     fontWeight: '500',
                     flexShrink: 0
                 }}>
-                    ⚠️ You are exploring this workspace as a guest. Please <Link to="/login" style={{ color: '#ef4444', fontWeight: '700', textDecoration: 'underline' }}>Sign In</Link> to save changes and execute code blocks.
+                    ⚠️ {t('problemDetails.guestBanner', { link: <Link to="/login" style={{ color: '#ef4444', fontWeight: '700', textDecoration: 'underline' }}>{t('problemDetails.signInLink')}</Link> })}
                 </div>
             )}
 

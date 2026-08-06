@@ -4,9 +4,11 @@ import './Problems.css';
 import FilterBar from '../../components/Problems/FilterBar';
 import SearchBar from '../../components/Problems/SearchBar';
 import ProblemTable from '../../components/Problems/ProblemTable';
+import { useTranslation } from 'react-i18next';
 
 function Problems() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDifficulty, setSelectedDifficulty] = useState("All");
     const [selectedTopic, setSelectedTopic] = useState("All"); // 👈 1. Added topic state
@@ -24,10 +26,9 @@ function Problems() {
             <div className="container">
                 <div className="problems-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h1>Problems</h1>
+                        <h1>{t('problems.title')}</h1>
                         <p>
-                            Practice coding challenges, improve your problem-solving skills,
-                            and prepare for technical interviews.
+                            {t('problems.description')}
                         </p>
                     </div>
 
@@ -49,7 +50,7 @@ function Problems() {
                                 gap: '6px'
                             }}
                         >
-                            + Add Problem
+                            {t('problems.addProblem')}
                         </button>
                     )}
                 </div>

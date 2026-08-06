@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './Admin.css';
 import { FaChartLine, FaServer, FaUsers, FaCode, FaCheckCircle } from 'react-icons/fa';
 import { fetchApi } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 function AdminAnalytics() {
+    const { t } = useTranslation();
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -16,10 +18,10 @@ function AdminAnalytics() {
                     const data = await response.json();
                     setAnalytics(data);
                 } else {
-                    setError("Failed to load analytics");
+                    setError(t('errors.adminAnalyticsError'));
                 }
             } catch (err) {
-                setError("Error connecting to server");
+                setError(t('errors.adminAnalyticsConnect'));
             } finally {
                 setLoading(false);
             }
@@ -38,19 +40,19 @@ function AdminAnalytics() {
     return (
         <div className="admin-dashboard-container animate-fade-in">
             <div className="admin-page-header">
-                <h2>Engine Status & Analytics</h2>
-                <p>View system metrics and code execution engine health.</p>
+                <h2>{t('admin.analytics.title')}</h2>
+                <p>{t('admin.analytics.subtitle')}</p>
             </div>
 
             <div className="admin-panel-card animate-fade-in" style={{ padding: '40px', textAlign: 'center' }}>
                 {loading ? (
-                    <div style={{ padding: '40px' }}>Loading live engine metrics...</div>
+                    <div style={{ padding: '40px' }}>{t('admin.analytics.loading')}</div>
                 ) : error ? (
                     <div style={{ padding: '40px', color: 'red' }}>{error}</div>
                 ) : (
                     <>
                         <FaServer size={48} style={{ color: 'var(--accent-primary)', marginBottom: '20px' }} />
-                        <h3>System {analytics?.status || 'Unknown'}</h3>
+                        <h3>{t('admin.analytics.status', { status: analytics?.status || 'Unknown' })}</h3>
                         
                         <div style={{ 
                             display: 'grid', 
@@ -60,19 +62,19 @@ function AdminAnalytics() {
                             textAlign: 'left' 
                         }}>
                             <div className="streak-badge" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <div style={{ color: 'var(--text-secondary)' }}><FaUsers /> Total Users</div>
+                                <div style={{ color: 'var(--text-secondary)' }}><FaUsers /> {t('admin.analytics.totalUsers')}</div>
                                 <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{analytics?.totalUsers || 0}</div>
                             </div>
                             <div className="streak-badge" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <div style={{ color: 'var(--text-secondary)' }}><FaCode /> Active Problems</div>
+                                <div style={{ color: 'var(--text-secondary)' }}><FaCode /> {t('admin.analytics.activeProblems')}</div>
                                 <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{analytics?.totalProblems || 0}</div>
                             </div>
                             <div className="streak-badge" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <div style={{ color: 'var(--text-secondary)' }}><FaCheckCircle /> Processed Submissions</div>
+                                <div style={{ color: 'var(--text-secondary)' }}><FaCheckCircle /> {t('admin.analytics.processedSubmissions')}</div>
                                 <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{analytics?.totalSubmissions || 0}</div>
                             </div>
                             <div className="streak-badge" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <div style={{ color: 'var(--text-secondary)' }}><FaChartLine /> Server Uptime</div>
+                                <div style={{ color: 'var(--text-secondary)' }}><FaChartLine /> {t('admin.analytics.serverUptime')}</div>
                                 <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{formatUptime(analytics?.uptimeSeconds)}</div>
                             </div>
                         </div>

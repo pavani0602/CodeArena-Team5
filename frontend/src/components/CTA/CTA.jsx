@@ -1,18 +1,20 @@
 import "./CTA.css";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 function CTA() {
+    const { t } = useTranslation();
+
     return (
         <section className="cta">
             <div className="container">
                 <div className="cta-content">
-                    <h2>Ready to Start Your Coding Journey?</h2>
+                    <h2>{t('home.cta.heading')}</h2>
                     <p>
-                        Join CodeArena today and sharpen your
-                        problem-solving skills one challenge at a time
+                        {t('home.cta.description')}
                     </p>
                     <Link className="cta-button" to="/register">
-                        Get Started!
+                        {t('home.cta.button')}
                     </Link>
                 </div>
             </div>

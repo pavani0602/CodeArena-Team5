@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaUserShield, FaArrowLeft } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 import '../../pages/Admin/Authstyles.css';
+import { useTranslation } from 'react-i18next';
 
 function ForgotPassword() {
     const [role, setRole] = useState('user'); // 'user' or 'admin'
@@ -11,6 +12,7 @@ function ForgotPassword() {
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const handleRecover = async (e) => {
         e.preventDefault();
@@ -54,7 +56,7 @@ function ForgotPassword() {
         } catch (err) {
             console.error('FAILED...', err);
             setLoading(false);
-            setErrorMessage('Failed to send reset instructions. Please try again.');
+            setErrorMessage(t('auth.forgotPasswordPage.error'));
         }
     };
 
@@ -79,14 +81,14 @@ function ForgotPassword() {
                         className={`role-tab ${role === 'user' ? 'active' : ''}`}
                         onClick={() => handleTabChange('user')}
                     >
-                        <FaUser size={12} /> User
+                        <FaUser size={12} /> {t('auth.user')}
                     </button>
                     <button 
                         type="button"
                         className={`role-tab ${role === 'admin' ? 'active' : ''}`}
                         onClick={() => handleTabChange('admin')}
                     >
-                        <FaUserShield size={13} /> Admin
+                        <FaUserShield size={13} /> {t('auth.admin')}
                     </button>
                 </div>
 
@@ -98,20 +100,20 @@ function ForgotPassword() {
 
                 {!submitted ? (
                     <>
-                        <h2 className="auth-title">Reset Password</h2>
+                        <h2 className="auth-title">{t('auth.forgotPasswordPage.title')}</h2>
                         <p className="auth-subtitle">
                             {role === 'admin' 
-                                ? 'Enter your admin email to receive secure workspace recovery instructions.' 
-                                : 'Enter your registered email to receive a password reset link.'}
+                                ? t('auth.forgotPasswordPage.subtitleAdmin') 
+                                : t('auth.forgotPasswordPage.subtitleUser')}
                         </p>
 
                         <form onSubmit={handleRecover} className="auth-form">
                             <div className="input-group">
-                                <label>{role === 'admin' ? 'Admin Email' : 'Email Address'}</label>
+                                <label>{role === 'admin' ? t('auth.adminEmail') : t('auth.emailAddress')}</label>
                                 <input 
                                     type="email" 
                                     required 
-                                    placeholder={role === 'admin' ? 'admin@codearena.com' : 'you@example.com'}
+                                    placeholder={role === 'admin' ? t('auth.login.placeholderAdminEmail') : t('auth.login.placeholderEmail')}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     disabled={loading}
@@ -119,30 +121,30 @@ function ForgotPassword() {
                             </div>
 
                             <button type="submit" className="auth-submit-btn" disabled={loading}>
-                                {loading ? 'Sending Instructions...' : 'Send Reset Link'}
+                                {loading ? t('auth.forgotPasswordPage.sending') : t('auth.forgotPasswordPage.send')}
                             </button>
                         </form>
                     </>
                 ) : (
                     <div className="auth-success-view" style={{ textAlign: 'center', padding: '10px 0' }}>
                         <div style={{ color: '#10b981', fontSize: '2.5rem', marginBottom: '12px' }}>📩</div>
-                        <h2 className="auth-title">Check Your Inbox</h2>
+                        <h2 className="auth-title">{t('auth.forgotPasswordPage.successTitle')}</h2>
                         <p className="auth-subtitle" style={{ marginBottom: '20px' }}>
-                            We have successfully sent password reset instructions to <strong>{email}</strong>.
+                            {t('auth.forgotPasswordPage.successMessage', { email })}
                         </p>
                         <button 
                             onClick={() => navigate('/login')} 
                             className="auth-submit-btn" 
                             style={{ width: '100%', border: 'none', cursor: 'pointer' }}
                         >
-                            Back to Sign In
+                            {t('auth.forgotPasswordPage.backToLogin')}
                         </button>
                     </div>
                 )}
 
                 <div style={{ marginTop: '20px', textAlign: 'center' }}>
                     <Link to="/login" className="back-to-login-link" style={{ color: '#64748b', fontSize: '0.88rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                        <FaArrowLeft size={10} /> Back to Sign In
+                        <FaArrowLeft size={10} /> {t('auth.forgotPasswordPage.backToLogin')}
                     </Link>
                 </div>
             </div>

@@ -1,13 +1,15 @@
 import "./Stats.css";
 import { useState, useEffect } from 'react';
 import { fetchApi } from "../../services/api";
+import { useTranslation } from 'react-i18next';
 
 function Stats() {
+    const { t } = useTranslation();
     const [stats, setStats] = useState([
-        { number: "—", title: "Coding Problems" },
-        { number: "—", title: "Active Users" },
-        { number: "15+", title: "Programming Languages" },
-        { number: "24/7", title: "Practise Access" }
+        { number: "—", title: t('home.stats.items.problems') },
+        { number: "—", title: t('home.stats.items.users') },
+        { number: "15+", title: t('home.stats.items.languages') },
+        { number: "24/7", title: t('home.stats.items.access') }
     ]);
 
     useEffect(() => {
@@ -22,10 +24,10 @@ function Stats() {
                 const users = userRes.ok ? await userRes.json() : [];
 
                 setStats([
-                    { number: `${problems.length}+`, title: "Coding Problems" },
-                    { number: `${users.length}+`, title: "Active Users" },
-                    { number: "15+", title: "Programming Languages" },
-                    { number: "24/7", title: "Practise Access" }
+                    { number: `${problems.length}+`, title: t('home.stats.items.problems') },
+                    { number: `${users.length}+`, title: t('home.stats.items.users') },
+                    { number: "15+", title: t('home.stats.items.languages') },
+                    { number: "24/7", title: t('home.stats.items.access') }
                 ]);
             } catch (err) {
                 console.error("Could not fetch platform stats:", err);
@@ -39,7 +41,7 @@ function Stats() {
         <section className="stats">
             <div className="container">
                 <div className="section-header">
-                    <h3>Our Platform in Numbers</h3>
+                    <h3>{t('home.stats.heading')}</h3>
                 </div>
                 <div className="stats-grid">
                     {

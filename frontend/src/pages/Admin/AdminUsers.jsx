@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import './Admin.css';
 import { FaList, FaUser } from 'react-icons/fa';
 import { fetchApi } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 function AdminUsers() {
+    const { t } = useTranslation();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -17,7 +19,7 @@ function AdminUsers() {
                 setUsers(data);
             } catch (err) {
                 console.error(err);
-                setError("Failed to load users from the server.");
+                setError(t('errors.adminUsersError'));
             } finally {
                 setLoading(false);
             }
@@ -29,8 +31,8 @@ function AdminUsers() {
     return (
         <div className="admin-dashboard-container animate-fade-in">
             <div className="admin-page-header">
-                <h2>Manage Users</h2>
-                <p>View all isolated user accounts registered on CodeArena.</p>
+                <h2>{t('admin.users.title')}</h2>
+                <p>{t('admin.users.subtitle')}</p>
             </div>
 
             <div className="admin-panel-card animate-fade-in">
@@ -39,7 +41,7 @@ function AdminUsers() {
                 </div>
                 
                 {loading ? (
-                    <div style={{ padding: '20px', textAlign: 'center' }}>Loading users...</div>
+                    <div style={{ padding: '20px', textAlign: 'center' }}>{t('admin.users.loading')}</div>
                 ) : error ? (
                     <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>{error}</div>
                 ) : (
@@ -47,11 +49,11 @@ function AdminUsers() {
                         <table className="admin-problems-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Joined</th>
+                                    <th>{t('admin.users.headers.id')}</th>
+                                    <th>{t('admin.users.headers.username')}</th>
+                                    <th>{t('admin.users.headers.email')}</th>
+                                    <th>{t('admin.users.headers.role')}</th>
+                                    <th>{t('admin.users.headers.joined')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -73,7 +75,7 @@ function AdminUsers() {
                                 )) : (
                                     <tr>
                                         <td colSpan="5" style={{ textAlign: "center", padding: "30px", color: "var(--text-secondary)" }}>
-                                            No users found.
+                                            {t('admin.users.empty')}
                                         </td>
                                     </tr>
                                 )}

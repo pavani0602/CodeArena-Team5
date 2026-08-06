@@ -3,19 +3,29 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { FaFire, FaUserCircle, FaSignOutAlt, FaThLarge, FaChevronDown } from 'react-icons/fa';
 import { fetchApi } from "../../services/api";
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 function Navbar() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userRole, setUserRole] = useState('user');
     const [userEmail, setUserEmail] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
+    const [currentLanguage, setCurrentLanguage] = useState(i18n.language || 'en');
     
     const [userStats, setUserStats] = useState({
         streak: 0
     });
 
     useEffect(() => {
+        const stored = localStorage.getItem('codearena-lang');
+        if (stored) {
+            setCurrentLanguage(stored);
+            i18n.changeLanguage(stored);
+        }
+
         const token = localStorage.getItem('token');
         const role = localStorage.getItem('userRole');
         const email = localStorage.getItem('userEmail');
@@ -49,8 +59,14 @@ function Navbar() {
         setIsLoggedIn(false);
         setUserEmail('');
         setShowDropdown(false);
-        alert('Signed out successfully.');
+        alert(t('auth.login.success', { username: t('common.brand') }));
         navigate('/');
+    };
+
+    const changeLanguage = (lng) => {
+        setCurrentLanguage(lng);
+        i18n.changeLanguage(lng);
+        localStorage.setItem('codearena-lang', lng);
     };
 
     return (
@@ -58,7 +74,7 @@ function Navbar() {
             <div className="left">
                 {/* 💡 Keeps your exact branding structure */}
                 <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <h2>Code<span className="arena">Arena</span></h2>
+                    <h2>{t('common.brand').split('Code')[0]}<span className="arena">{t('common.brand').split('Arena')[1] || 'Arena'}</span></h2>
                 </Link>
             </div>
             
@@ -66,17 +82,17 @@ function Navbar() {
                 {isLoggedIn && userRole === 'admin' ? (
                     /* 🛠️ ADMIN NAVIGATION LINKS */
                     <>
-                        <NavLink to="/admin">Problem Workspace</NavLink>
-                        <NavLink to="/admin/analytics">Engine Status</NavLink>
-                        <NavLink to="/admin/users">Manage Users</NavLink>
-                        <NavLink to="/admin/submissions">Submissions</NavLink>
+                        <NavLink to="/admin">{t('navbar.problemWorkspace')}</NavLink>
+                        <NavLink to="/admin/analytics">{t('navbar.engineStatus')}</NavLink>
+                        <NavLink to="/admin/users">{t('navbar.manageUsers')}</NavLink>
+                        <NavLink to="/admin/submissions">{t('navbar.submissions')}</NavLink>
                     </>
                 ) : (
                     /* 💻 STANDARD USER / PUBLIC NAVIGATION LINKS */
                     <>
-                        <NavLink to="/problems">Problems</NavLink>
-                        <NavLink to="/leaderboard">Leaderboard</NavLink>
-                        <NavLink to="/discussion">Discussion</NavLink>
+                        <NavLink to="/problems">{t('navbar.problems')}</NavLink>
+                        <NavLink to="/leaderboard">{t('navbar.leaderboard')}</NavLink>
+                        <NavLink to="/discussion">{t('navbar.discussion')}</NavLink>
                     </>
                 )}
             </div>
@@ -84,15 +100,30 @@ function Navbar() {
             <div className="right">
                 {!isLoggedIn ? (
                     /* 🚪 PUBLIC STATE: Your exact Login Button wrapper */
-                    <Link to="/login">
-                        <button>Login or Signup</button>
-                    </Link>
+                    <div className="authenticated-actions-wrapper">
+                        <select className="language-selector" value={currentLanguage} onChange={(e) => changeLanguage(e.target.value)}>
+                            <option value="en">English</option>
+                            <option value="ta">தமிழ்</option>
+                            <option value="hi">हिन्दी</option>
+                            <option value="te">తెలుగు</option>
+                        </select>
+                        <Link to="/login">
+                            <button>{t('navbar.loginOrSignup')}</button>
+                        </Link>
+                    </div>
                 ) : (
                     /* ⚡ AUTHENTICATED STATE: Dynamic Streak + Profile Hub */
                     <div className="authenticated-actions-wrapper">
                         
+                        <select className="language-selector" value={currentLanguage} onChange={(e) => changeLanguage(e.target.value)}>
+                            <option value="en">English</option>
+                            <option value="ta">தமிழ்</option>
+                            <option value="hi">हिन्दी</option>
+                            <option value="te">తెలుగు</option>
+                        </select>
+
                         {userRole === 'user' && (
-                            <div className="streak-badge" title="Your Daily Coding Streak!">
+                            <div className="streak-badge" title={t('navbar.streakTooltip')}>
                                 <FaFire className="streak-icon" />
                                 <span>{userStats.streak}</span>
                             </div>
@@ -106,14 +137,14 @@ function Navbar() {
                                 onClick={() => setShowDropdown(!showDropdown)}
                             >
                                 <FaUserCircle size={18} className="avatar-placeholder" />
-                                <span className="user-role-label">{userRole === 'admin' ? 'Admin' : 'Coder'}</span>
+                                <span className="user-role-label">{userRole === 'admin' ? t('navbar.admin') : t('navbar.coder')}</span>
                                 <FaChevronDown size={10} className={`chevron-icon ${showDropdown ? 'rotate' : ''}`} />
                             </button>
 
                             {showDropdown && (
                                 <div className="navbar-dropdown-menu">
                                     <div className="dropdown-user-header">
-                                        <span>Signed in as</span>
+                                        <span>{t('navbar.signedInAs')}</span>
                                         <strong>{userEmail}</strong>
                                     </div>
                                     <hr className="dropdown-divider" />
@@ -123,7 +154,7 @@ function Navbar() {
                                         className="dropdown-item"
                                         onClick={() => setShowDropdown(false)}
                                     >
-                                        <FaThLarge size={14} /> Dashboard
+                                        <FaThLarge size={14} /> {t('navbar.dashboard')}
                                     </Link>
                                     
                                     {/* 🚪 Added a unique 'dropdown-logout-action' class here */}
@@ -131,7 +162,7 @@ function Navbar() {
                                         onClick={handleSignOut} 
                                         className="dropdown-item logout-btn dropdown-logout-action"
                                     >
-                                        <FaSignOutAlt size={14} /> Sign Out
+                                        <FaSignOutAlt size={14} /> {t('navbar.signOut')}
                                     </button>
                                 </div>
                             )}

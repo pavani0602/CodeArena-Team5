@@ -5,37 +5,41 @@ import {
     FaTrophy,
     FaComments
 } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
-const features = [
-    {
-        icon : <FaCode />,
-        title : "Practice Problems",
-        description : "Solve coding challenges across multiple topics and difficulty levels."
-    },
-    {
-        icon : <FaChartLine />,
-        title : "Track Progress",
-        description : " Monitor your solved problems and stay consistent with your learning."
-    },
-    {
-        icon : <FaTrophy />,
-        title : "Leaderboard",
-        description : "Compete with other programmers and improve your ranking."
-    },
-    {
-        icon :  <FaComments />,
-        title : "Community Discussions",
-        description : "Ask questions, share ideas, and learn from fellow developers."
-    }
-]
 function Features() {
+    const { t } = useTranslation();
+
+    const features = [
+        {
+            icon : <FaCode />,
+            title : t('home.features.cards.practice.title'),
+            description : t('home.features.cards.practice.description')
+        },
+        {
+            icon : <FaChartLine />,
+            title : t('home.features.cards.track.title'),
+            description : t('home.features.cards.track.description')
+        },
+        {
+            icon : <FaTrophy />,
+            title : t('home.features.cards.leaderboard.title'),
+            description : t('home.features.cards.leaderboard.description')
+        },
+        {
+            icon :  <FaComments />,
+            title : t('home.features.cards.community.title'),
+            description : t('home.features.cards.community.description')
+        }
+    ];
+
     return (
         <section className="features">
             <div className="container">
                 <div className="section-header">
-                    <h2>Why Choose CodeArena?</h2>
+                    <h2>{t('home.features.heading')}</h2>
                     <p>
-                        Everything you need to improve your programming skills in one platform.
+                        {t('home.features.subheading')}
                     </p>
                 </div>
                 <div className="features-grid">

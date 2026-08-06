@@ -12,9 +12,11 @@ import {
 } from 'react-icons/fa';
 import './Dashboard.css';
 import { fetchApi } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 function Dashboard() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [userEmail, setUserEmail] = useState('');
     const [userRole, setUserRole] = useState('user');
     const [loading, setLoading] = useState(true);
@@ -34,11 +36,11 @@ function Dashboard() {
                     const data = await response.json();
                     setDashboardData(data);
                 } else {
-                    setError("Failed to load dashboard data.");
+                    setError(t('errors.dashboardLoad'));
                 }
             } catch (err) {
                 console.error("Dashboard fetch error:", err);
-                setError("Error loading dashboard data.");
+                setError(t('errors.dashboardError'));
             } finally {
                 setLoading(false);
             }
@@ -63,7 +65,7 @@ function Dashboard() {
     if (error || !dashboardData) {
         return (
             <div className="dashboard-main-content">
-                <div style={{ color: '#ef4444', textAlign: 'center', padding: '2rem' }}>{error || "Unable to load dashboard"}</div>
+                <div style={{ color: '#ef4444', textAlign: 'center', padding: '2rem' }}>{error || t('errors.dashboardUnavailable')}</div>
             </div>
         );
     }
@@ -118,9 +120,9 @@ function Dashboard() {
             {/* Top Welcome Banner */}
             <div className="dashboard-header glow-card">
                 <div className="welcome-text">
-                    <h1>Welcome back, <span className="gradient-username">{userEmail.split('@')[0]}</span>! 🚀</h1>
+                    <h1>{t('dashboard.welcome', { name: userEmail.split('@')[0] })}</h1>
                     <p className="daily-quote">
-                        <FaLightbulb className="quote-icon" /> "Consistency is built one problem at a time. Keep your streak alive today!"
+                        <FaLightbulb className="quote-icon" /> "{t('dashboard.quote')}"
                     </p>
                 </div>
                 <div className="user-profile-pill">
@@ -137,7 +139,7 @@ function Dashboard() {
                     </div>
                     <div className="stat-info">
                         <h3>{stats.problemsSolved || 0}</h3>
-                        <p>Problems Solved</p>
+                        <p>{t('dashboard.stats.problemsSolved')}</p>
                     </div>
                 </div>
                 <div className="stat-card glow-hover streak-active-card">
@@ -145,8 +147,8 @@ function Dashboard() {
                         <FaFire />
                     </div>
                     <div className="stat-info">
-                        <h3>{stats.streak || 0} Days</h3>
-                        <p>Current Streak 🔥</p>
+                        <h3>{t('dashboard.stats.streakDays', { count: stats.streak || 0 })}</h3>
+                        <p>{t('dashboard.stats.currentStreak')}</p>
                     </div>
                 </div>
                 <div className="stat-card glow-hover">
@@ -154,8 +156,8 @@ function Dashboard() {
                         <FaTrophy />
                     </div>
                     <div className="stat-info">
-                        <h3>Top {stats.topPercent || 100}%</h3>
-                        <p>Global Rank</p>
+                        <h3>{t('dashboard.stats.topPercent', { percent: stats.topPercent || 100 })}</h3>
+                        <p>{t('dashboard.stats.globalRank')}</p>
                     </div>
                 </div>
             </div>
@@ -163,19 +165,19 @@ function Dashboard() {
             {/* Daily Challenge & Progress Grid */}
             <div className="dashboard-content-grid top-gap">
                 <div className="content-card glow-hover potd-card">
-                    <div className="potd-badge"><FaCalendarCheck /> Challenge Accepted</div>
-                    <h2>Push Your Limits</h2>
-                    <p>Keep your skills sharp by tackling new problems every day. Your streak is waiting!</p>
+                    <div className="potd-badge"><FaCalendarCheck /> {t('dashboard.challenge.badge')}</div>
+                    <h2>{t('dashboard.challenge.title')}</h2>
+                    <p>{t('dashboard.challenge.description')}</p>
                     <div className="potd-meta" style={{ marginTop: '30px' }}>
-                        <span className="diff-tag medium" style={{ marginBottom: '10px' }}>Jump Back In</span>
+                        <span className="diff-tag medium" style={{ marginBottom: '10px' }}>{t('dashboard.challenge.pill')}</span>
                     </div>
                     <button className="primary-action-btn ripple-btn" onClick={() => navigate('/problems')}>
-                        <span>Solve Problems</span> <FaExternalLinkAlt size={12} />
+                        <span>{t('dashboard.challenge.button')}</span> <FaExternalLinkAlt size={12} />
                     </button>
                 </div>
 
                 <div className="content-card glow-hover">
-                    <h2>DSA Progress Breakdown</h2>
+                    <h2>{t('dashboard.progress.title')}</h2>
                     {['easy', 'medium', 'hard'].map((diff) => {
                         const prog = dsaProgress?.[diff] || { solved: 0, total: 0 };
                         const percent = prog.total > 0 ? (prog.solved / prog.total) * 100 : 0;
@@ -197,13 +199,13 @@ function Dashboard() {
             {/* Language Usage & Additional Metrics Grid */}
             <div className="dashboard-content-grid top-gap">
                 <div className="content-card glow-hover">
-                    <h2><FaCode /> Language Usage</h2>
-                    <p>Distribution of programming languages used in your accepted submissions.</p>
+                    <h2><FaCode /> {t('dashboard.languageUsage.title')}</h2>
+                    <p>{t('dashboard.languageUsage.description')}</p>
                     
                     <div className="progress-item">
                         <div className="progress-label">
                             <span>JavaScript</span>
-                            <span>{getLangPercentage(jsCount)}% ({jsCount} solved)</span>
+                            <span>{getLangPercentage(jsCount)}% ({jsCount} {t('dashboard.languageUsage.solved', { count: jsCount })})</span>
                         </div>
                         <div className="progress-bar">
                             <div className="progress-fill language-js" style={{ width: `${getLangPercentage(jsCount)}%` }}></div>
@@ -213,7 +215,7 @@ function Dashboard() {
                     <div className="progress-item">
                         <div className="progress-label">
                             <span>Python</span>
-                            <span>{getLangPercentage(pythonCount)}% ({pythonCount} solved)</span>
+                            <span>{getLangPercentage(pythonCount)}% ({pythonCount} {t('dashboard.languageUsage.solved', { count: pythonCount })})</span>
                         </div>
                         <div className="progress-bar">
                             <div className="progress-fill language-python" style={{ width: `${getLangPercentage(pythonCount)}%` }}></div>
@@ -223,7 +225,7 @@ function Dashboard() {
                     <div className="progress-item">
                         <div className="progress-label">
                             <span>C++</span>
-                            <span>{getLangPercentage(cppCount)}% ({cppCount} solved)</span>
+                            <span>{getLangPercentage(cppCount)}% ({cppCount} {t('dashboard.languageUsage.solved', { count: cppCount })})</span>
                         </div>
                         <div className="progress-bar">
                             <div className="progress-fill language-cpp" style={{ width: `${getLangPercentage(cppCount)}%` }}></div>
@@ -233,7 +235,7 @@ function Dashboard() {
                     <div className="progress-item">
                         <div className="progress-label">
                             <span>Java</span>
-                            <span>{getLangPercentage(javaCount)}% ({javaCount} solved)</span>
+                            <span>{getLangPercentage(javaCount)}% ({javaCount} {t('dashboard.languageUsage.solved', { count: javaCount })})</span>
                         </div>
                         <div className="progress-bar">
                             <div className="progress-fill language-java" style={{ width: `${getLangPercentage(javaCount)}%`, backgroundColor: '#f89820' }}></div>
@@ -242,16 +244,16 @@ function Dashboard() {
                 </div>
 
                 <div className="content-card glow-hover">
-                    <h2>Quick Summary</h2>
-                    <p>Keep pushing forward! You are matching weekly goals and closing in on higher global ranks.</p>
+                    <h2>{t('dashboard.summary.title')}</h2>
+                    <p>{t('dashboard.summary.description')}</p>
                     <div className="stat-info" style={{ marginTop: '20px' }}>
                         <h3 style={{ color: stats.streak > 0 ? '#10b981' : '#f59e0b', fontSize: '1.4rem' }}>
-                            {stats.streak > 0 ? 'Active & Consistent' : 'Time to warm up!'}
+                            {stats.streak > 0 ? t('dashboard.summary.active') : t('dashboard.summary.warmUp')}
                         </h3>
                         <p style={{ marginTop: '6px' }}>
                             {stats.streak > 0 
-                                ? 'Your activity level puts you in the top tier of active platform coders this month.' 
-                                : 'Solve a problem today to ignite your streak and climb the ranks!'}
+                                ? t('dashboard.summary.activeText') 
+                                : t('dashboard.summary.warmUpText')}
                         </p>
                     </div>
                 </div>
@@ -260,8 +262,8 @@ function Dashboard() {
             {/* GitHub Style Submission Heatmap Section */}
             <div className="content-card full-width-card top-gap">
                 <div className="section-header">
-                    <h2><FaCode /> Code Activity Heatmap (Last 365 Days)</h2>
-                    <span className="heatmap-subtitle">Annual contribution overview</span>
+                    <h2><FaCode /> {t('dashboard.heatmap.title')}</h2>
+                    <span className="heatmap-subtitle">{t('dashboard.heatmap.subtitle')}</span>
                 </div>
                 <div className="heatmap-container">
                     <div className="heatmap-months-view">
@@ -288,7 +290,7 @@ function Dashboard() {
                         ))}
                     </div>
                     <div className="heatmap-legend">
-                        <span>Less</span>
+                        <span>{t('dashboard.heatmap.legendLess')}</span>
                         <div className="legend-cells">
                             <div className="heatmap-cell level-0"></div>
                             <div className="heatmap-cell level-1"></div>
@@ -296,7 +298,7 @@ function Dashboard() {
                             <div className="heatmap-cell level-3"></div>
                             <div className="heatmap-cell level-4"></div>
                         </div>
-                        <span>More</span>
+                        <span>{t('dashboard.heatmap.legendMore')}</span>
                     </div>
                 </div>
             </div>
@@ -304,8 +306,8 @@ function Dashboard() {
             {/* Recent Submissions Activity Feed */}
             <div className="content-card full-width-card">
                 <div className="section-header">
-                    <h2>Recent Submissions</h2>
-                    <button className="text-btn" onClick={() => navigate('/problems')}>View All Problems</button>
+                    <h2>{t('dashboard.recentSubmissions.title')}</h2>
+                    <button className="text-btn" onClick={() => navigate('/problems')}>{t('dashboard.recentSubmissions.button')}</button>
                 </div>
                 <div className="activity-feed">
                     {recentSubmissions && recentSubmissions.length > 0 ? (
@@ -317,16 +319,16 @@ function Dashboard() {
                                 <div className="activity-details">
                                     <h4>{sub.title}</h4>
                                     <span>
-                                        {sub.status === 'ACCEPTED' ? 'Accepted' : 'Failed'} • {sub.language.charAt(0).toUpperCase() + sub.language.slice(1)} • {new Date(sub.submittedAt).toLocaleDateString()}
+                                        {sub.status === 'ACCEPTED' ? t('dashboard.recentSubmissions.accepted') : t('dashboard.recentSubmissions.failed')} • {sub.language.charAt(0).toUpperCase() + sub.language.slice(1)} • {new Date(sub.submittedAt).toLocaleDateString()}
                                     </span>
                                 </div>
                                 <span className={`activity-diff ${sub.difficulty?.toLowerCase() || 'easy'}`}>
-                                    {sub.difficulty || 'Easy'}
+                                    {sub.difficulty || t('common.easy')}
                                 </span>
                             </div>
                         ))
                     ) : (
-                        <div style={{ color: 'var(--text-secondary)', padding: '20px 0' }}>No recent submissions found. Go solve some problems!</div>
+                        <div style={{ color: 'var(--text-secondary)', padding: '20px 0' }}>{t('dashboard.recentSubmissions.empty')}</div>
                     )}
                 </div>
             </div>

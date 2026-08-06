@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import './CodeEditor.css';
 import { FaCode, FaUndo, FaExclamationTriangle } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import { fetchApi } from '../../services/api';
 
 const FALLBACK_BOILERPLATE = {
@@ -12,6 +13,7 @@ const FALLBACK_BOILERPLATE = {
 };
 
 function CodeEditor({ selectedLang, setSelectedLang, value, onChange, compileError, problemTitle }) {
+    const { t } = useTranslation();
     const [boilerplateMap, setBoilerplateMap] = useState(FALLBACK_BOILERPLATE);
     const [isConfirming, setIsConfirming] = useState(false);
     const timerRef = useRef(null);
@@ -165,7 +167,7 @@ function CodeEditor({ selectedLang, setSelectedLang, value, onChange, compileErr
         <section className="panel editor-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div className="panel-tabs justify-between">
                 <div className="tab-left">
-                    <button className="tab-item active"><FaCode size={13} /> Code</button>
+                    <button className="tab-item active"><FaCode size={13} /> {t('problemDetails.editor.code')}</button>
                 </div>
                 
                 <div className="editor-controls-right">
@@ -177,11 +179,11 @@ function CodeEditor({ selectedLang, setSelectedLang, value, onChange, compileErr
                                 timerRef.current = setTimeout(() => setIsConfirming(false), 1500);
                             }
                         }}
-                        title={isConfirming ? "Click again to confirm erasing changes" : "Reset code to template"}
+                        title={isConfirming ? t('problemDetails.editor.confirmReset') : t('problemDetails.editor.resetTitle')}
                     >
                         {isConfirming ? (
                             <>
-                                <FaExclamationTriangle size={11} /> Confirm Reset?
+                                <FaExclamationTriangle size={11} /> {t('problemDetails.editor.confirmResetButton')}
                             </>
                         ) : (
                             <>
@@ -196,10 +198,10 @@ function CodeEditor({ selectedLang, setSelectedLang, value, onChange, compileErr
                             value={selectedLang} 
                             onChange={(e) => setSelectedLang(e.target.value)}
                         >
-                            <option value="python">Python</option>
-                            <option value="java">Java</option>
-                            <option value="cpp">C++</option>
-                            <option value="javascript">JavaScript</option>
+                            <option value="python">{t('problemDetails.editor.languages.python')}</option>
+                            <option value="java">{t('problemDetails.editor.languages.java')}</option>
+                            <option value="cpp">{t('problemDetails.editor.languages.cpp')}</option>
+                            <option value="javascript">{t('problemDetails.editor.languages.javascript')}</option>
                         </select>
                     </div>
                 </div>

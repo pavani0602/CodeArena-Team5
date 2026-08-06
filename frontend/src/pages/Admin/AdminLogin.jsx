@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import './AuthStyles.css';
 
 function AdminLogin() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [credentials, setCredentials] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
 
@@ -27,20 +29,20 @@ function AdminLogin() {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => null);
-                throw new Error(errorData?.message || 'Login failed. Please check your credentials.');
+                throw new Error(errorData?.message || t('auth.login.error'));
             }
 
             const data = await response.json();
             
             if (data.role?.toUpperCase() !== 'ADMIN') {
-                throw new Error("Access Denied: You do not have administrator privileges.");
+                throw new Error(t('auth.adminLogin.accessDenied'));
             }
 
             localStorage.setItem('token', data.token);
             localStorage.setItem('userRole', 'admin');
             localStorage.setItem('userEmail', credentials.email);
             
-            alert(`Welcome back to the Admin Workspace, ${data.username}!`);
+            alert(t('auth.adminLogin.success', { username: data.username }));
             navigate('/admin');
         } catch (err) {
             setError(err.message);
@@ -52,11 +54,11 @@ function AdminLogin() {
             <div className="auth-card">
                 <div className="auth-header">
                     <span className="auth-logo">CodeArena</span>
-                    <span className="auth-badge admin">Admin Portal</span>
+                    <span className="auth-badge admin">{t('auth.adminPortal')}</span>
                 </div>
                 
-                <h2 className="auth-title">Welcome Back</h2>
-                <p className="auth-subtitle">Sign in to manage problems and test engines</p>
+                <h2 className="auth-title">{t('auth.adminLogin.title')}</h2>
+                <p className="auth-subtitle">{t('auth.adminLogin.subtitle')}</p>
 
                 {error && <div className="auth-error-banner">{error}</div>}
 
@@ -75,9 +77,9 @@ function AdminLogin() {
 
                     <div className="input-group">
                         <div className="label-row">
-                            <label>Password</label>
+                            <label>{t('auth.password')}</label>
                             {/* 💡 Points exactly to your defined standalone path */}
-                            <Link to="/admin/forgot-password" id="forgot-link">Forgot Password?</Link>
+                            <Link to="/admin/forgot-password" id="forgot-link">{t('auth.adminLogin.forgotPassword')}</Link>
                         </div>
                         <input 
                             type="password" 
@@ -90,7 +92,7 @@ function AdminLogin() {
                     </div>
 
                     <button type="submit" className="auth-submit-btn">
-                        Enter Workspace
+                        {t('auth.adminLogin.submit')}
                     </button>
                 </form>
             </div>

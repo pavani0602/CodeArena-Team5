@@ -3,9 +3,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google'; 
 import { registerUser } from "/src/services/authService.js";
 import "../../pages/Admin/Authstyles.css";
+import { useTranslation } from 'react-i18next';
 
 function Register() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -24,7 +26,7 @@ function Register() {
         setError('');
 
         if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match.');
+            setError(t('auth.register.passwordMismatch'));
             return;
         }
 
@@ -37,10 +39,10 @@ function Register() {
                 password: formData.password
             });
 
-            alert('Account created successfully! Check your inbox for a welcome email.');
+            alert(t('auth.register.success'));
             navigate('/login');
         } catch (err) {
-            setError(err.message || 'Failed to create account.');
+            setError(err.message || t('auth.register.failed'));
         } finally {
             setIsSubmitting(false);
         }
@@ -69,17 +71,17 @@ function Register() {
                 picture: googleUser.picture
             }));
 
-            alert(`Welcome to CodeArena, ${googleUser.name}! 🚀`);
+            alert(t('auth.register.welcomeGoogle', { name: googleUser.name }));
             navigate('/problems');
 
         } catch (error) {
             console.error("Error parsing Google credentials:", error);
-            setError("Google registration succeeded, but profile parsing failed.");
+            setError(t('auth.register.googleProfileError'));
         }
     };
 
     const handleGoogleFailure = () => {
-        setError("Google Sign-Up failed. Please try again.");
+        setError(t('auth.register.googleError'));
     };
 
     return (
@@ -89,67 +91,67 @@ function Register() {
                     <span className="auth-logo">CodeArena</span>
                 </div>
 
-                <h2 className="auth-title">Create Your Account</h2>
-                <p className="auth-subtitle">Join CodeArena and start solving coding challenges today.</p>
+                <h2 className="auth-title">{t('auth.register.title')}</h2>
+                <p className="auth-subtitle">{t('auth.register.subtitle')}</p>
 
                 {error && <div className="auth-error-banner">{error}</div>}
 
                 <form onSubmit={handleRegister} className="auth-form">
                     <div className="input-group">
-                        <label>Full Name</label>
+                        <label>{t('auth.register.fullName')}</label>
                         <input 
                             type="text" 
                             name="fullName" 
                             required 
-                            placeholder="Enter your full name"
+                            placeholder={t('auth.register.fullNamePlaceholder')}
                             value={formData.fullName}
                             onChange={handleChange}
                         />
                     </div>
 
                     <div className="input-group">
-                        <label>Email Address</label>
+                        <label>{t('auth.emailAddress')}</label>
                         <input 
                             type="email" 
                             name="email" 
                             required 
-                            placeholder="you@example.com"
+                            placeholder={t('auth.register.emailPlaceholder')}
                             value={formData.email}
                             onChange={handleChange}
                         />
                     </div>
 
                     <div className="input-group">
-                        <label>Password</label>
+                        <label>{t('auth.password')}</label>
                         <input 
                             type="password" 
                             name="password" 
                             required 
-                            placeholder="••••••••"
+                            placeholder={t('auth.login.placeholderPassword')}
                             value={formData.password}
                             onChange={handleChange}
                         />
                     </div>
 
                     <div className="input-group">
-                        <label>Confirm Password</label>
+                        <label>{t('auth.register.confirmPassword')}</label>
                         <input 
                             type="password" 
                             name="confirmPassword" 
                             required 
-                            placeholder="Confirm your password"
+                            placeholder={t('auth.register.confirmPasswordPlaceholder')}
                             value={formData.confirmPassword}
                             onChange={handleChange}
                         />
                     </div>
 
                     <button type="submit" className="auth-submit-btn" disabled={isSubmitting}>
-                        {isSubmitting ? 'Creating Account...' : 'Create Account'}
+                        {isSubmitting ? t('auth.register.creating') : t('auth.createAccount')}
                     </button>
                 </form>
 
                 <div className="divider-line">
-                    <span>or continue with</span>
+                    <span>{t('auth.orContinueWith')}</span>
                 </div>
 
                 <div className="google-auth-box">
@@ -166,7 +168,7 @@ function Register() {
                 </div>
 
                 <div className="auth-footer-prompt">
-                    Already have an account? <Link to="/login">Login</Link>
+                    {t('auth.alreadyHaveAccount')} <Link to="/login">{t('auth.signIn')}</Link>
                 </div>
             </div>
         </div>
