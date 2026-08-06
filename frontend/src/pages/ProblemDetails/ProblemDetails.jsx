@@ -222,6 +222,7 @@ function ProblemDetails() {
                         currentTestIndex={currentTestIndex}
                         totalTestCases={totalTestCases}
                         feedback={feedback}
+                        testCases={problem.testCases || []}
                     />
                 </div>
             </div>

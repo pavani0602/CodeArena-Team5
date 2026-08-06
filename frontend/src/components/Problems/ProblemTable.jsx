@@ -26,13 +26,23 @@ function ProblemTable({ searchQuery, difficulty, selectedTopic, sortBy, onRowCli
                     statuses = await statusesRes.json();
                 }
                 
-                const mappedData = data.map(p => ({
-                    id: p.id,
-                    title: p.title,
-                    difficulty: p.difficulty,
-                    topic: p.tags && p.tags.length > 0 ? p.tags[0] : "General",
-                    status: statuses[p.id] || "Unsolved"
-                }));
+                const mappedData = data.map(p => {
+                    let firstTopic = "General";
+                    if (p.tags) {
+                        if (Array.isArray(p.tags) && p.tags.length > 0) {
+                            firstTopic = p.tags[0];
+                        } else if (typeof p.tags === 'string' && p.tags.length > 0) {
+                            firstTopic = p.tags.split(',')[0].trim();
+                        }
+                    }
+                    return {
+                        id: p.id,
+                        title: p.title,
+                        difficulty: p.difficulty,
+                        topic: firstTopic,
+                        status: statuses[p.id] || "Unsolved"
+                    };
+                });
                 
                 setProblems(mappedData);
             } catch (err) {
@@ -49,8 +59,8 @@ function ProblemTable({ searchQuery, difficulty, selectedTopic, sortBy, onRowCli
     // 1. Filter the problems by search query, difficulty, and topic tag
     const filteredProblems = problems.filter((prob) => {
         const matchesSearch = prob.title.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesDifficulty = difficulty === "All" || prob.difficulty === difficulty;
-        const matchesTopic = !selectedTopic || selectedTopic === "All" || prob.topic === selectedTopic;
+        const matchesDifficulty = difficulty === "All" || (prob.difficulty && prob.difficulty.toLowerCase() === difficulty.toLowerCase());
+        const matchesTopic = !selectedTopic || selectedTopic === "All" || (prob.topic && prob.topic.toLowerCase() === selectedTopic.toLowerCase());
         return matchesSearch && matchesDifficulty && matchesTopic;
     });
 
@@ -60,7 +70,7 @@ function ProblemTable({ searchQuery, difficulty, selectedTopic, sortBy, onRowCli
             return a.title.localeCompare(b.title); // Sort alphabetically A-Z
         }
         if (sortBy === "difficulty") {
-            const difficultyOrder = { "EASY": 1, "Easy": 1, "MEDIUM": 2, "Medium": 2, "HARD": 3, "Hard": 3 };
+            const difficultyOrder = { "EASY": 1, "Easy": 1, "easy": 1, "MEDIUM": 2, "Medium": 2, "medium": 2, "HARD": 3, "Hard": 3, "hard": 3 };
             return (difficultyOrder[a.difficulty] || 0) - (difficultyOrder[b.difficulty] || 0);
         }
         return a.id - b.id; 
