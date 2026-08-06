@@ -2,8 +2,11 @@ package com.codearena.codearena_backend.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
@@ -20,6 +23,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleResponseStatusException(ResponseStatusException e) {
         String message = e.getReason() != null ? e.getReason() : e.getMessage();
         return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", message));
+    }
+
+    @ExceptionHandler({
+            HttpMessageNotReadableException.class,
+            MethodArgumentTypeMismatchException.class,
+            MethodArgumentNotValidException.class
+    })
+    public ResponseEntity<Map<String, String>> handleBadRequestExceptions(Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", "Invalid request body or parameters"));
     }
 
     @ExceptionHandler(RuntimeException.class)

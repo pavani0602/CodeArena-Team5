@@ -182,25 +182,45 @@ public class DriverGenerator {
         driver.append("        return \"\\\"\" + value.replace(\"\\\\\", \"\\\\\\\\\").replace(\"\\\"\", \"\\\\\\\"\") + \"\\\"\";\n");
         driver.append("    }\n");
         driver.append("""
-                    public static void main(String[] args) {
+                    public static void main(String[] args) throws Exception {
                 """);
         appendJavaArguments(driver, metadata, testCase);
         driver.append("        Solution obj = new Solution();\n");
         if ("Reverse String".equals(metadata.title())) {
             driver.append("        obj.reverseString(s);\n");
             driver.append("        Object result = s;\n");
+            driver.append("        System.out.println(json(result));\n");
         } else {
-            driver.append("        Object result = obj.")
-                    .append(metadata.functionName())
-                    .append("(")
-                    .append(String.join(", ", metadata.parameterNames()))
-                    .append(");\n");
+            String argsStr = String.join(", ", metadata.parameterNames());
+            driver.append(String.format("""
+                        java.lang.reflect.Method targetMethod = null;
+                        String expectedName = "%s";
+                        for (java.lang.reflect.Method m : Solution.class.getDeclaredMethods()) {
+                            if (m.getName().equalsIgnoreCase(expectedName)) {
+                                targetMethod = m;
+                                break;
+                            }
+                        }
+                        if (targetMethod == null) {
+                            for (java.lang.reflect.Method m : Solution.class.getDeclaredMethods()) {
+                                if (java.lang.reflect.Modifier.isPublic(m.getModifiers()) && !m.getName().equals("main")) {
+                                    targetMethod = m;
+                                    break;
+                                }
+                            }
+                        }
+                        if (targetMethod == null) throw new RuntimeException("No suitable method found in Solution");
+                        
+                        try {
+                            Object result = targetMethod.invoke(obj, %s);
+                            System.out.println(json(result));
+                        } catch (java.lang.reflect.InvocationTargetException e) {
+                            if (e.getCause() instanceof Exception) throw (Exception) e.getCause();
+                            throw new RuntimeException(e.getCause());
+                        }
+            """, metadata.functionName(), argsStr));
         }
-        driver.append("""
-                        System.out.println(json(result));
-                    }
-                }
-                """);
+        driver.append("    }\n}\n");
         return driver.toString();
     }
 

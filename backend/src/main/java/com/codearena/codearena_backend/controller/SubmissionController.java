@@ -29,6 +29,8 @@ public class SubmissionController {
         try {
             String username = currentUsername();
             return submissionService.createSubmission(problemId, username, request);
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (RuntimeException e) {
 
             if (e.getMessage() != null && e.getMessage().contains("Submission limit exceeded")) {

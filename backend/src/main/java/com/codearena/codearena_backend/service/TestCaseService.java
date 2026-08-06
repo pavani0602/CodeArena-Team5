@@ -14,10 +14,12 @@ public class TestCaseService {
 
     private final TestCaseRepository testCaseRepository;
     private final ProblemRepository problemRepository;
+    private final com.codearena.codearena_backend.repository.SubmissionResultRepository submissionResultRepository;
 
-    public TestCaseService(TestCaseRepository testCaseRepository, ProblemRepository problemRepository) {
+    public TestCaseService(TestCaseRepository testCaseRepository, ProblemRepository problemRepository, com.codearena.codearena_backend.repository.SubmissionResultRepository submissionResultRepository) {
         this.testCaseRepository = testCaseRepository;
         this.problemRepository = problemRepository;
+        this.submissionResultRepository = submissionResultRepository;
     }
 
     public TestCase addTestCase(Long problemId, TestCaseRequest request) {
@@ -39,6 +41,8 @@ public class TestCaseService {
 
     @org.springframework.transaction.annotation.Transactional
     public void deleteTestCasesByProblemId(Long problemId) {
+        // Delete submission results tied to these test cases to avoid foreign key constraints
+        submissionResultRepository.deleteByProblemId(problemId);
         testCaseRepository.deleteByProblemId(problemId);
     }
 }

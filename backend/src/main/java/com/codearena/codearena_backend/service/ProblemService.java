@@ -15,14 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class ProblemService {
 
     private final ProblemRepository problemRepository;
     private final UserRepository userRepository;
+    private final com.codearena.codearena_backend.repository.ProblemHintRepository problemHintRepository;
 
-    public ProblemService(ProblemRepository problemRepository, UserRepository userRepository) {
+    public ProblemService(ProblemRepository problemRepository, UserRepository userRepository, com.codearena.codearena_backend.repository.ProblemHintRepository problemHintRepository) {
         this.problemRepository = problemRepository;
         this.userRepository = userRepository;
+        this.problemHintRepository = problemHintRepository;
     }
 
     public Problem createProblem(ProblemRequest request) {
@@ -83,7 +86,11 @@ public class ProblemService {
         problem.setTags(request.getTags());
         problem.setEditorialMd(request.getEditorialMd());
 
-        List<ProblemHint> hintEntities = new ArrayList<>();
+        // Delete old hints directly in the DB to avoid Hibernate flush order issues
+        problemHintRepository.deleteByProblemId(problem.getId());
+        problem.getHints().clear();
+
+        List<ProblemHint> newHintEntities = new ArrayList<>();
         if (request.getHints() != null) {
             int hintNum = 1;
             for (String hintText : request.getHints()) {
@@ -91,10 +98,10 @@ public class ProblemService {
                 hint.setProblem(problem);
                 hint.setHintNumber(hintNum++);
                 hint.setHintText(hintText);
-                hintEntities.add(hint);
+                newHintEntities.add(hint);
             }
         }
-        problem.setHints(hintEntities);
+        problem.getHints().addAll(newHintEntities);
 
         return problemRepository.save(problem);
     }

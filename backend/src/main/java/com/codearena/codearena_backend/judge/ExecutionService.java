@@ -21,12 +21,25 @@ public class ExecutionService {
 
     private final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
-    private ProcessBuilder createDockerBuilder(String... commands) {
+    private ProcessBuilder createDockerBuilder(Path tempDir, String memory, String image, String... commands) {
         List<String> commandList = new ArrayList<>();
         if (isWindows) {
             commandList.add("cmd.exe");
             commandList.add("/c");
         }
+        commandList.add("docker");
+        commandList.add("run");
+        commandList.add("--rm");
+        commandList.add("-v");
+        // On Windows with WSL/Docker Desktop, absolute paths are usually supported in volume binds.
+        commandList.add(tempDir.toAbsolutePath().toString() + ":/app");
+        commandList.add("-w");
+        commandList.add("/app");
+        commandList.add("--network");
+        commandList.add("none");
+        commandList.add("--memory");
+        commandList.add(memory);
+        commandList.add(image);
         commandList.addAll(Arrays.asList(commands));
         return new ProcessBuilder(commandList);
     }
@@ -61,9 +74,7 @@ System.out.println("Language received: " + language);
             Path sourceFile = tempDir.resolve("main.py");
             Files.writeString(sourceFile, sourceCode);
 
-            ProcessBuilder runBuilder = createDockerBuilder("python", "main.py");
-
-runBuilder.directory(tempDir.toFile());
+            ProcessBuilder runBuilder = createDockerBuilder(tempDir, "256m", "python:3.9-slim", "python", "main.py");
             return runProcess(runBuilder, 5);
         } catch (Exception e) {
             return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", e.getMessage(), 0L);
@@ -80,8 +91,7 @@ runBuilder.directory(tempDir.toFile());
             tempDir = Files.createTempDirectory("codearena-judge-java-");
             Path sourceFile = tempDir.resolve("Main.java");
             Files.writeString(sourceFile, sourceCode);
-            ProcessBuilder compileBuilder = createDockerBuilder("javac", "Main.java");
-compileBuilder.directory(tempDir.toFile());
+            ProcessBuilder compileBuilder = createDockerBuilder(tempDir, "512m", "eclipse-temurin:17-jdk", "javac", "Main.java");
             
             
             ExecutionResult compileResult = runProcess(compileBuilder, 10);
@@ -92,8 +102,7 @@ compileBuilder.directory(tempDir.toFile());
                 return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", compileResult.error(), compileResult.executionTimeMs());
             }
 
-            ProcessBuilder runBuilder = createDockerBuilder("java", "Main");
-runBuilder.directory(tempDir.toFile());
+            ProcessBuilder runBuilder = createDockerBuilder(tempDir, "256m", "eclipse-temurin:17-jdk", "java", "Main");
             return runProcess(runBuilder, 5);
         } catch (Exception e) {
             return new ExecutionResult(JudgeVerdict.RUNTIME_ERROR, "", e.getMessage(), 0L);
@@ -112,9 +121,7 @@ runBuilder.directory(tempDir.toFile());
             Files.writeString(sourceFile, sourceCode);
 
             
-            ProcessBuilder compileBuilder = createDockerBuilder("g++", "main.cpp", "-o", "main.exe");
-
-compileBuilder.directory(tempDir.toFile());
+            ProcessBuilder compileBuilder = createDockerBuilder(tempDir, "512m", "gcc:latest", "g++", "main.cpp", "-o", "main.exe");
             ExecutionResult compileResult = runProcess(compileBuilder, 15);
             if (compileResult.verdict() == JudgeVerdict.TIME_LIMIT_EXCEEDED) {
                 return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", "Compilation timeout", compileResult.executionTimeMs());
@@ -123,9 +130,7 @@ compileBuilder.directory(tempDir.toFile());
                 return new ExecutionResult(JudgeVerdict.COMPILATION_ERROR, "", compileResult.error(), compileResult.executionTimeMs());
             }
 
-            ProcessBuilder runBuilder = createDockerBuilder("main.exe");
-
-runBuilder.directory(tempDir.toFile());
+            ProcessBuilder runBuilder = createDockerBuilder(tempDir, "256m", "gcc:latest", "./main.exe");
             
             return runProcess(runBuilder, 5);
         } catch (Exception e) {
@@ -146,10 +151,7 @@ runBuilder.directory(tempDir.toFile());
 
         Files.writeString(sourceFile, sourceCode);
 
-        ProcessBuilder runBuilder =
-                createDockerBuilder("node", "main.js");
-
-        runBuilder.directory(tempDir.toFile());
+        ProcessBuilder runBuilder = createDockerBuilder(tempDir, "256m", "node:18-alpine", "node", "main.js");
 
         return runProcess(runBuilder, 5);
 
@@ -188,11 +190,19 @@ runBuilder.directory(tempDir.toFile());
 
 if (exitCode != 0) {
 
+    String lowerError = error.toLowerCase(java.util.Locale.ROOT);
+    String lowerOutput = output.toLowerCase(java.util.Locale.ROOT);
     if (exitCode == 137
-            || error.contains("OutOfMemoryError")
-            || error.contains("Java heap space")
-            || error.contains("Cannot allocate memory")
-            || error.contains("Killed")) {
+            || lowerError.contains("outofmemory")
+            || lowerError.contains("java heap space")
+            || lowerError.contains("cannot allocate memory")
+            || lowerError.contains("heap out of memory")
+            || lowerError.contains("allocation failed")
+            || lowerError.contains("invalid string length")
+            || lowerError.contains("rangeerror")
+            || lowerError.contains("killed")
+            || lowerOutput.contains("allocation failed")
+            || lowerOutput.contains("heap out of memory")) {
 
         return new ExecutionResult(
                 JudgeVerdict.MEMORY_LIMIT_EXCEEDED,
