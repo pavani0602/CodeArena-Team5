@@ -9,18 +9,24 @@ export default function ConsoleDrawer({
     currentState, 
     currentTestIndex, 
     totalTestCases, 
-    feedback 
+    feedback,
+    testCases = []
 }) {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState('console');
     const [selectedTestCase, setSelectedTestCase] = useState(0);
     const [activeResultTest, setActiveResultTest] = useState(0);
 
-    const sampleTestCases = [
-        { id: 1, input: 's = "abcabcbb"', expected: '3', actual: '3' },
-        { id: 2, input: 's = "bbbbb"', expected: '1', actual: '1' },
-        { id: 3, input: 's = "pwwkew"', expected: '3', actual: '2' }
-    ];
+    const sampleTestCases = testCases.length > 0 
+        ? testCases.filter(tc => !tc.hidden).map((tc, idx) => ({
+            id: idx + 1,
+            input: tc.inputData,
+            expected: tc.expectedOutput,
+            actual: tc.expectedOutput // Used as fallback when showing successful test case results
+        })) 
+        : [
+            { id: 1, input: 'N/A', expected: 'N/A', actual: 'N/A' }
+        ];
 
     if (!isOpen) return null;
 
