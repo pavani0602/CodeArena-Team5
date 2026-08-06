@@ -25,6 +25,7 @@ import ResetPassword from "./pages/Auth/ResetPassword";
 import Admin from "./pages/Admin/Admin";
 import AdminUsers from "./pages/Admin/AdminUsers";
 import AdminAnalytics from "./pages/Admin/AdminAnalytics";
+import AdminSubmissions from "./pages/Admin/AdminSubmissions";
 
 function App() {
   return (
@@ -58,6 +59,14 @@ function App() {
             element={
               <ProtectedRoute allowedRole="admin">
                 <AdminAnalytics />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/submissions" 
+            element={
+              <ProtectedRoute allowedRole="admin">
+                <AdminSubmissions />
               </ProtectedRoute>
             } 
           />

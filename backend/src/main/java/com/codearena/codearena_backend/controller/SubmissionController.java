@@ -56,6 +56,11 @@ public class SubmissionController {
         return submissionService.getUserSummary(currentUsername());
     }
 
+    @GetMapping("/dashboard")
+    public Map<String, Object> getDashboardData() {
+        return submissionService.getDashboardData(currentUsername());
+    }
+
     private String currentUsername() {
         org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {

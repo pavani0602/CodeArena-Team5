@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaUserShield, FaArrowLeft } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
-import '../../pages/Admin/AuthStyles.css';
+import '../../pages/Admin/Authstyles.css';
 
 function ForgotPassword() {
     const [role, setRole] = useState('user'); // 'user' or 'admin'

@@ -23,8 +23,10 @@ export const fetchApi = async (endpoint, options = {}) => {
         // If unauthorized, token might be expired. Handle gracefully.
         if (response.status === 401 || response.status === 403) {
             console.warn("Unauthorized API call:", endpoint);
-            // Optional: redirect to login if strictly required
-            // window.location.href = '/login';
+            localStorage.removeItem('token');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('userEmail');
+            window.location.href = '/login';
         }
 
         return response;

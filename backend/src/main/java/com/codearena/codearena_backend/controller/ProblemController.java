@@ -3,7 +3,7 @@ package com.codearena.codearena_backend.controller;
 import com.codearena.codearena_backend.dto.ProblemRequest;
 import com.codearena.codearena_backend.entity.Problem;
 import com.codearena.codearena_backend.service.ProblemService;
-import com.codearena.codearena_backend.judge.ProblemMetadataService;
+import com.codearena.codearena_backend.judge.ProblemMetadata;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
@@ -14,11 +14,9 @@ import java.util.List;
 public class ProblemController {
 
     private final ProblemService problemService;
-    private final ProblemMetadataService problemMetadataService;
 
-    public ProblemController(ProblemService problemService, ProblemMetadataService problemMetadataService) {
+    public ProblemController(ProblemService problemService) {
         this.problemService = problemService;
-        this.problemMetadataService = problemMetadataService;
     }
 
     @PostMapping
@@ -28,7 +26,16 @@ public class ProblemController {
 
     @GetMapping("/metadata/{title}")
     public ResponseEntity<?> getMetadata(@PathVariable String title) {
-        return problemMetadataService.findByTitle(title)
+        return problemService.getProblemByTitle(title)
+                .map(problem -> new ProblemMetadata(
+                        problem.getTitle(),
+                        "FUNCTION",
+                        "Solution",
+                        problem.getFunctionName(),
+                        java.util.Arrays.asList(problem.getParameterNames().split(",")),
+                        java.util.Arrays.asList(problem.getParameterTypes().split(",")),
+                        problem.getReturnType()
+                ))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

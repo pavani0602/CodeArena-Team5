@@ -7,62 +7,111 @@ import {
     FaCode,
     FaCalendarCheck,
     FaExternalLinkAlt,
-    FaLightbulb
+    FaLightbulb,
+    FaSpinner
 } from 'react-icons/fa';
 import './Dashboard.css';
+import { fetchApi } from '../../services/api';
 
 function Dashboard() {
     const navigate = useNavigate();
     const [userEmail, setUserEmail] = useState('');
     const [userRole, setUserRole] = useState('user');
     const [loading, setLoading] = useState(true);
+    const [dashboardData, setDashboardData] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const email = localStorage.getItem('userEmail') || 'pavanisajjana18@gmail.com';
+        const email = localStorage.getItem('userEmail') || 'user@example.com';
         const role = localStorage.getItem('userRole') || 'user';
         setUserEmail(email);
         setUserRole(role);
         
-        const timer = setTimeout(() => setLoading(false), 400);
-        return () => clearTimeout(timer);
-    }, []);
+        const loadDashboard = async () => {
+            try {
+                const response = await fetchApi('/api/submissions/dashboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    setDashboardData(data);
+                } else {
+                    setError("Failed to load dashboard data.");
+                }
+            } catch (err) {
+                console.error("Dashboard fetch error:", err);
+                setError("Error loading dashboard data.");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const generateHeatmapData = () => {
-        const days = [];
-        const today = new Date();
-        for (let i = 365; i >= 0; i--) {
-            const d = new Date(today);
-            d.setDate(today.getDate() - i);
-            const count = Math.random() > 0.45 ? Math.floor(Math.random() * 5) : 0;
-            days.push({ date: d.toDateString(), count });
+        if (localStorage.getItem('token')) {
+            loadDashboard();
+        } else {
+            // Guest mode dummy data or redirect
+            navigate('/login');
         }
-        return days;
-    };
-
-    const [heatmapDays] = useState(generateHeatmapData());
-
-    const monthsData = [
-        { name: 'Aug', days: heatmapDays.slice(0, 31) },
-        { name: 'Sep', days: heatmapDays.slice(31, 61) },
-        { name: 'Oct', days: heatmapDays.slice(61, 92) },
-        { name: 'Nov', days: heatmapDays.slice(92, 122) },
-        { name: 'Dec', days: heatmapDays.slice(122, 153) },
-        { name: 'Jan', days: heatmapDays.slice(153, 184) },
-        { name: 'Feb', days: heatmapDays.slice(184, 212) },
-        { name: 'Mar', days: heatmapDays.slice(212, 243) },
-        { name: 'Apr', days: heatmapDays.slice(243, 273) },
-        { name: 'May', days: heatmapDays.slice(273, 304) },
-        { name: 'Jun', days: heatmapDays.slice(304, 334) },
-        { name: 'Jul', days: heatmapDays.slice(334, 365) }
-    ];
+    }, [navigate]);
 
     if (loading) {
         return (
-            <div className="dashboard-main-content">
-                <div className="skeleton-banner animate-pulse"></div>
+            <div className="dashboard-main-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <FaSpinner className="animate-spin" size={40} style={{ color: 'var(--primary)' }} />
             </div>
         );
     }
+
+    if (error || !dashboardData) {
+        return (
+            <div className="dashboard-main-content">
+                <div style={{ color: '#ef4444', textAlign: 'center', padding: '2rem' }}>{error || "Unable to load dashboard"}</div>
+            </div>
+        );
+    }
+
+    const { stats, dsaProgress, languageUsage, heatmap, recentSubmissions } = dashboardData;
+
+    // Group heatmap data into months for the GitHub-style display
+    const processHeatmapMonths = (days) => {
+        const months = [];
+        let currentMonthDays = [];
+        let currentMonthName = '';
+
+        for (let i = 0; i < days.length; i++) {
+            const dateObj = new Date(days[i].date);
+            const monthName = dateObj.toLocaleString('default', { month: 'short' });
+            
+            if (monthName !== currentMonthName) {
+                if (currentMonthName !== '') {
+                    months.push({ name: currentMonthName, days: currentMonthDays });
+                }
+                currentMonthName = monthName;
+                currentMonthDays = [];
+            }
+            currentMonthDays.push(days[i]);
+        }
+        if (currentMonthDays.length > 0) {
+            months.push({ name: currentMonthName, days: currentMonthDays });
+        }
+        
+        // Take the last 12 months roughly
+        return months.slice(-12);
+    };
+
+    const monthsData = heatmap ? processHeatmapMonths(heatmap) : [];
+
+    // Safe getters for language percentages
+    const getTotalLanguageSubmissions = () => {
+        return Object.values(languageUsage || {}).reduce((a, b) => a + b, 0) || 1;
+    };
+    const totalLangs = getTotalLanguageSubmissions();
+
+    const getLangPercentage = (count) => Math.round((count / totalLangs) * 100) || 0;
+    
+    // Fallbacks for languages
+    const jsCount = languageUsage?.javascript || 0;
+    const pythonCount = languageUsage?.python || 0;
+    const cppCount = languageUsage?.cpp || 0;
+    const javaCount = languageUsage?.java || 0;
 
     return (
         <div className="dashboard-main-content animate-fade-in">
@@ -87,7 +136,7 @@ function Dashboard() {
                         <FaCheckCircle />
                     </div>
                     <div className="stat-info">
-                        <h3>42</h3>
+                        <h3>{stats.problemsSolved || 0}</h3>
                         <p>Problems Solved</p>
                     </div>
                 </div>
@@ -96,7 +145,7 @@ function Dashboard() {
                         <FaFire />
                     </div>
                     <div className="stat-info">
-                        <h3>7 Days</h3>
+                        <h3>{stats.streak || 0} Days</h3>
                         <p>Current Streak 🔥</p>
                     </div>
                 </div>
@@ -105,7 +154,7 @@ function Dashboard() {
                         <FaTrophy />
                     </div>
                     <div className="stat-info">
-                        <h3>Top 15%</h3>
+                        <h3>Top {stats.topPercent || 100}%</h3>
                         <p>Global Rank</p>
                     </div>
                 </div>
@@ -114,32 +163,34 @@ function Dashboard() {
             {/* Daily Challenge & Progress Grid */}
             <div className="dashboard-content-grid top-gap">
                 <div className="content-card glow-hover potd-card">
-                    <div className="potd-badge"><FaCalendarCheck /> Problem of the Day</div>
-                    <h2>Sliding Window Maximum</h2>
-                    <p>Master array manipulation and deque data structures with today's featured challenge.</p>
-                    <div className="potd-meta">
-                        <span className="diff-tag hard">Hard</span>
-                        <span className="acceptance-rate">⚡ 48.2% Acceptance</span>
+                    <div className="potd-badge"><FaCalendarCheck /> Challenge Accepted</div>
+                    <h2>Push Your Limits</h2>
+                    <p>Keep your skills sharp by tackling new problems every day. Your streak is waiting!</p>
+                    <div className="potd-meta" style={{ marginTop: '30px' }}>
+                        <span className="diff-tag medium" style={{ marginBottom: '10px' }}>Jump Back In</span>
                     </div>
                     <button className="primary-action-btn ripple-btn" onClick={() => navigate('/problems')}>
-                        <span>Solve Challenge</span> <FaExternalLinkAlt size={12} />
+                        <span>Solve Problems</span> <FaExternalLinkAlt size={12} />
                     </button>
                 </div>
 
                 <div className="content-card glow-hover">
                     <h2>DSA Progress Breakdown</h2>
-                    <div className="progress-item">
-                        <div className="progress-label"><span>Easy</span> <span>18 / 50</span></div>
-                        <div className="progress-bar"><div className="progress-fill easy animate-fill" style={{ width: '36%' }}></div></div>
-                    </div>
-                    <div className="progress-item">
-                        <div className="progress-label"><span>Medium</span> <span>20 / 80</span></div>
-                        <div className="progress-bar"><div className="progress-fill medium animate-fill" style={{ width: '25%' }}></div></div>
-                    </div>
-                    <div className="progress-item">
-                        <div className="progress-label"><span>Hard</span> <span>4 / 30</span></div>
-                        <div className="progress-bar"><div className="progress-fill hard animate-fill" style={{ width: '13%' }}></div></div>
-                    </div>
+                    {['easy', 'medium', 'hard'].map((diff) => {
+                        const prog = dsaProgress?.[diff] || { solved: 0, total: 0 };
+                        const percent = prog.total > 0 ? (prog.solved / prog.total) * 100 : 0;
+                        return (
+                            <div className="progress-item" key={diff}>
+                                <div className="progress-label">
+                                    <span style={{ textTransform: 'capitalize' }}>{diff}</span> 
+                                    <span>{prog.solved} / {prog.total}</span>
+                                </div>
+                                <div className="progress-bar">
+                                    <div className={`progress-fill ${diff} animate-fill`} style={{ width: `${percent}%` }}></div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -147,35 +198,45 @@ function Dashboard() {
             <div className="dashboard-content-grid top-gap">
                 <div className="content-card glow-hover">
                     <h2><FaCode /> Language Usage</h2>
-                    <p>Distribution of programming languages used in your recent submissions.</p>
+                    <p>Distribution of programming languages used in your accepted submissions.</p>
                     
                     <div className="progress-item">
                         <div className="progress-label">
                             <span>JavaScript</span>
-                            <span>45% (120 solved)</span>
+                            <span>{getLangPercentage(jsCount)}% ({jsCount} solved)</span>
                         </div>
                         <div className="progress-bar">
-                            <div className="progress-fill language-js" style={{ width: '45%' }}></div>
+                            <div className="progress-fill language-js" style={{ width: `${getLangPercentage(jsCount)}%` }}></div>
                         </div>
                     </div>
 
                     <div className="progress-item">
                         <div className="progress-label">
                             <span>Python</span>
-                            <span>35% (94 solved)</span>
+                            <span>{getLangPercentage(pythonCount)}% ({pythonCount} solved)</span>
                         </div>
                         <div className="progress-bar">
-                            <div className="progress-fill language-python" style={{ width: '35%' }}></div>
+                            <div className="progress-fill language-python" style={{ width: `${getLangPercentage(pythonCount)}%` }}></div>
                         </div>
                     </div>
 
                     <div className="progress-item">
                         <div className="progress-label">
                             <span>C++</span>
-                            <span>20% (54 solved)</span>
+                            <span>{getLangPercentage(cppCount)}% ({cppCount} solved)</span>
                         </div>
                         <div className="progress-bar">
-                            <div className="progress-fill language-cpp" style={{ width: '20%' }}></div>
+                            <div className="progress-fill language-cpp" style={{ width: `${getLangPercentage(cppCount)}%` }}></div>
+                        </div>
+                    </div>
+                    
+                    <div className="progress-item">
+                        <div className="progress-label">
+                            <span>Java</span>
+                            <span>{getLangPercentage(javaCount)}% ({javaCount} solved)</span>
+                        </div>
+                        <div className="progress-bar">
+                            <div className="progress-fill language-java" style={{ width: `${getLangPercentage(javaCount)}%`, backgroundColor: '#f89820' }}></div>
                         </div>
                     </div>
                 </div>
@@ -184,8 +245,14 @@ function Dashboard() {
                     <h2>Quick Summary</h2>
                     <p>Keep pushing forward! You are matching weekly goals and closing in on higher global ranks.</p>
                     <div className="stat-info" style={{ marginTop: '20px' }}>
-                        <h3 style={{ color: '#10b981', fontSize: '1.4rem' }}>Active & Consistent</h3>
-                        <p style={{ marginTop: '6px' }}>Your activity level puts you in the top tier of active platform coders this month.</p>
+                        <h3 style={{ color: stats.streak > 0 ? '#10b981' : '#f59e0b', fontSize: '1.4rem' }}>
+                            {stats.streak > 0 ? 'Active & Consistent' : 'Time to warm up!'}
+                        </h3>
+                        <p style={{ marginTop: '6px' }}>
+                            {stats.streak > 0 
+                                ? 'Your activity level puts you in the top tier of active platform coders this month.' 
+                                : 'Solve a problem today to ignite your streak and climb the ranks!'}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -193,7 +260,7 @@ function Dashboard() {
             {/* GitHub Style Submission Heatmap Section */}
             <div className="content-card full-width-card top-gap">
                 <div className="section-header">
-                    <h2><FaCode /> Code Activity Heatmap</h2>
+                    <h2><FaCode /> Code Activity Heatmap (Last 365 Days)</h2>
                     <span className="heatmap-subtitle">Annual contribution overview</span>
                 </div>
                 <div className="heatmap-container">
@@ -201,13 +268,20 @@ function Dashboard() {
                         {monthsData.map((month, mIdx) => (
                             <div className="heatmap-month-column" key={mIdx}>
                                 <div className="heatmap-grid-mini">
-                                    {month.days.map((day, dIdx) => (
-                                        <div 
-                                            key={dIdx} 
-                                            className={`heatmap-cell level-${day.count}`}
-                                            title={`${day.count} submissions on ${day.date}`}
-                                        ></div>
-                                    ))}
+                                    {month.days.map((day, dIdx) => {
+                                        let level = 0;
+                                        if (day.count === 1) level = 1;
+                                        else if (day.count === 2) level = 2;
+                                        else if (day.count >= 3 && day.count <= 4) level = 3;
+                                        else if (day.count > 4) level = 4;
+                                        return (
+                                            <div 
+                                                key={dIdx} 
+                                                className={`heatmap-cell level-${level}`}
+                                                title={`${day.count} submissions on ${day.date}`}
+                                            ></div>
+                                        );
+                                    })}
                                 </div>
                                 <span className="heatmap-month-label">{month.name}</span>
                             </div>
@@ -231,33 +305,29 @@ function Dashboard() {
             <div className="content-card full-width-card">
                 <div className="section-header">
                     <h2>Recent Submissions</h2>
-                    <button className="text-btn" onClick={() => navigate('/problems')}>View All</button>
+                    <button className="text-btn" onClick={() => navigate('/problems')}>View All Problems</button>
                 </div>
                 <div className="activity-feed">
-                    <div className="activity-item">
-                        <div className="activity-status success"><FaCheckCircle /></div>
-                        <div className="activity-details">
-                            <h4>Valid Parentheses</h4>
-                            <span>Accepted • JavaScript • 2 hours ago</span>
-                        </div>
-                        <span className="activity-diff easy">Easy</span>
-                    </div>
-                    <div className="activity-item">
-                        <div className="activity-status success"><FaCheckCircle /></div>
-                        <div className="activity-details">
-                            <h4>Longest Substring Without Repeating Characters</h4>
-                            <span>Accepted • JavaScript • Yesterday</span>
-                        </div>
-                        <span className="activity-diff medium">Medium</span>
-                    </div>
-                    <div className="activity-item">
-                        <div className="activity-status success"><FaCheckCircle /></div>
-                        <div className="activity-details">
-                            <h4>Merge Two Sorted Lists</h4>
-                            <span>Accepted • JavaScript • 3 days ago</span>
-                        </div>
-                        <span className="activity-diff easy">Easy</span>
-                    </div>
+                    {recentSubmissions && recentSubmissions.length > 0 ? (
+                        recentSubmissions.map((sub) => (
+                            <div className="activity-item" key={sub.id}>
+                                <div className={`activity-status ${sub.status === 'ACCEPTED' ? 'success' : 'failed'}`}>
+                                    {sub.status === 'ACCEPTED' ? <FaCheckCircle /> : <FaLightbulb />}
+                                </div>
+                                <div className="activity-details">
+                                    <h4>{sub.title}</h4>
+                                    <span>
+                                        {sub.status === 'ACCEPTED' ? 'Accepted' : 'Failed'} • {sub.language.charAt(0).toUpperCase() + sub.language.slice(1)} • {new Date(sub.submittedAt).toLocaleDateString()}
+                                    </span>
+                                </div>
+                                <span className={`activity-diff ${sub.difficulty?.toLowerCase() || 'easy'}`}>
+                                    {sub.difficulty || 'Easy'}
+                                </span>
+                            </div>
+                        ))
+                    ) : (
+                        <div style={{ color: 'var(--text-secondary)', padding: '20px 0' }}>No recent submissions found. Go solve some problems!</div>
+                    )}
                 </div>
             </div>
         </div>

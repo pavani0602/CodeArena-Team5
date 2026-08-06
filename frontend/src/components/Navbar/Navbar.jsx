@@ -69,6 +69,7 @@ function Navbar() {
                         <NavLink to="/admin">Problem Workspace</NavLink>
                         <NavLink to="/admin/analytics">Engine Status</NavLink>
                         <NavLink to="/admin/users">Manage Users</NavLink>
+                        <NavLink to="/admin/submissions">Submissions</NavLink>
                     </>
                 ) : (
                     /* 💻 STANDARD USER / PUBLIC NAVIGATION LINKS */

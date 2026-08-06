@@ -29,14 +29,15 @@ public class ProblemService {
     }
 
     public Problem createProblem(ProblemRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof User user)) {
-            throw new RuntimeException("Access Denied: You must be logged in as a Host Admin (`ADMIN`) to create problems.");
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You must be logged in as a Host Admin (`ADMIN`) to create problems.");
         }
 
-        User dbUser = userRepository.findByUsername(user.getUsername()).orElse(user);
-        if (dbUser.getRole() != UserRole.ADMIN) {
-            throw new RuntimeException("Access Denied: Solvers cannot create problems. Only Host Admins can create problems.");
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: Solvers cannot create problems. Only Host Admins can create problems.");
         }
 
         Problem problem = new Problem();
@@ -67,14 +68,15 @@ public class ProblemService {
     }
 
     public Problem updateProblem(Long id, ProblemRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof User user)) {
-            throw new RuntimeException("Access Denied: You must be logged in as a Host Admin (`ADMIN`) to update problems.");
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: You must be logged in as a Host Admin (`ADMIN`) to update problems.");
         }
 
-        User dbUser = userRepository.findByUsername(user.getUsername()).orElse(user);
-        if (dbUser.getRole() != UserRole.ADMIN) {
-            throw new RuntimeException("Access Denied: Solvers cannot update problems. Only Host Admins can update problems.");
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied: Solvers cannot update problems. Only Host Admins can update problems.");
         }
 
         Problem problem = problemRepository.findById(id)
@@ -85,6 +87,19 @@ public class ProblemService {
         problem.setDifficulty(request.getDifficulty());
         problem.setTags(request.getTags());
         problem.setEditorialMd(request.getEditorialMd());
+
+        if (request.getFunctionName() != null && !request.getFunctionName().isBlank()) {
+            problem.setFunctionName(request.getFunctionName());
+        }
+        if (request.getParameterNames() != null && !request.getParameterNames().isBlank()) {
+            problem.setParameterNames(request.getParameterNames());
+        }
+        if (request.getParameterTypes() != null && !request.getParameterTypes().isBlank()) {
+            problem.setParameterTypes(request.getParameterTypes());
+        }
+        if (request.getReturnType() != null && !request.getReturnType().isBlank()) {
+            problem.setReturnType(request.getReturnType());
+        }
 
         // Delete old hints directly in the DB to avoid Hibernate flush order issues
         problemHintRepository.deleteByProblemId(problem.getId());
@@ -109,5 +124,13 @@ public class ProblemService {
     public Problem getProblemById(Long id) {
         return problemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Problem not found"));
+    }
+
+    public void deleteProblem(Long id) {
+        problemRepository.deleteById(id);
+    }
+
+    public java.util.Optional<Problem> getProblemByTitle(String title) {
+        return problemRepository.findByTitleIgnoreCase(title);
     }
 }

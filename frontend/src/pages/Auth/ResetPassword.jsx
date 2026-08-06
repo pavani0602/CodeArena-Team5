@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaLock, FaCheckCircle } from 'react-icons/fa';
-import '../Admin/AuthStyles.css';
+import '../Admin/Authstyles.css';
 
 function ResetPassword() {
     const [searchParams] = useSearchParams();

@@ -3,8 +3,6 @@ package com.codearena.codearena_backend.controller;
 import com.codearena.codearena_backend.dto.ProblemRequest;
 import com.codearena.codearena_backend.entity.Problem;
 import com.codearena.codearena_backend.enumtype.DifficultyLevel;
-import com.codearena.codearena_backend.judge.ProblemMetadata;
-import com.codearena.codearena_backend.judge.ProblemMetadataService;
 import com.codearena.codearena_backend.service.ProblemService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -38,9 +36,6 @@ public class ProblemControllerTest {
 
     @MockBean
     private ProblemService problemService;
-
-    @MockBean
-    private ProblemMetadataService problemMetadataService;
 
     // --- 1. POST /api/problems ---
 
@@ -100,12 +95,14 @@ public class ProblemControllerTest {
     @Test
     @DisplayName("GET /api/problems/metadata/{title} - Found title returns 200 OK with metadata")
     void getMetadata_FoundTitle_ReturnsOkWithMetadata() throws Exception {
-        ProblemMetadata metadata = new ProblemMetadata(
-                "Two Sum", "FUNCTION", "Solution", "twoSum",
-                List.of("nums", "target"), List.of("int[]", "int"), "int[]"
-        );
+        Problem problem = new Problem();
+        problem.setTitle("Two Sum");
+        problem.setFunctionName("twoSum");
+        problem.setParameterNames("nums,target");
+        problem.setParameterTypes("int[],int");
+        problem.setReturnType("int[]");
 
-        when(problemMetadataService.findByTitle("Two Sum")).thenReturn(Optional.of(metadata));
+        when(problemService.getProblemByTitle("Two Sum")).thenReturn(Optional.of(problem));
 
         mockMvc.perform(get("/api/problems/metadata/Two Sum"))
                 .andExpect(status().isOk())
@@ -116,7 +113,7 @@ public class ProblemControllerTest {
     @Test
     @DisplayName("GET /api/problems/metadata/{title} - Unknown title returns 404 Not Found")
     void getMetadata_UnknownTitle_ReturnsNotFound() throws Exception {
-        when(problemMetadataService.findByTitle("Unknown Problem")).thenReturn(Optional.empty());
+        when(problemService.getProblemByTitle("Unknown Problem")).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/problems/metadata/Unknown Problem"))
                 .andExpect(status().isNotFound());

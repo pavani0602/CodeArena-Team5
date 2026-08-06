@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google'; 
 import { registerUser } from "/src/services/authService.js";
-import '../../pages/Admin/AuthStyles.css';
+import "../../pages/Admin/Authstyles.css";
 
 function Register() {
     const navigate = useNavigate();

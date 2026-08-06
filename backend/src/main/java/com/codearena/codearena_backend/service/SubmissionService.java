@@ -6,6 +6,7 @@ import com.codearena.codearena_backend.entity.Submission;
 import com.codearena.codearena_backend.entity.SubmissionResult;
 import com.codearena.codearena_backend.entity.TestCase;
 import com.codearena.codearena_backend.entity.User;
+import com.codearena.codearena_backend.enumtype.DifficultyLevel;
 import com.codearena.codearena_backend.enumtype.SubmissionStatus;
 import com.codearena.codearena_backend.judge.JudgeResult;
 import com.codearena.codearena_backend.judge.JudgeService;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -210,6 +212,121 @@ public class SubmissionService {
                 .map(this::toRecentSubmission)
                 .toList());
         return summary;
+    }
+
+    public Map<String, Object> getDashboardData(String username) {
+        List<Submission> userSubmissions = submissionRepository.findByUserUsername(username);
+        
+        Set<Long> solvedProblemIds = new HashSet<>();
+        Set<LocalDate> solvedDates = new HashSet<>();
+        Map<String, Set<Long>> solvedByDifficulty = new HashMap<>();
+        solvedByDifficulty.put("Easy", new HashSet<>());
+        solvedByDifficulty.put("Medium", new HashSet<>());
+        solvedByDifficulty.put("Hard", new HashSet<>());
+        
+        Map<String, Integer> languageUsage = new HashMap<>();
+        Map<String, Integer> heatmapMap = new HashMap<>();
+
+        for (Submission sub : userSubmissions) {
+            if (sub.getSubmittedAt() != null) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy");
+                String formattedDate = sub.getSubmittedAt().toLocalDate().format(formatter);
+                heatmapMap.put(formattedDate, heatmapMap.getOrDefault(formattedDate, 0) + 1);
+            }
+            
+            if (sub.getStatus() == SubmissionStatus.ACCEPTED) {
+                Long pId = sub.getProblem().getId();
+                String diff = sub.getProblem().getDifficulty() != null ? sub.getProblem().getDifficulty().name() : "EASY";
+                if (diff == null) diff = "Easy";
+                
+                if (!solvedProblemIds.contains(pId)) {
+                    solvedProblemIds.add(pId);
+                    solvedDates.add(sub.getSubmittedAt().toLocalDate());
+                }
+                
+                String lang = sub.getLanguage();
+                if (lang != null) {
+                    lang = lang.toLowerCase();
+                    if (lang.equals("js")) lang = "javascript";
+                    if (lang.equals("c++")) lang = "cpp";
+                    languageUsage.put(lang, languageUsage.getOrDefault(lang, 0) + 1);
+                }
+                
+                String normalizedDiff = diff.substring(0, 1).toUpperCase() + diff.substring(1).toLowerCase();
+                if (solvedByDifficulty.containsKey(normalizedDiff)) {
+                    solvedByDifficulty.get(normalizedDiff).add(pId);
+                }
+            }
+        }
+        
+        List<Map<String, Object>> recentSubmissions = userSubmissions.stream()
+                .sorted(Comparator.comparing(Submission::getSubmittedAt, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .limit(3)
+                .map(s -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", s.getId());
+                    map.put("title", s.getProblem().getTitle());
+                    map.put("difficulty", s.getProblem().getDifficulty() != null ? s.getProblem().getDifficulty().name() : "EASY");
+                    map.put("language", s.getLanguage());
+                    map.put("status", s.getStatus().toString());
+                    map.put("submittedAt", s.getSubmittedAt());
+                    return map;
+                })
+                .toList();
+
+        long totalUsers = userRepository.count();
+        long mySolved = solvedProblemIds.size();
+        
+        List<Submission> allSubmissions = submissionRepository.findAll();
+        Map<Long, Set<Long>> userSolvedMap = new HashMap<>();
+        for(Submission s : allSubmissions) {
+            if(s.getStatus() == SubmissionStatus.ACCEPTED) {
+                userSolvedMap.computeIfAbsent(s.getUser().getId(), k -> new HashSet<>()).add(s.getProblem().getId());
+            }
+        }
+        
+        long usersWithMoreSolved = userSolvedMap.values().stream().filter(set -> set.size() > mySolved).count();
+        long rank = usersWithMoreSolved + 1;
+        long totalRankedUsers = Math.max(totalUsers, userSolvedMap.size());
+        int topPercent = (int) Math.ceil((double) rank / totalRankedUsers * 100);
+        if (topPercent == 0) topPercent = 1;
+        
+        Map<String, Map<String, Long>> dsaProgress = new HashMap<>();
+        String[] difficulties = {"Easy", "Medium", "Hard"};
+        for(String d : difficulties) {
+            long total = problemRepository.countByDifficulty(DifficultyLevel.valueOf(d.toUpperCase()));
+            long solved = solvedByDifficulty.get(d).size();
+            Map<String, Long> pstats = new HashMap<>();
+            pstats.put("total", total);
+            pstats.put("solved", solved);
+            dsaProgress.put(d.toLowerCase(), pstats);
+        }
+
+        List<Map<String, Object>> heatmapData = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy");
+        for(int i = 365; i >= 0; i--) {
+            LocalDate d = today.minusDays(i);
+            String fDate = d.format(formatter);
+            Map<String, Object> day = new HashMap<>();
+            day.put("date", fDate);
+            day.put("count", heatmapMap.getOrDefault(fDate, 0));
+            heatmapData.add(day);
+        }
+
+        Map<String, Object> dashboard = new HashMap<>();
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("problemsSolved", mySolved);
+        stats.put("streak", calculateCurrentStreak(solvedDates));
+        stats.put("topPercent", topPercent);
+        
+        dashboard.put("stats", stats);
+        dashboard.put("dsaProgress", dsaProgress);
+        dashboard.put("languageUsage", languageUsage);
+        dashboard.put("heatmap", heatmapData);
+        dashboard.put("recentSubmissions", recentSubmissions);
+        
+        return dashboard;
     }
 
     private Map<String, Object> toRecentSubmission(Submission submission) {

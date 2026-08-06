@@ -82,7 +82,7 @@ function CodeEditor({ selectedLang, setSelectedLang, value, onChange, compileErr
             const model = editorRef.current.getModel();
             if (model) monacoRef.current.editor.setModelMarkers(model, "compiler", []);
         }
-    }, [selectedLang]);
+    }, [selectedLang, boilerplateMap]);
 
     // Clean up timer on unmount
     useEffect(() => {

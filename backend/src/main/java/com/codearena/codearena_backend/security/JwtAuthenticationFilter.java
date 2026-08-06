@@ -63,6 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
+            System.err.println("JWT Authentication failed: " + e.getMessage());
+            e.printStackTrace();
             SecurityContextHolder.clearContext();
         }
 

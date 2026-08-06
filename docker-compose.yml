@@ -17,6 +17,45 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - codearena-network
+
+  backend:
+    build: ./backend
+    container_name: codearena_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/codearena_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=Pavi@#2906
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - EXECUTION_VOLUME_NAME=codearena_execution
+      - EXECUTION_DIR=/execution_volume
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - codearena_execution:/execution_volume
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - codearena-network
+
+  frontend:
+    build: ./frontend
+    container_name: codearena_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - codearena-network
 
 volumes:
   codearena_data:
+  codearena_execution:
+    name: codearena_execution
+
+networks:
+  codearena-network:
+    driver: bridge

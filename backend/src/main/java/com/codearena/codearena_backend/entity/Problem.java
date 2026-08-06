@@ -34,6 +34,18 @@ public class Problem {
     @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProblemHint> hints = new ArrayList<>();
 
+    @Column(name = "function_name")
+    private String functionName = "solve";
+
+    @Column(name = "parameter_names", columnDefinition = "TEXT")
+    private String parameterNames = "input";
+
+    @Column(name = "parameter_types", columnDefinition = "TEXT")
+    private String parameterTypes = "string";
+
+    @Column(name = "return_type")
+    private String returnType = "string";
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -102,7 +114,42 @@ public class Problem {
     public void setHints(List<ProblemHint> hints) {
         this.hints.clear();
         if (hints != null) {
-            this.hints.addAll(hints);
+            hints.forEach(hint -> {
+                hint.setProblem(this);
+                this.hints.add(hint);
+            });
         }
     }
-}
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    public String getParameterNames() {
+        return parameterNames;
+    }
+
+    public void setParameterNames(String parameterNames) {
+        this.parameterNames = parameterNames;
+    }
+
+    public String getParameterTypes() {
+        return parameterTypes;
+    }
+
+    public void setParameterTypes(String parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
+    }
+}

@@ -7,20 +7,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class JudgeService {
 
-    private final ProblemMetadataService problemMetadataService;
     private final TestCaseDataParser testCaseDataParser;
     private final DriverGenerator driverGenerator;
     private final ExecutionService executionService;
     private final OutputComparator outputComparator;
 
     public JudgeService(
-            ProblemMetadataService problemMetadataService,
             TestCaseDataParser testCaseDataParser,
             DriverGenerator driverGenerator,
             ExecutionService executionService,
             OutputComparator outputComparator
     ) {
-        this.problemMetadataService = problemMetadataService;
         this.testCaseDataParser = testCaseDataParser;
         this.driverGenerator = driverGenerator;
         this.executionService = executionService;
@@ -28,8 +25,15 @@ public class JudgeService {
     }
 
     public JudgeResult judge(Problem problem, TestCase testCase, String language, String userCode) {
-        ProblemMetadata metadata = problemMetadataService.findByTitle(problem.getTitle())
-                .orElseThrow(() -> new IllegalArgumentException("No judge metadata configured for problem: " + problem.getTitle()));
+        ProblemMetadata metadata = new ProblemMetadata(
+                problem.getTitle(),
+                "FUNCTION",
+                "Solution",
+                problem.getFunctionName(),
+                java.util.Arrays.asList(problem.getParameterNames().split(",")),
+                java.util.Arrays.asList(problem.getParameterTypes().split(",")),
+                problem.getReturnType()
+        );
 
         StructuredTestCase structuredTestCase = testCaseDataParser.parse(
                 metadata,

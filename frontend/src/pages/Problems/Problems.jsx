@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Problems.css';
-import FilterBar from '../../components/problems/FilterBar';
+import FilterBar from '../../components/Problems/FilterBar';
 import SearchBar from '../../components/Problems/SearchBar';
 import ProblemTable from '../../components/Problems/ProblemTable';
 

@@ -11,6 +11,10 @@ public class ProblemRequest {
     private String tags;
     private String editorialMd;
     private List<String> hints;
+    private String functionName;
+    private String parameterNames;
+    private String parameterTypes;
+    private String returnType;
 
     public String getTitle() {
         return title;
@@ -58,5 +62,37 @@ public class ProblemRequest {
 
     public void setHints(List<String> hints) {
         this.hints = hints;
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    public String getParameterNames() {
+        return parameterNames;
+    }
+
+    public void setParameterNames(String parameterNames) {
+        this.parameterNames = parameterNames;
+    }
+
+    public String getParameterTypes() {
+        return parameterTypes;
+    }
+
+    public void setParameterTypes(String parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
     }
 }

@@ -5,8 +5,9 @@ import { fetchApi } from '../../services/api';
 
 function Admin() {
     const [existingProblems, setExistingProblems] = useState([]);
-    const [activeTab, setActiveTab] = useState('create'); // 'create' or 'manage'
+    const [activeTab, setActiveTab] = useState('create'); // 'create', 'manage', or 'activity'
     const [editingProblemId, setEditingProblemId] = useState(null);
+    const [allSubmissions, setAllSubmissions] = useState([]);
 
     // Form States
     const [problemData, setProblemData] = useState({
@@ -17,6 +18,10 @@ function Admin() {
         exampleInput: '',
         exampleOutput: '',
         explanation: '',
+        functionName: 'solve',
+        parameterNames: 'input',
+        parameterTypes: 'string',
+        returnType: 'string'
     });
 
     const [hints, setHints] = useState(['']);
@@ -72,7 +77,11 @@ function Admin() {
             editorialMd: prob.editorialMd || '',
             exampleInput: '',
             exampleOutput: '',
-            explanation: ''
+            explanation: '',
+            functionName: prob.functionName || 'solve',
+            parameterNames: prob.parameterNames || 'input',
+            parameterTypes: prob.parameterTypes || 'string',
+            returnType: prob.returnType || 'string'
         });
         
         if (prob.hints && prob.hints.length > 0) {
@@ -103,7 +112,7 @@ function Admin() {
 
     const handleCancelEdit = () => {
         setEditingProblemId(null);
-        setProblemData({ title: '', difficulty: 'Easy', tags: '', description: '', editorialMd: '', exampleInput: '', exampleOutput: '', explanation: '' });
+        setProblemData({ title: '', difficulty: 'Easy', tags: '', description: '', editorialMd: '', exampleInput: '', exampleOutput: '', explanation: '', functionName: 'solve', parameterNames: 'input', parameterTypes: 'string', returnType: 'string' });
         setTestCases([{ id: Date.now(), input: '', output: '', isHidden: false }]);
         setHints(['']);
     };
@@ -129,7 +138,11 @@ function Admin() {
             tags: problemData.tags,
             description: finalDesc,
             editorialMd: problemData.editorialMd,
-            hints: hints.filter(h => h.trim() !== '')
+            hints: hints.filter(h => h.trim() !== ''),
+            functionName: problemData.functionName,
+            parameterNames: problemData.parameterNames,
+            parameterTypes: problemData.parameterTypes,
+            returnType: problemData.returnType
         };
 
         try {
@@ -191,7 +204,22 @@ function Admin() {
         } catch(e) { console.error(e); }
     };
 
-    useEffect(() => { fetchProblems(); }, []);
+    const fetchSubmissions = async () => {
+        try {
+            const res = await fetchApi('/api/admin/submissions');
+            if (res.ok) {
+                const data = await res.json();
+                setAllSubmissions(data);
+            }
+        } catch(e) { console.error(e); }
+    };
+
+    useEffect(() => { 
+        fetchProblems(); 
+        if (activeTab === 'activity') {
+            fetchSubmissions();
+        }
+    }, [activeTab]);
 
     return (
         <div className="admin-dashboard-container animate-fade-in">
@@ -213,10 +241,16 @@ function Admin() {
                     >
                         <FaList size={12} /> Manage Existing Problems ({existingProblems.length})
                     </button>
+                    <button 
+                        className={`admin-tab-btn ${activeTab === 'activity' ? 'active' : ''}`}
+                        onClick={() => { setActiveTab('activity'); handleCancelEdit(); fetchSubmissions(); }}
+                    >
+                        <FaCode size={12} /> View User Submissions
+                    </button>
                 </div>
             </div>
 
-            {activeTab === 'create' ? (
+            {activeTab === 'create' && (
                 <form onSubmit={handleSubmit} className="admin-problem-form">
                     {editingProblemId && (
                         <div className="editing-banner">
@@ -235,6 +269,28 @@ function Admin() {
                             <div className="form-group">
                                 <label>Problem Title</label>
                                 <input type="text" name="title" required value={problemData.title} onChange={handleFormChange} placeholder="e.g., Two Sum" />
+                            </div>
+
+                            <div className="form-row-split">
+                                <div className="form-group">
+                                    <label>Function Name</label>
+                                    <input type="text" name="functionName" required value={problemData.functionName} onChange={handleFormChange} placeholder="twoSum" />
+                                </div>
+                                <div className="form-group">
+                                    <label>Return Type</label>
+                                    <input type="text" name="returnType" required value={problemData.returnType} onChange={handleFormChange} placeholder="int[]" />
+                                </div>
+                            </div>
+                            
+                            <div className="form-row-split">
+                                <div className="form-group">
+                                    <label>Param Names <span className="label-tip">(Comma-separated)</span></label>
+                                    <input type="text" name="parameterNames" required value={problemData.parameterNames} onChange={handleFormChange} placeholder="nums,target" />
+                                </div>
+                                <div className="form-group">
+                                    <label>Param Types <span className="label-tip">(Comma-separated)</span></label>
+                                    <input type="text" name="parameterTypes" required value={problemData.parameterTypes} onChange={handleFormChange} placeholder="int[],int" />
+                                </div>
                             </div>
 
                             <div className="form-row-split">
@@ -354,8 +410,9 @@ function Admin() {
                         </div>
                     </div>
                 </form>
-            ) : (
-                /* --- MANAGE EXISTING PROBLEMS VIEW --- */
+            )}
+
+            {activeTab === 'manage' && (
                 <div className="admin-panel-card animate-fade-in">
                     <div className="card-header-accent">
                         <FaList /> <span>Repository Problem Index</span>
@@ -386,6 +443,46 @@ function Admin() {
                                         </td>
                                     </tr>
                                 ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'activity' && (
+                /* --- VIEW USER SUBMISSIONS VIEW --- */
+                <div className="admin-panel-card animate-fade-in">
+                    <div className="card-header-accent">
+                        <FaCode /> <span>Global User Activity & Submissions</span>
+                    </div>
+                    <div className="admin-table-wrapper">
+                        <table className="admin-problems-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Problem Solved</th>
+                                    <th>Language</th>
+                                    <th>Status</th>
+                                    <th style={{ textAlign: 'right' }}>Submitted At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {allSubmissions.map((sub) => (
+                                    <tr key={sub.submissionId} className="admin-table-row">
+                                        <td className="prob-title-cell">{sub.username}</td>
+                                        <td>{sub.email}</td>
+                                        <td className="prob-title-cell">{sub.problemTitle}</td>
+                                        <td><span className="badge">{sub.language}</span></td>
+                                        <td><span className={`badge ${sub.status === 'ACCEPTED' ? 'easy' : 'hard'}`}>{sub.status}</span></td>
+                                        <td style={{ textAlign: 'right' }}>{new Date(sub.submittedAt).toLocaleString()}</td>
+                                    </tr>
+                                ))}
+                                {allSubmissions.length === 0 && (
+                                    <tr>
+                                        <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>No submissions found.</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

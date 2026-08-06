@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaUser, FaUserShield } from 'react-icons/fa';
 import { GoogleLogin } from '@react-oauth/google';
-import '../../pages/Admin/AuthStyles.css';
+import '../../pages/Admin/Authstyles.css';
 import './Login.css';
 
 function Login() {

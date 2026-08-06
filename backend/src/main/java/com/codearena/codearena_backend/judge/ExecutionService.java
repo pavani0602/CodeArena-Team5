@@ -21,6 +21,18 @@ public class ExecutionService {
 
     private final boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
+    private Path getBaseExecutionDir() throws IOException {
+        String execDir = System.getenv("EXECUTION_DIR");
+        if (execDir != null && !execDir.isEmpty()) {
+            Path path = Path.of(execDir);
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+            return path;
+        }
+        return Path.of(System.getProperty("java.io.tmpdir"));
+    }
+
     private ProcessBuilder createDockerBuilder(Path tempDir, String memory, String image, String... commands) {
         List<String> commandList = new ArrayList<>();
         if (isWindows) {
@@ -31,10 +43,16 @@ public class ExecutionService {
         commandList.add("run");
         commandList.add("--rm");
         commandList.add("-v");
-        // On Windows with WSL/Docker Desktop, absolute paths are usually supported in volume binds.
-        commandList.add(tempDir.toAbsolutePath().toString() + ":/app");
-        commandList.add("-w");
-        commandList.add("/app");
+        String volumeName = System.getenv("EXECUTION_VOLUME_NAME");
+        if (volumeName != null && !volumeName.isEmpty()) {
+            commandList.add(volumeName + ":/execution_volume");
+            commandList.add("-w");
+            commandList.add(tempDir.toAbsolutePath().toString());
+        } else {
+            commandList.add(tempDir.toAbsolutePath().toString() + ":/app");
+            commandList.add("-w");
+            commandList.add("/app");
+        }
         commandList.add("--network");
         commandList.add("none");
         commandList.add("--memory");
@@ -70,7 +88,7 @@ System.out.println("Language received: " + language);
         Path tempDir = null;
         String containerName = "codearena-python-" + UUID.randomUUID().toString();
         try {
-            tempDir = Files.createTempDirectory("codearena-judge-python-");
+            tempDir = Files.createTempDirectory(getBaseExecutionDir(), "codearena-judge-python-");
             Path sourceFile = tempDir.resolve("main.py");
             Files.writeString(sourceFile, sourceCode);
 
@@ -88,7 +106,7 @@ System.out.println("Language received: " + language);
         Path tempDir = null;
         String containerName = "codearena-java-" + UUID.randomUUID().toString();
         try {
-            tempDir = Files.createTempDirectory("codearena-judge-java-");
+            tempDir = Files.createTempDirectory(getBaseExecutionDir(), "codearena-judge-java-");
             Path sourceFile = tempDir.resolve("Main.java");
             Files.writeString(sourceFile, sourceCode);
             ProcessBuilder compileBuilder = createDockerBuilder(tempDir, "512m", "eclipse-temurin:17-jdk", "javac", "Main.java");
@@ -116,7 +134,7 @@ System.out.println("Language received: " + language);
         Path tempDir = null;
         String containerName = "codearena-cpp-" + UUID.randomUUID().toString();
         try {
-            tempDir = Files.createTempDirectory("codearena-judge-cpp-");
+            tempDir = Files.createTempDirectory(getBaseExecutionDir(), "codearena-judge-cpp-");
             Path sourceFile = tempDir.resolve("main.cpp");
             Files.writeString(sourceFile, sourceCode);
 
@@ -145,7 +163,7 @@ System.out.println("Language received: " + language);
     Path tempDir = null;
 
     try {
-        tempDir = Files.createTempDirectory("codearena-judge-js-");
+        tempDir = Files.createTempDirectory(getBaseExecutionDir(), "codearena-judge-js-");
 
         Path sourceFile = tempDir.resolve("main.js");
 
