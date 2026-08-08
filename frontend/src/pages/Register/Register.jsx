@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google'; 
 import { registerUser } from "/src/services/authService.js";
 import '../../pages/Admin/AuthStyles.css';
+import './Register.css';
 
 function Register() {
     const navigate = useNavigate();
@@ -84,6 +85,20 @@ function Register() {
 
     return (
         <div className="auth-page-container">
+            {/* =================================
+                LEFT SIDE - AVATAR & SPEECH BUBBLE
+            ================================= */}
+            <div className="avatar-section">
+                <img
+                    src="/regavatar.png"
+                    alt="CodeArena avatar"
+                    className="standing-avatar"
+                />
+            </div>
+
+            {/* =================================
+                RIGHT SIDE - REGISTER CARD
+            ================================= */}
             <div className="auth-card">
                 <div className="auth-header">
                     <span className="auth-logo">CodeArena</span>
@@ -156,12 +171,10 @@ function Register() {
                     <GoogleLogin
                         onSuccess={handleGoogleSuccess}
                         onError={handleGoogleFailure}
-                        theme="outline"
+                        theme="dark"
                         shape="pill"
-                        type="standard"
-                        size="large"
-                        width="280"
-                        useOneTap={false}
+                        text="signup_with"
+                        width="100%"
                     />
                 </div>
 

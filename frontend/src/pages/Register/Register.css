@@ -1,0 +1,81 @@
+/* ================================
+   AUTH LAYOUT & CONTAINERS
+================================ */
+
+.auth-page-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    background-color: #0d1117;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* ================================
+   AVATAR & SPEECH BUBBLE SECTION
+================================ */
+
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin-right: 50px;
+}
+
+.standing-avatar {
+    width: 500px;
+    max-width: 500px;
+    height: 5000px;
+    /* max-height:100%; */
+    display: block;
+}
+
+.avatar-speech {
+    background-color: #ffffff;
+    color: #0d1117;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    margin-bottom: 15px;
+    text-align: center;
+    animation: floatBubble 3s ease-in-out infinite;
+}
+
+/* Speech bubble tail pointer */
+.avatar-speech::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px 8px 0;
+    border-style: solid;
+    border-color: #ffffff transparent;
+    display: block;
+    width: 0;
+}
+
+@keyframes floatBubble {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* ================================
+   RESPONSIVE DESIGN (Mobile view)
+================================ */
+
+@media (max-width: 900px) {
+    .avatar-section {
+        display: none; /* Hide avatar on smaller screens to prioritize form */
+    }
+}
