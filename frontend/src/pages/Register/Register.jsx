@@ -88,6 +88,7 @@ function Register() {
     return (
         <div className="auth-page-container">
             <div className="avatar-section">
+                <div className="avatar-speech">Welcome 👋</div>
                 <img
                     src="/regavatar.png"
                     alt="CodeArena avatar"

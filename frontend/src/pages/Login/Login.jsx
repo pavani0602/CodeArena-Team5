@@ -122,6 +122,7 @@ function Login() {
     return (
         <div className="auth-page-container">
             <div className="avatar-section">
+                <div className="avatar-speech">Welcome back! 👋</div>
                 <img
                     src="/avatar.png"
                     alt="CodeArena avatar"
@@ -207,10 +208,13 @@ function Login() {
                             <GoogleLogin
                                 onSuccess={handleGoogleSuccess}
                                 onError={handleGoogleFailure}
-                                theme="dark"
+                                theme="outline"
                                 shape="pill"
+                                type="standard"
+                                size="large"
                                 text="signin_with"
-                                width="100%"
+                                width="280"
+                                useOneTap={false}
                             />
                         </div>
 
