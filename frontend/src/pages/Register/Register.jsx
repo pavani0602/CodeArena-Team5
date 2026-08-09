@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google'; 
 import { registerUser } from "/src/services/authService.js";
 import "../../pages/Admin/Authstyles.css";
+import './Register.css';
 import { useTranslation } from 'react-i18next';
 
 function Register() {
