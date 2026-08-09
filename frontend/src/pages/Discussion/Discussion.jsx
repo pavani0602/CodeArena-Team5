@@ -1,77 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaHeart, FaComment, FaShare, FaSearch, FaPlus, FaTag } from 'react-icons/fa';
 import './Discussion.css';
 
-const initialPosts = [
-  {
-    id: 1,
-    author: 'DevQueen',
-    avatar: 'DQ',
-    time: '2 hours ago',
-    title: 'How to master the Sliding Window pattern for coding interviews?',
-    content: 'I have been struggling a bit with identifying when to use a fixed vs. dynamic sliding window. Any tips or problem recommendations on LeetCode to practice?',
-    tags: ['DSA', 'Interviews', 'SlidingWindow'],
-    likes: 24,
-    comments: 8,
-    liked: false
-  },
-  {
-    id: 2,
-    author: 'SyntaxError',
-    avatar: 'SE',
-    time: '5 hours ago',
-    title: 'PromptWars Hyderabad - Anyone participating next month?',
-    content: 'Just registered for the upcoming vibe-coding hackathon in Hyderabad! Let me know if anyone wants to team up or discuss ideas.',
-    tags: ['Hackathon', 'AI', 'VibeCoding'],
-    likes: 42,
-    comments: 15,
-    liked: true
-  }
-];
+import { fetchApi } from '../../services/api';
 
 export default function Discussion() {
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showNewPostModal, setShowNewPostModal] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newTags, setNewTags] = useState('');
 
-  const handleLike = (id) => {
-    setPosts(posts.map(post => {
-      if (post.id === id) {
-        return {
-          ...post,
-          likes: post.liked ? post.likes - 1 : post.likes + 1,
-          liked: !post.liked
-        };
+  const fetchPosts = async () => {
+    try {
+      const response = await fetchApi('/api/discussions');
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data);
       }
-      return post;
-    }));
+    } catch (err) {
+      console.error("Failed to fetch discussions", err);
+    }
   };
 
-  const handleCreatePost = (e) => {
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleLike = async (id) => {
+    try {
+      const res = await fetchApi(`/api/discussions/${id}/like`, { method: 'POST' });
+      if (res.ok) {
+        setPosts(posts.map(post => {
+          if (post.id === id) {
+            return {
+              ...post,
+              likes: post.liked ? post.likes - 1 : post.likes + 1,
+              liked: !post.liked
+            };
+          }
+          return post;
+        }));
+      }
+    } catch (err) {
+      console.error("Like failed", err);
+    }
+  };
+
+  const handleCreatePost = async (e) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
 
-    const newPostObj = {
-      id: posts.length + 1,
-      author: 'Coder',
-      avatar: 'C',
-      time: 'Just now',
-      title: newTitle,
-      content: newContent,
-      tags: newTags ? newTags.split(',').map(t => t.trim()) : ['General'],
-      likes: 0,
-      comments: 0,
-      liked: false
-    };
-
-    setPosts([newPostObj, ...posts]);
-    setNewTitle('');
-    setNewContent('');
-    setNewTags('');
-    setShowNewPostModal(false);
+    const newTagsList = newTags ? newTags.split(',').map(t => t.trim()) : ['General'];
+    
+    try {
+      const res = await fetchApi('/api/discussions', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: newTitle,
+          content: newContent,
+          tags: newTagsList
+        })
+      });
+      if (res.ok) {
+        const newPost = await res.json();
+        setPosts([newPost, ...posts]);
+        setNewTitle('');
+        setNewContent('');
+        setNewTags('');
+        setShowNewPostModal(false);
+      }
+    } catch (err) {
+      console.error("Failed to create post", err);
+    }
   };
 
   const filteredPosts = posts.filter(post => 
