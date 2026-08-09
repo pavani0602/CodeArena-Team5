@@ -28,7 +28,7 @@
 .standing-avatar {
     width: 500px;
     max-width: 500px;
-    height: 5000px;
+    height: auto;
     /* max-height:100%; */
     display: block;
 }
@@ -70,12 +70,4 @@
     }
 }
 
-/* ================================
-   RESPONSIVE DESIGN (Mobile view)
-================================ */
-
-@media (max-width: 900px) {
-    .avatar-section {
-        display: none; /* Hide avatar on smaller screens to prioritize form */
-    }
-}
+/* Removed max-width 900px hide to use global Authstyles responsive rules */
