@@ -22,6 +22,7 @@ body {
     width: 100%;
     min-height: 100vh;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: 55px;
@@ -84,16 +85,7 @@ body {
     animation: speechFloat 4s ease-in-out infinite;
 }
 
-.avatar-speech::after {
-    content: "";
-    position: absolute;
-    bottom: -8px;
-    left: 25px;
-    width: 17px;
-    height: 17px;
-    background: #ffffff;
-    transform: rotate(45deg);
-}
+
 
 @keyframes speechFloat {
     0%, 100% {
