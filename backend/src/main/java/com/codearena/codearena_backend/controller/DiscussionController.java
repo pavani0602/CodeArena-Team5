@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.codearena.codearena_backend.entity.User;
 
 @RestController
 @RequestMapping("/api/discussions")
@@ -24,7 +25,7 @@ public class DiscussionController {
         String username = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
-            username = authentication.getName();
+            username = currentUsername();
         }
         
         return ResponseEntity.ok(discussionService.getAllPosts(username));
@@ -37,7 +38,7 @@ public class DiscussionController {
             return ResponseEntity.status(401).build();
         }
         
-        DiscussionPostDto newPost = discussionService.createPost(authentication.getName(), request);
+        DiscussionPostDto newPost = discussionService.createPost(currentUsername(), request);
         return ResponseEntity.ok(newPost);
     }
 
@@ -48,7 +49,21 @@ public class DiscussionController {
             return ResponseEntity.status(401).build();
         }
         
-        discussionService.toggleLike(authentication.getName(), id);
+        discussionService.toggleLike(currentUsername(), id);
         return ResponseEntity.ok().build();
+    }
+
+    private String currentUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return null;
+        }
+
+        Object principal = auth.getPrincipal();
+        if (principal instanceof User user) {
+            return user.getUsername();
+        }
+
+        return auth.getName();
     }
 }
