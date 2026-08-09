@@ -122,7 +122,6 @@ function Login() {
     return (
         <div className="auth-page-container">
             <div className="avatar-section">
-                <div className="avatar-speech">Welcome back! 👋</div>
                 <img
                     src="/avatar.png"
                     alt="CodeArena avatar"
