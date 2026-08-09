@@ -20,9 +20,9 @@ function Hero() {
                     <Link to="/problems">
                         <button className="primary-butt">{t('home.hero.button')}</button>
                     </Link>
-                    {/* <Link to="/leaderboard">
-                        <button className="secondary-butt">View Leaderboard</button>
-                    </Link> */}
+                    <Link to="/leaderboard">
+                        <button className="secondary-butt">{t('navbar.leaderboard')}</button>
+                    </Link>
                 </div>
             </div>
             <div className="hero-right">
