@@ -50,33 +50,31 @@ function Register() {
     };
 
     const handleGoogleSuccess = async (credentialResponse) => {
-        const token = credentialResponse.credential;
+        const googleToken = credentialResponse.credential;
         
         try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(
-                window.atob(base64)
-                    .split('')
-                    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                    .join('')
-            );
-            
-            const googleUser = JSON.parse(jsonPayload);
-            
-            localStorage.setItem('userRole', 'user');
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify({
-                username: googleUser.name,
-                email: googleUser.email,
-                picture: googleUser.picture
-            }));
+            const response = await fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: googleToken })
+            });
 
-            alert(t('auth.register.welcomeGoogle', { name: googleUser.name }));
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.message || "Google registration failed on backend");
+            }
+
+            const data = await response.json();
+            
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userRole', data.role.toLowerCase());
+            localStorage.setItem('userEmail', data.username);
+
+            alert(t('auth.register.welcomeGoogle', { name: data.username }));
             navigate('/problems');
 
         } catch (error) {
-            console.error("Error parsing Google credentials:", error);
+            console.error("Error connecting with Google:", error);
             setError(t('auth.register.googleProfileError'));
         }
     };

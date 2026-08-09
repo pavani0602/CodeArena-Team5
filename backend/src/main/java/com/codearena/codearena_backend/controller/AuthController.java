@@ -46,4 +46,12 @@ public class AuthController {
         throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Not authenticated");
     }
 
+    @PostMapping("/google")
+    public AuthResponse googleLogin(@RequestBody java.util.Map<String, String> request) {
+        String token = request.get("token");
+        if (token == null || token.isEmpty()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Token is required");
+        }
+        return authService.googleLogin(token);
+    }
 }

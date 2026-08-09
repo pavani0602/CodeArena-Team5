@@ -12,6 +12,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.Collections;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 
 @Service
 public class AuthService {
@@ -117,5 +123,53 @@ public class AuthService {
         user.setResetToken(null);
         user.setResetTokenExpiry(null);
         userRepository.save(user);
+    }
+
+    public AuthResponse googleLogin(String googleToken) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                .setAudience(Collections.singletonList("708164976846-ct35j10iohqoij0sig19cfhcmi0dgkvd.apps.googleusercontent.com"))
+                .build();
+
+            GoogleIdToken idToken = verifier.verify(googleToken);
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                String email = payload.getEmail();
+                String name = (String) payload.get("name");
+
+                java.util.Optional<User> userOpt = userRepository.findByEmail(email);
+                User user;
+                if (userOpt.isEmpty()) {
+                    user = new User();
+                    // Basic fallback for username creation if email prefix is taken
+                    String baseUsername = email.split("@")[0];
+                    String username = baseUsername;
+                    int suffix = 1;
+                    while (userRepository.existsByUsername(username)) {
+                        username = baseUsername + suffix;
+                        suffix++;
+                    }
+                    user.setUsername(username);
+                    user.setEmail(email);
+                    user.setRole(UserRole.USER);
+                    // Generate random secure password for OAuth users since they don't use it
+                    user.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString()));
+                    userRepository.save(user);
+                    
+                    try {
+                        emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
+                    } catch (Exception ignored) { }
+                } else {
+                    user = userOpt.get();
+                }
+
+                String token = jwtService.generateToken(user.getUsername());
+                return new AuthResponse(token, user.getUsername(), user.getRole().name());
+            } else {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Invalid ID token.");
+            }
+        } catch (Exception e) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Google verification failed: " + e.getMessage());
+        }
     }
 }
