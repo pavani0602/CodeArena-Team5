@@ -121,6 +121,13 @@ function Login() {
 
     return (
         <div className="auth-page-container">
+            <div className="avatar-section">
+                <img
+                    src="/avatar.png"
+                    alt="CodeArena avatar"
+                    className="standing-avatar"
+                />
+            </div>
             <div className="auth-card">
                 <div className="auth-header">
                     <span className="auth-logo">CodeArena</span>
