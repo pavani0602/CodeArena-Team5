@@ -17,3 +17,5 @@ Desktop.ini
 backend/data/
 *.mv.db
 
+# Build output
+target/

@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: codearena_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Pavi@#2906
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -28,7 +28,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/codearena_db
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=Pavi@#2906
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
       - EXECUTION_VOLUME_NAME=codearena_execution
       - EXECUTION_DIR=/execution_volume
