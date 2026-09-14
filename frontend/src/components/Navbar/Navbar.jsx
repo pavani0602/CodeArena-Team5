@@ -74,7 +74,10 @@ function Navbar() {
             <div className="left">
                 {/* 💡 Keeps your exact branding structure */}
                 <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <h2>{t('common.brand').split('Code')[0]}<span className="arena">{t('common.brand').split('Arena')[1] || 'Arena'}</span></h2>
+                    <h2>
+                        <span>Code</span><span className="arena">Arena</span>
+                    </h2>
+                    {/* <h2>{t('common.brand').split('Code')[0]}<span className="arena">{t('common.brand').split('Arena')[1] || 'Arena'}</span></h2> */}
                 </Link>
             </div>
             
